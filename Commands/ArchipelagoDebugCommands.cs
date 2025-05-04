@@ -50,7 +50,7 @@ namespace HacknetArchipelago.Commands
         {
             if (!checkIfDebugIsEnabled()) return;
 
-            if (int.TryParse(args[0], out int access))
+            if (int.TryParse(args[1], out int access))
             {
                 FactionAccess factionAccess = (FactionAccess)access;
                 HacknetAPCore._factionAccess = factionAccess;

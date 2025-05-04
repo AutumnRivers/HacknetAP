@@ -22,15 +22,20 @@ namespace HacknetArchipelago.Patches.Missions
          */
         public static void PreventAcceptingOutOfLogicEntropyMissions(ILContext il)
         {
-            return;
-
-            string unavailableReason = "This mission is not in logic.";
             ILCursor c = new(il);
+
+            ILLabel missionUnavailableLabel = il.DefineLabel();
+            var missionUnavailableLocal = il.Body.Variables.Count;
+            il.Body.Variables.Add(new VariableDefinition(il.Import(typeof(string))));
 
             FieldInfo missionsField = typeof(MissionListingServer).GetField("missions", BindingFlags.Public | BindingFlags.Instance);
             FieldInfo targetIndexField = typeof(MissionListingServer).GetField("targetIndex", BindingFlags.Public | BindingFlags.Instance);
             MethodInfo getFromListMethod = typeof(List<ActiveMission>).GetMethod("get_Item",
                 BindingFlags.Instance | BindingFlags.Public, null, [typeof(int)], null);
+
+            c.Goto(0);
+            c.Emit(OpCodes.Ldstr, "This mission is out of logic.");
+            c.Emit(OpCodes.Stloc_S, (byte)missionUnavailableLocal);
 
             c.GotoNext(MoveType.Before,
                 x => x.MatchCallvirt(out var _),
@@ -49,9 +54,10 @@ namespace HacknetArchipelago.Patches.Missions
             c.Emit(OpCodes.Ldfld, targetIndexField); // this.targetIndex
             c.Emit(OpCodes.Callvirt, getFromListMethod); // this.missions[this.targetIndex] (will be ActiveMission)
 
-            c.EmitDelegate<Func<ActiveMission, bool>>((mission) =>
+            c.EmitDelegate<Func<ActiveMission, (bool, string)>>((mission) =>
             {
                 var hasRequiredItemsForMission = ArchipelagoLocations.HasItemsForLocation(mission.email.subject);
+                string unavailableReason = "This mission is out of logic.";
 
                 if(!hasRequiredItemsForMission)
                 {
@@ -65,8 +71,14 @@ namespace HacknetArchipelago.Patches.Missions
                     unavailableReason = "You don't have enough Progressive Faction Access.";
                 }
 
-                return hasRequiredItemsForMission;
+                return (hasRequiredItemsForMission, unavailableReason);
             });
+
+            // Unpack tuple (C#-style)
+            c.Emit(OpCodes.Dup); // duplicate tuple
+            c.Emit(OpCodes.Ldfld, typeof(ValueTuple<bool, string>).GetField("Item2"));
+            c.Emit(OpCodes.Stloc_S, (byte)missionUnavailableLocal); // store the message
+            c.Emit(OpCodes.Ldfld, typeof(ValueTuple<bool, string>).GetField("Item1")); // extract bool
 
             ILLabel skipLabel = il.DefineLabel();
 
@@ -87,19 +99,27 @@ namespace HacknetArchipelago.Patches.Missions
                 x => x.MatchLdloc(out int _),
                 x => x.MatchBrtrue(out var _),
                 x => x.MatchNop());
+            c.Index -= 1;
 
-            skipLabel.Target = c.Previous; // Point brfalse -> mission unavailable screen
+            Console.WriteLine($"{c.Next.OpCode}");
+            c.MarkLabel(skipLabel);
 
-            c.GotoNext(MoveType.After,
+            /*c.GotoNext(MoveType.After,
                 x => x.MatchNewobj(out var _),
                 x => x.MatchLdstr("Mission Unavailable"),
                 x => x.MatchCall(out var _),
-                x => x.MatchLdstr(" : "));
+                x => x.MatchLdstr(" : "),
+                x => x.MatchLdstr("User ID Assigned to Different Faction"));
+            c.GotoPrev(x => x.MatchLdstr("User ID Assigned to Different Faction"));*/
+            c.GotoNext(x => x.MatchLdstr("User ID Assigned to Different Faction"));
+            //c.Next.Operand = "test";
+            c.Next.OpCode = OpCodes.Ldloc_S;
+            c.Next.Operand = (byte)missionUnavailableLocal;
 
-            c.GotoPrev();
-            c.Remove(); // Remove "User ID Assigned to Different Faction"
-            c.GotoNext();
-            c.Emit(OpCodes.Ldstr, unavailableReason);
+            /*c.RemoveRange(3);
+            c.Emit(OpCodes.Nop);
+            c.Emit(OpCodes.Nop);
+            c.Emit(OpCodes.Nop);*/
         }
 
         public const string KAGUYA_TRIALS_SUBJECT = "The Kaguya Trials";
@@ -123,7 +143,6 @@ namespace HacknetArchipelago.Patches.Missions
             ILLabel missionUnavailableLabel = il.DefineLabel();
             var missionUnavailableLocal = il.Body.Variables.Count;
             il.Body.Variables.Add(new VariableDefinition(il.Import(typeof(string))));
-            MethodInfo writeLine = typeof(Console).GetMethod("WriteLine", [typeof(string)]);
 
             c.Goto(0);
             c.Emit(OpCodes.Ldstr, "This mission is out of logic.");
@@ -177,7 +196,6 @@ namespace HacknetArchipelago.Patches.Missions
                     {
                         reason += "Abort your current contract to accept a new one.";
                     }
-                    Console.WriteLine(reason);
                     return (hasRequiredExecs && hasCSECAccess, reason);
                 }
             });

@@ -170,7 +170,7 @@ namespace HacknetArchipelago
             _originalBsodText = osLoadedEvent.Os.crashModule.bsodText;
             ForceCheckItemsCache();
 
-            if(SlotData.EnableFactionAccess)
+            if(SlotData.EnableFactionAccess && _factionAccess == FactionAccess.Disabled)
             {
                 _factionAccess = FactionAccess.NoAccess;
             }
@@ -320,11 +320,21 @@ namespace HacknetArchipelago
             if (IsNewRun) return;
 
             var storedUserData = ArchipelagoSession.DataStorage["userdata"].To<HacknetArchipelagoUserData>();
+            
             _factionAccess = (FactionAccess)storedUserData.StoredFactionAccess;
             _shellLimit = storedUserData.StoredShellLimit;
             _ramLimit = storedUserData.StoredRAMLimit;
             _remainingMissionSkips = storedUserData.RemainingMissionSkips;
             _remainingForceHacks = storedUserData.RemainingForceHacks;
+
+            if(OS.DEBUG_COMMANDS)
+            {
+                Logger.LogDebug($"Stored Faction Access: {storedUserData.StoredFactionAccess} / Local: {_factionAccess}");
+                Logger.LogDebug($"Stored Shell Limit: {storedUserData.StoredShellLimit}");
+                Logger.LogDebug($"Stored RAM Limit: {storedUserData.StoredRAMLimit}");
+                Logger.LogDebug($"Stored Skips: {storedUserData.RemainingMissionSkips}");
+                Logger.LogDebug($"Stored FHs: {storedUserData.RemainingForceHacks}");
+            }
         }
 
         private static void UpdateServerData()
@@ -347,12 +357,12 @@ namespace HacknetArchipelago
             ArchipelagoSession.DataStorage["userdata"] = JObject.FromObject(userData);
         }
 
-        internal static void DisconnectFromArchipelago()
+        internal static async void DisconnectFromArchipelago()
         {
             if(ArchipelagoSession != null)
             {
                 UpdateServerData();
-                ArchipelagoSession.Socket.DisconnectAsync().Wait();
+                await ArchipelagoSession.Socket.DisconnectAsync();
                 ArchipelagoSession = null;
                 SlotData = null;
                 DeathLinkService = null;
