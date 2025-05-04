@@ -37,13 +37,15 @@ namespace HacknetArchipelago.Patches.Missions
             c.Emit(OpCodes.Ldstr, "This mission is out of logic.");
             c.Emit(OpCodes.Stloc_S, (byte)missionUnavailableLocal);
 
-            c.GotoNext(MoveType.Before,
+            bool startExists = c.TryGotoNext(MoveType.Before,
                 x => x.MatchCallvirt(out var _),
                 x => x.MatchNop(),
                 x => x.MatchLdarg(0),
                 x => x.MatchLdfld(out var _),
                 x => x.MatchLdfld(out var _),
                 x => x.MatchBrfalse(out var _));
+
+            if (!startExists) return;
 
             c.GotoNext(); // ldarg.2 -> callvirt
             c.GotoNext(); // callvirt -> nop
@@ -84,7 +86,7 @@ namespace HacknetArchipelago.Patches.Missions
 
             c.Emit(OpCodes.Brfalse_S, skipLabel); // If false, show Mission Unavailable screen
 
-            c.GotoNext(MoveType.After,
+            bool middleExists = c.TryGotoNext(MoveType.After,
                 x => x.MatchNop(),
                 x => x.MatchNop(),
                 x => x.MatchBr(out var _),
@@ -99,27 +101,16 @@ namespace HacknetArchipelago.Patches.Missions
                 x => x.MatchLdloc(out int _),
                 x => x.MatchBrtrue(out var _),
                 x => x.MatchNop());
+            if (!middleExists) return;
             c.Index -= 1;
 
             Console.WriteLine($"{c.Next.OpCode}");
             c.MarkLabel(skipLabel);
 
-            /*c.GotoNext(MoveType.After,
-                x => x.MatchNewobj(out var _),
-                x => x.MatchLdstr("Mission Unavailable"),
-                x => x.MatchCall(out var _),
-                x => x.MatchLdstr(" : "),
-                x => x.MatchLdstr("User ID Assigned to Different Faction"));
-            c.GotoPrev(x => x.MatchLdstr("User ID Assigned to Different Faction"));*/
-            c.GotoNext(x => x.MatchLdstr("User ID Assigned to Different Faction"));
-            //c.Next.Operand = "test";
+            bool finalExists = c.TryGotoNext(x => x.MatchLdstr("User ID Assigned to Different Faction"));
+            if (!finalExists) return;
             c.Next.OpCode = OpCodes.Ldloc_S;
             c.Next.Operand = (byte)missionUnavailableLocal;
-
-            /*c.RemoveRange(3);
-            c.Emit(OpCodes.Nop);
-            c.Emit(OpCodes.Nop);
-            c.Emit(OpCodes.Nop);*/
         }
 
         public const string KAGUYA_TRIALS_SUBJECT = "The Kaguya Trials";

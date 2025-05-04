@@ -188,7 +188,29 @@ namespace HacknetArchipelago
             _localInventory.Clear();
             foreach(var exe in collectedExecutables)
             {
+                if (_localInventory.ContainsKey(exe.ItemDisplayName)) continue;
                 _localInventory.Add(exe.ItemDisplayName, 1);
+            }
+
+            if (OS.currentInstance == null) return;
+
+            var playerBin = OS.currentInstance.thisComputer.getFolderFromPath("bin");
+            var exeFiles = playerBin.files.Where(f => f.name.EndsWith(".exe"));
+
+            Dictionary<string, string> exeToPack = new()
+            {
+                { "Decypher", "DEC Suite" },
+                { "MemDumpGenerator", "Mem Suite" }
+            };
+
+            foreach(var file in exeFiles)
+            {
+                var cleanName = file.name.Split('.')[0];
+                string exeName = cleanName;
+                if (exeToPack.ContainsKey(exeName)) exeName = exeToPack[exeName];
+
+                if (_localInventory.ContainsKey(exeName) || !ArchipelagoItems.ExecutableNames.Contains(exeName)) continue;
+                _localInventory.Add(exeName, 1);
             }
         }
 
@@ -321,7 +343,7 @@ namespace HacknetArchipelago
 
             var storedUserData = ArchipelagoSession.DataStorage["userdata"].To<HacknetArchipelagoUserData>();
             
-            _factionAccess = (FactionAccess)storedUserData.StoredFactionAccess;
+            //_factionAccess = (FactionAccess)storedUserData.StoredFactionAccess;
             _shellLimit = storedUserData.StoredShellLimit;
             _ramLimit = storedUserData.StoredRAMLimit;
             _remainingMissionSkips = storedUserData.RemainingMissionSkips;
@@ -370,9 +392,16 @@ namespace HacknetArchipelago
             }
         }
 
-        internal static void SpeakAsSystem(string message)
+        internal static void SpeakAsSystem(string message, bool needsAttention = false)
         {
             OS os = OS.currentInstance;
+
+            if(needsAttention)
+            {
+                os.beepSound.Play();
+                os.warningFlash();
+            }
+
             os.terminal.writeLine(SYSTEM_PREFIX + message);
         }
 
@@ -441,6 +470,11 @@ namespace HacknetArchipelago
         {
             var itemID = (int)itemInfo.ItemId;
             string itemName = itemInfo.ItemName;
+
+            if(itemInfo.Player.Slot != ArchipelagoSession.ConnectionInfo.Slot)
+            {
+                SpeakAsSystem($"Received {itemInfo.ItemDisplayName}!");
+            }
 
             if (_junkItems.Contains(itemName) || PlayerHasItem(itemName) || _eventNames.Contains(itemName))
             {

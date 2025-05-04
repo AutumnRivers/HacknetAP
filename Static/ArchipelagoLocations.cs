@@ -91,6 +91,12 @@ namespace HacknetArchipelago
             { "Two ships in the night", ["DEC Suite"] },
 
             { "Project Junebug", ["DEC Suite", "KBTPortTest"] },
+
+            { "Bit -- Foundation", [
+                "DEC Suite", "KBTPortTest",
+                "SMTPOverflow", "WebServerWorm",
+                "SSHCrack", "SQL_MemCorrupt"
+                ] }
         };
 
         public static bool HasItemsForLocation(string locationName)
@@ -128,6 +134,61 @@ namespace HacknetArchipelago
         public static readonly Dictionary<string, string> CommandToLocation = new()
         {
             { "deActivateAircraftStatusOverlay", "Labyrinths -- Altitude Loss" }
+        };
+
+        public static readonly List<string> UpgradeIndexToLocation = new()
+        {
+            "PointClicker -- Click Me!",
+            "PointClicker -- Autoclicker v1",
+            "PointClicker -- Autoclicker v2",
+            "PointClicker -- Pointereiellion",
+            "PointClicker -- Upgrade 4",
+            "PointClicker -- Upgrade 5",
+            "PointClicker -- Upgrade 6",
+            "PointClicker -- Upgrade 7",
+            "PointClicker -- Upgrade 8",
+            "PointClicker -- Upgrade 9",
+            "PointClicker -- Upgrade 10",
+            "PointClicker -- Upgrade 11",
+            "PointClicker -- Upgrade 12",
+            "PointClicker -- Upgrade 13",
+            "PointClicker -- Upgrade 14",
+            "PointClicker -- Upgrade 15",
+            "PointClicker -- Upgrade 16",
+            "PointClicker -- Upgrade 17",
+            "PointClicker -- Upgrade 18",
+            "PointClicker -- Upgrade 19",
+            "PointClicker -- Upgrade 20",
+            "PointClicker -- Upgrade 21",
+            "PointClicker -- Upgrade 22",
+            "PointClicker -- Upgrade 23",
+            "PointClicker -- Upgrade 24",
+            "PointClicker -- Upgrade 25",
+            "PointClicker -- Upgrade 26",
+            "PointClicker -- Upgrade 27",
+            "PointClicker -- Upgrade 28",
+            "PointClicker -- Upgrade 29",
+            "PointClicker -- Upgrade 30",
+            "PointClicker -- Upgrade 31",
+            "PointClicker -- Upgrade 32",
+            "PointClicker -- Upgrade 33",
+            "PointClicker -- Upgrade 34",
+            "PointClicker -- Upgrade 35",
+            "PointClicker -- Upgrade 36",
+            "PointClicker -- Upgrade 37",
+            "PointClicker -- Upgrade 38",
+            "PointClicker -- Upgrade 39",
+            "PointClicker -- Upgrade 40",
+            "PointClicker -- Upgrade 41",
+            "PointClicker -- Upgrade 42",
+            "PointClicker -- Upgrade 43",
+            "PointClicker -- Upgrade 44",
+            "PointClicker -- Upgrade 45",
+            "PointClicker -- Upgrade 46",
+            "PointClicker -- Upgrade 47",
+            "PointClicker -- Upgrade 48",
+            "PointClicker -- Upgrade 49",
+            "PointClicker -- Upgrade 50"
         };
     }
 }

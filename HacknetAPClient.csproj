@@ -87,6 +87,7 @@
     <Compile Include="Patches\MissionPatches.cs" />
     <Compile Include="Patches\Missions\ForcePlayerOnNaixPath.cs" />
     <Compile Include="Patches\Missions\PreventOutOfLogicMissions.cs" />
+    <Compile Include="Patches\PointClickerPatches.cs" />
     <Compile Include="Patches\PortHackHeartPatch.cs" />
     <Compile Include="Patches\ReplaceBootText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

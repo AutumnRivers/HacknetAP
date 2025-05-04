@@ -28,15 +28,9 @@ namespace HacknetArchipelago.Patches
 
             [HarmonyPostfix]
             [HarmonyPatch(typeof(DLCHubServer), "PlayerAttemptCompleteMission")]
-            public static void DLCMissionCheckPostfix(DLCHubServer __instance, ClaimableMission mission, bool ForceComplete)
+            public static void DLCMissionCheckPostfix(bool __result, ClaimableMission mission)
             {
-                OS os = OS.currentInstance;
-                ActiveMission currentMission = mission.Mission;
-                // There is exactly ONE (1) mission in Labyrinths which 
-                if (__instance.MissionTextResponses.Any()) currentMission = __instance.os.currentMission;
-                bool missionComplete = currentMission.isComplete(__instance.MissionTextResponses);
-
-                if (!missionComplete && !ForceComplete) return;
+                if (!__result) return;
 
                 SendOutLocationFromMission(mission);
             }
@@ -54,10 +48,11 @@ namespace HacknetArchipelago.Patches
                         HacknetAPCore.Logger.LogWarning($"Completed location \"{archiLocation}\", but player " +
                             "isn't currently connected to Archipelago. It's been saved for the next time the user " +
                             "connects to Archipelago.");
-                        if (OS.DEBUG_COMMANDS) HacknetAPCore.SpeakAsSystem("Failed to send location -- offline");
+                        HacknetAPCore.SpeakAsSystem("Failed to send location -- offline", true);
                         return;
                     }
 
+                    if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"Sending out location \"{archiLocation}\"");
                     long locationID = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(HacknetAPCore.GameString,
                         archiLocation);
                     if (locationID > -1)
@@ -72,7 +67,7 @@ namespace HacknetArchipelago.Patches
                         if (OS.DEBUG_COMMANDS) HacknetAPCore.SpeakAsSystem("Failed to send location -- location doesn't exist");
                     }
                 }
-                else
+                else if(OS.DEBUG_COMMANDS)
                 {
                     HacknetAPCore.Logger.LogWarning($"Mission with email subject \"{missionName}\" not found in " +
                         "archi locations. If this is intended, you can ignore this message.");
@@ -211,6 +206,37 @@ namespace HacknetArchipelago.Patches
             {
                 __instance.playerHasPassedValue = true;
                 return false;
+            }
+
+            public const string BIT_FILEPATH = "Content/Missions/BitPath/BitAdv_Intro.xml";
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(HubFaction), "ForceStartBitMissions")]
+            // My hatred for failsafes continue
+            // This will probably break things... I hope not.
+            public static bool PreventLoadingFinaleAutomaticalle()
+            {
+                Computer csecComp = ComputerLookup.FindById("mainHub");
+                MissionHubServer csecHub = (MissionHubServer)csecComp.getDaemon(typeof(MissionHubServer));
+
+                loadBitMissionIntoCSEC();
+
+                return false;
+
+                void loadBitMissionIntoCSEC()
+                {
+                    ActiveMission bitMission = (ActiveMission)ComputerLoader.readMission(BIT_FILEPATH);
+                    bitMission.postingTitle = "#FINALE# - Bit -- Foundation";
+
+                    if (csecHub.listingMissions.Any(m => m.Value.postingTitle == bitMission.postingTitle)) return;
+
+                    bitMission.postingBody = "---------------------------------------------\n" +
+                        "!! WARNING !! READ CAREFULLY !!\n" +
+                        "---------------------------------------------\n" +
+                        "This will trigger the FINALE FOR HACKNET!\n" +
+                        "No going back once you accept this! Tread carefully!";
+                    csecHub.addMission(bitMission, true, false, -1);
+                }
             }
         }
     }
