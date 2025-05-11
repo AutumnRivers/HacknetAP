@@ -29,6 +29,12 @@ namespace HacknetArchipelago
                         case "CachedLocations":
                             LoadCachedLocations(child.Children);
                             break;
+                        case "CollectedFlags":
+                            LoadCollectedFlags(child.Attributes["flags"]);
+                            break;
+                        case "LocalInventory":
+                            LoadStoredLocalInventory(child.Children);
+                            break;
                         default:
                             break;
                     }
@@ -46,6 +52,25 @@ namespace HacknetArchipelago
                     cachedLocations.Add(cachedLoc.Attributes["ArchipelagoName"]);
                 }
                 HacknetAPCore._cachedChecks = cachedLocations;
+            }
+
+            private void LoadCollectedFlags(string flags)
+            {
+                List<string> collectedFlags = [.. flags.Split(',')];
+                HacknetAPCore._collectedFlags = collectedFlags;
+            }
+
+            private void LoadStoredLocalInventory(List<ElementInfo> localItemElems)
+            {
+                List<string> localInventory = [];
+                foreach(var localItem in localItemElems)
+                {
+                    if (localItem.Name != "LocalItem" ||
+                        !localItem.Attributes.ContainsKey("ItemName")) continue;
+
+                    localInventory.Add(localItem.Attributes["ItemName"]);
+                    HacknetAPCore._localInventory.Add(localItem.Attributes["ItemName"], 1);
+                }
             }
         }
 
@@ -68,6 +93,46 @@ namespace HacknetArchipelago
                     }
 
                     archiElement.Add(cachedLocsElem);
+                }
+
+                if(HacknetAPCore._collectedFlags.Count > 0)
+                {
+                    XElement collectedFlagsElem = new("CollectedFlags");
+                    XAttribute flagsAttr = new("flags", "");
+                    StringBuilder flagBuilder = new();
+
+                    foreach(var flag in HacknetAPCore._collectedFlags)
+                    {
+                        flagBuilder.Append(flag);
+                        if (HacknetAPCore._collectedFlags.Last() != flag) flagBuilder.Append(",");
+                    }
+                    flagsAttr.SetValue(flagBuilder.ToString());
+                    collectedFlagsElem.Add(flagsAttr);
+
+                    archiElement.Add(collectedFlagsElem);
+                }
+
+                if(HacknetAPCore._localInventory.Count > 0)
+                {
+                    XElement localInvElem = new("LocalInventory");
+
+                    foreach(var item in HacknetAPCore._localInventory)
+                    {
+                        XElement invElem = new("LocalItem");
+                        XAttribute nameAttr = new("ItemName", item.Key);
+                        invElem.Add(nameAttr);
+                        localInvElem.Add(invElem);
+                    }
+
+                    archiElement.Add(localInvElem);
+                }
+
+                if(HacknetAPCore.SlotData.EnableFactionAccess)
+                {
+                    XElement facAccessElem = new("FactionAccess");
+                    XAttribute facAccessAttr = new("Value", HacknetAPCore._factionAccess);
+                    facAccessElem.Add(facAccessAttr);
+                    archiElement.Add(facAccessElem);
                 }
 
                 saveEvent.Save.FirstNode.AddAfterSelf(archiElement);

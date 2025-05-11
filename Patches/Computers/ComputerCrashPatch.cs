@@ -15,6 +15,8 @@ namespace HacknetArchipelago.Patches.Computers
         [HarmonyPatch(typeof(Computer),"crash")]
         public static void ReplaceCrashTextPrefix(Computer __instance)
         {
+            if (__instance.idName != OS.currentInstance.thisComputer.idName) return;
+
             if(!HacknetAPCore._crashCausedByDeathLink)
             {
                 OS.currentInstance.crashModule.bsodText = HacknetAPCore._originalBsodText;

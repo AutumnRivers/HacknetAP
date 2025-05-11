@@ -19,6 +19,7 @@ using Pathfinder.Replacements;
 using Pathfinder.Util;
 
 using TextBox = HacknetArchipelago.Replacements.ArchipelagoTextBox;
+using Pathfinder.GUI;
 
 namespace HacknetArchipelago.Patches
 {
@@ -192,6 +193,10 @@ namespace HacknetArchipelago.Patches
                 isConnected = false;
                 archiLogoColor = Color.White;
             }
+
+            bool skipBootTextCheckbox = CheckBox.doCheckBox(11116, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 550,
+                HacknetAPCore.SkipBootIntroText, Color.White, "Skip Boot Intro Text");
+            HacknetAPCore.SkipBootIntroText = skipBootTextCheckbox;
         }
 
         [HarmonyPrefix]

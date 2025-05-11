@@ -150,6 +150,20 @@ namespace HacknetArchipelago.Commands
             HacknetAPCore.SpeakAsSystem("Sent out cached locations");
         }
 
+        public static void SayCommand(OS os, string[] args)
+        {
+            if(args.Length <= 1)
+            {
+                WriteToTerminal("ERROR : Not enough arguments");
+                return;
+            }
+
+            var content = args.Skip(1).ToArray();
+            var fullContent = string.Join(" ", content);
+
+            HacknetAPCore.ArchipelagoSession.Say(fullContent);
+        }
+
         private static void WriteToTerminal(string message)
         {
             OS.currentInstance.terminal.writeLine(message);

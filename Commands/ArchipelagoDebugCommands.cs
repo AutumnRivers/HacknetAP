@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Archipelago.MultiClient.Net.Enums;
 using Hacknet;
 
 namespace HacknetArchipelago.Commands
@@ -61,6 +61,21 @@ namespace HacknetArchipelago.Commands
                 os.validCommand = false;
                 os.commandInvalid = true;
             }
+        }
+
+        public static void DebugPrintStorage(OS os, string[] args)
+        {
+            if (!checkIfDebugIsEnabled()) return;
+
+            var serverStorage = HacknetAPCore.ArchipelagoSession.DataStorage[Scope.Slot, "userdata"].To<HacknetArchipelagoUserData>();
+
+            os.terminal.writeLine("USER DATA:");
+            os.terminal.writeLine($"Faction Access: {serverStorage.StoredFactionAccess}");
+            os.terminal.writeLine($"Shell Limit: {serverStorage.StoredShellLimit}");
+            os.terminal.writeLine($"RAM Limit: {serverStorage.StoredRAMLimit}");
+            os.terminal.writeLine($"Mission Skips: {serverStorage.RemainingMissionSkips}");
+            os.terminal.writeLine($"ForceHacks: {serverStorage.RemainingForceHacks}");
+            os.terminal.writeLine("END");
         }
 
         private static bool checkIfDebugIsEnabled()

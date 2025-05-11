@@ -27,6 +27,7 @@ using Pathfinder.Command;
 using HacknetArchipelago.Patches;
 using HacknetArchipelago.Commands;
 using Pathfinder.Event.Saving;
+using Pathfinder.Util;
 
 namespace HacknetArchipelago
 {
@@ -75,6 +76,7 @@ namespace HacknetArchipelago
 
         public static bool IsNewRun = false;
         public static bool IsConnected = false;
+        public static bool SkipBootIntroText = false;
         public static Tuple<string, string, string> CachedConnectionDetails = new(null, null, null);
 
         internal static Dictionary<string, int> _localInventory = [];
@@ -85,7 +87,7 @@ namespace HacknetArchipelago
         internal static int _remainingForceHacks = 0;
 
         internal static int _shellLimit = -1;
-        internal static int _ramLimit = 800;
+        internal static int _ramLimit = 300;
         internal static FactionAccess _factionAccess = FactionAccess.Disabled;
 
         internal static bool _crashCausedByDeathLink = false;
@@ -107,6 +109,10 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("archirestock", ArchipelagoUserCommands.ForceRestockExecutables);
             CommandManager.RegisterCommand("rearchi", ArchipelagoUserCommands.ReconnectToArchipelago);
             CommandManager.RegisterCommand("uncachechecks", ArchipelagoUserCommands.ForceSendCachedLocations);
+            CommandManager.RegisterCommand("archisay", ArchipelagoUserCommands.SayCommand);
+
+            CommandManager.RegisterCommand("archifh", ItemCommands.UseForceHack);
+            CommandManager.RegisterCommand("skipmission", ItemCommands.UseMissionSkip);
 
             CommandManager.RegisterCommand("testdeathlink", ArchipelagoUserCommands.TestCrashDeathLink, false, true);
             CommandManager.RegisterCommand("pslotdata", ArchipelagoDebugCommands.PrintSlotData, false, true);
@@ -114,6 +120,7 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("debughint", ArchipelagoDebugCommands.TestHintCommand, false, true);
             CommandManager.RegisterCommand("debugpeek", ArchipelagoDebugCommands.TestPeekLocation, false, true);
             CommandManager.RegisterCommand("setfactionaccess", ArchipelagoDebugCommands.DebugSetFactionAccess, false, true);
+            CommandManager.RegisterCommand("printserverdata", ArchipelagoDebugCommands.DebugPrintStorage, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
             EventManager<CommandExecuteEvent>.AddHandler(ComputerLoadPatches.WarnWhenDownloadingArchipelagoExes);
@@ -122,6 +129,9 @@ namespace HacknetArchipelago
             EventManager<OSUpdateEvent>.AddHandler(AssureArchiConnection);
             EventManager<UnloadEvent>.AddHandler(UpdateServerDataOnClose);
             EventManager<SaveEvent>.AddHandler(SaveLoadExecutors.ArchipelagoDataSaver.InjectArchipelagoSaveData);
+
+            EventManager<ExecutableExecuteEvent>.AddHandler(ShellLimitPatch.LimitShells);
+            EventManager<OSUpdateEvent>.AddHandler(RAMLimitPatch.LimitRAM);
 
             return true;
         }
@@ -173,6 +183,15 @@ namespace HacknetArchipelago
             if(SlotData.EnableFactionAccess && _factionAccess == FactionAccess.Disabled)
             {
                 _factionAccess = FactionAccess.NoAccess;
+            }
+
+            if(SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShellsZero && _shellLimit == -1)
+            {
+                _shellLimit = 0;
+            } else if((SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits ||
+                SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShells) && _shellLimit <= 0)
+            {
+                _shellLimit = 1;
             }
 
             GetLocalInventoryFromServerInventory();
@@ -283,24 +302,46 @@ namespace HacknetArchipelago
         internal static void SendArchipelagoLocations(long locationID)
         {
             ArchipelagoSession.Locations.CompleteLocationChecks([locationID]);
-            NotifyItemFoundAtLocation(locationID);
         }
 
         internal static void SendArchipelagoLocations(long[] locationIDs)
         {
-            ArchipelagoSession.Locations.CompleteLocationChecks(locationIDs);
+            var checkedLocations = ArchipelagoSession.Locations.AllLocationsChecked;
 
-            foreach(var id in locationIDs)
+            List<long> nonCheckedLocations = locationIDs.ToList();
+            List<long> readOnlyCheckedLocations = nonCheckedLocations.ToList();
+            foreach(var id in readOnlyCheckedLocations)
             {
-                NotifyItemFoundAtLocation(id);
+                if (checkedLocations.Contains(id))
+                {
+                    if(OS.DEBUG_COMMANDS)
+                    {
+                        Logger.LogInfo($"Not sending check for location ID {id} as it has already been checked");
+                    }
+                    nonCheckedLocations.Remove(id);
+                } else
+                {
+                    NotifyItemFoundAtLocation(id);
+                }
             }
+
+            ArchipelagoSession.Locations.CompleteLocationChecks([.. nonCheckedLocations]);
+
+            UpdateServerData();
         }
 
         internal static async void NotifyItemFoundAtLocation(long locationID)
         {
             var locationItems = await ArchipelagoSession.Locations.ScoutLocationsAsync([locationID]);
-            if (!locationItems.Any()) return;
-            var item = locationItems.First().Value;
+            if (!locationItems.Any())
+            {
+                if(OS.DEBUG_COMMANDS)
+                {
+                    Logger.LogWarning($"No items found for location ID {locationID}");
+                }
+                return;
+            }
+            var item = locationItems[locationID];
             bool isPlayersItem = item.Player.Slot == ArchipelagoSession.ConnectionInfo.Slot;
             string punctuation = ".";
 
@@ -333,17 +374,17 @@ namespace HacknetArchipelago
 
         private static async void RetrieveDataFromServer()
         {
-            var existingData = await ArchipelagoSession.DataStorage["userdata"].GetAsync();
+            var existingData = await ArchipelagoSession.DataStorage[Scope.Slot, "userdata"].GetAsync();
             IsNewRun = !existingData.HasValues;
             Logger.LogDebug($"Is new run: {IsNewRun}");
 
             var defaultUserData = JToken.FromObject(new HacknetArchipelagoUserData());
-            ArchipelagoSession.DataStorage["userdata"].Initialize(defaultUserData);
+            ArchipelagoSession.DataStorage[Scope.Slot, "userdata"].Initialize(defaultUserData);
             if (IsNewRun) return;
 
-            var storedUserData = ArchipelagoSession.DataStorage["userdata"].To<HacknetArchipelagoUserData>();
+            var storedUserData = ArchipelagoSession.DataStorage[Scope.Slot, "userdata"].To<HacknetArchipelagoUserData>();
             
-            //_factionAccess = (FactionAccess)storedUserData.StoredFactionAccess;
+            _factionAccess = (FactionAccess)storedUserData.StoredFactionAccess;
             _shellLimit = storedUserData.StoredShellLimit;
             _ramLimit = storedUserData.StoredRAMLimit;
             _remainingMissionSkips = storedUserData.RemainingMissionSkips;
@@ -361,10 +402,10 @@ namespace HacknetArchipelago
 
         private static void UpdateServerData()
         {
-            bool dataIsNull = ArchipelagoSession.DataStorage["userdata"] == null;
+            bool dataIsNull = ArchipelagoSession.DataStorage[Scope.Slot, "userdata"] == null;
             if(dataIsNull)
             {
-                ArchipelagoSession.DataStorage["userdata"] = JObject.FromObject(new HacknetArchipelagoUserData());
+                ArchipelagoSession.DataStorage[Scope.Slot, "userdata"] = JObject.FromObject(new HacknetArchipelagoUserData());
                 return;
             }
 
@@ -376,14 +417,15 @@ namespace HacknetArchipelago
                 RemainingMissionSkips = _remainingMissionSkips,
                 RemainingForceHacks = _remainingForceHacks
             };
-            ArchipelagoSession.DataStorage["userdata"] = JObject.FromObject(userData);
+            ArchipelagoSession.DataStorage[Scope.Slot, "userdata"] = JObject.FromObject(userData);
         }
 
         internal static async void DisconnectFromArchipelago()
         {
             if(ArchipelagoSession != null)
             {
-                UpdateServerData();
+                if(OS.currentInstance != null) UpdateServerData();
+
                 await ArchipelagoSession.Socket.DisconnectAsync();
                 ArchipelagoSession = null;
                 SlotData = null;
@@ -439,8 +481,13 @@ namespace HacknetArchipelago
                 "CSEC Member ID"
             ];
 
+        private static int facAccessReceived = (int)_factionAccess;
+        private static int facAccessQueued = 0;
+
         private static void ReceiveArchipelagoItem(ReceivedItemsHelper receivedItemsHelper)
         {
+            facAccessReceived = (int)_factionAccess;
+
             if(OS.currentInstance == null)
             {
                 _itemsCache = receivedItemsHelper;
@@ -448,13 +495,22 @@ namespace HacknetArchipelago
             }
             _itemsCache = null;
 
-            if (OS.currentInstance == null) return;
-
             while(receivedItemsHelper.Any() && OS.currentInstance != null)
             {
+                var item = receivedItemsHelper.PeekItem();
+
+                if(item.ItemDisplayName == "Progressive Faction Access" && facAccessQueued < facAccessReceived)
+                {
+                    facAccessQueued++;
+                    receivedItemsHelper.DequeueItem();
+                    continue;
+                };
+
                 CollectArchipelagoItem(receivedItemsHelper.PeekItem(), true);
                 receivedItemsHelper.DequeueItem();
             }
+
+            UpdateServerData();
         }
 
         public static void ForceCheckItemsCache()
@@ -493,6 +549,7 @@ namespace HacknetArchipelago
             }
             else if (_specialItems.Contains(itemName))
             {
+                if (OS.DEBUG_COMMANDS) Logger.LogDebug($"Handling special item {itemName} ({itemID})");
                 HandleSpecialItem(itemName, itemID);
             }
             else if (_trapNames.Contains(itemName))
@@ -566,15 +623,23 @@ namespace HacknetArchipelago
 
         private static void HandleTrap(string trapName, int itemID)
         {
+            OS os = OS.currentInstance;
+
             switch(itemID)
             {
                 case 666: // ETAS Trap
+                    os.TraceDangerSequence.BeginTraceDangerSequence();
+                    SpeakAsSystem("ETAS TRAP ACTIVATED : PREPARE FOR SYSTEM REBOOT");
                     break;
                 case 667: // Fake Connection
+                    os.IncConnectionOverlay.Activate();
                     break;
                 case 668: // Reset PointClicker Points
+                    ChangePointClickerPoints(-1);
                     break;
                 case 669: // ForkBomb
+                    Multiplayer.parseInputMessage($"eForkBomb {os.thisComputer.ip}", os);
+                    SpeakAsSystem("!!! WARNING : FORKBOMB RECEIVED !!!");
                     break;
             }
         }
@@ -629,6 +694,30 @@ namespace HacknetArchipelago
         {
             ArchipelagoSession.SetGoalAchieved();
             SpeakAsSystem("!!! VICTORY !!!");
+        }
+
+        internal static void ChangePointClickerPoints(int amount)
+        {
+            bool reset = amount < 0;
+
+            Computer ptcComp = ComputerLookup.FindById("pointclicker");
+            PointClickerDaemon ptcDaemon = (PointClickerDaemon)ptcComp.getDaemon(typeof(PointClickerDaemon));
+            
+            if(reset)
+            {
+                ptcDaemon.activeState.points = 0;
+            } else
+            {
+                ptcDaemon.activeState.points += amount;
+            }
+        }
+
+        internal static void ChangePointClickerRate(int amount)
+        {
+            Computer ptcComp = ComputerLookup.FindById("pointclicker");
+            PointClickerDaemon ptcDaemon = (PointClickerDaemon)ptcComp.getDaemon(typeof(PointClickerDaemon));
+
+            ptcDaemon.currentRate += amount;
         }
     }
 
@@ -718,5 +807,6 @@ namespace HacknetArchipelago
         public int StoredRAMLimit = -1;
         public int RemainingMissionSkips = 0;
         public int RemainingForceHacks = 0;
+        public List<string> CheckedLocations = [];
     }
 }

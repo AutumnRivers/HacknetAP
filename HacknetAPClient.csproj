@@ -78,11 +78,14 @@
   <ItemGroup>
     <Compile Include="Commands\ArchipelagoDebugCommands.cs" />
     <Compile Include="Commands\ArchipelagoUserCommands.cs" />
+    <Compile Include="Commands\ItemCommands.cs" />
     <Compile Include="HacknetAPCore.cs" />
     <Compile Include="Patches\ArchipelagoMainMenu.cs" />
     <Compile Include="Patches\CheckForFlagsPatch.cs" />
     <Compile Include="Patches\Computers\ComputerCrashPatch.cs" />
     <Compile Include="Patches\Computers\ComputerLoadPatches.cs" />
+    <Compile Include="Patches\Limits\RAMLimitPatch.cs" />
+    <Compile Include="Patches\Limits\ShellLimitPatch.cs" />
     <Compile Include="Patches\MissionFunctionChecker.cs" />
     <Compile Include="Patches\MissionPatches.cs" />
     <Compile Include="Patches\Missions\ForcePlayerOnNaixPath.cs" />
