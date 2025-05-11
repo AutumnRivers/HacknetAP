@@ -4,6 +4,7 @@ using Pathfinder.Event.Gameplay;
 using Pathfinder.Event.Loading;
 
 using Hacknet;
+using System.Collections.Generic;
 
 namespace HacknetArchipelago.Patches
 {
@@ -24,10 +25,15 @@ namespace HacknetArchipelago.Patches
             }
         }
 
+        private static readonly List<string> _excludedExes =
+        [
+            "KaguyaTrials.exe", "Sequencer.exe", "SecurityTracer.exe"
+        ];
+
         public static void WarnWhenDownloadingArchipelagoExes(CommandExecuteEvent cmdExeEvent)
         {
             string fileName = cmdExeEvent.Args.FirstOrDefault(arg => arg.EndsWith(".exe"));
-            if (fileName == default) return;
+            if (fileName == default || _excludedExes.Contains(fileName)) return;
 
             string file = fileName.Split('.')[0];
             if(!HacknetAPCore._localInventory.ContainsKey(file))

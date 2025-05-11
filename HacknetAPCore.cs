@@ -302,6 +302,7 @@ namespace HacknetArchipelago
         internal static void SendArchipelagoLocations(long locationID)
         {
             ArchipelagoSession.Locations.CompleteLocationChecks([locationID]);
+            NotifyItemFoundAtLocation(locationID);
         }
 
         internal static void SendArchipelagoLocations(long[] locationIDs)
@@ -319,9 +320,6 @@ namespace HacknetArchipelago
                         Logger.LogInfo($"Not sending check for location ID {id} as it has already been checked");
                     }
                     nonCheckedLocations.Remove(id);
-                } else
-                {
-                    NotifyItemFoundAtLocation(id);
                 }
             }
 
@@ -332,6 +330,7 @@ namespace HacknetArchipelago
 
         internal static async void NotifyItemFoundAtLocation(long locationID)
         {
+            if(OS.DEBUG_COMMANDS) { Logger.LogDebug($"Notifying about item found at location ID {locationID}"); }
             var locationItems = await ArchipelagoSession.Locations.ScoutLocationsAsync([locationID]);
             if (!locationItems.Any())
             {
@@ -368,6 +367,8 @@ namespace HacknetArchipelago
             notifBuilder.Append(" (");
             notifBuilder.Append(item.LocationDisplayName);
             notifBuilder.Append(")");
+
+            if (OS.DEBUG_COMMANDS) Logger.LogDebug(notifBuilder.ToString());
 
             SpeakAsSystem(notifBuilder.ToString());
         }
@@ -499,13 +500,17 @@ namespace HacknetArchipelago
             {
                 var item = receivedItemsHelper.PeekItem();
 
-                if(item.ItemDisplayName == "Progressive Faction Access" && facAccessQueued < facAccessReceived)
+                if(item.ItemDisplayName == "Progressive Faction Access")
                 {
                     facAccessQueued++;
-                    receivedItemsHelper.DequeueItem();
-                    continue;
+                    if(facAccessQueued <= facAccessReceived)
+                    {
+                        receivedItemsHelper.DequeueItem();
+                        continue;
+                    }
                 };
 
+                if (OS.DEBUG_COMMANDS) Logger.LogDebug($"Received Item: {item.ItemDisplayName} ({item.ItemId})");
                 CollectArchipelagoItem(receivedItemsHelper.PeekItem(), true);
                 receivedItemsHelper.DequeueItem();
             }
@@ -534,6 +539,10 @@ namespace HacknetArchipelago
 
             if (_junkItems.Contains(itemName) || PlayerHasItem(itemName) || _eventNames.Contains(itemName))
             {
+                if(OS.DEBUG_COMMANDS && PlayerHasItem(itemName))
+                {
+                    Logger.LogDebug($"Not notifying user of item {itemName} - user already has item");
+                }
                 return;
             }
 
@@ -542,10 +551,6 @@ namespace HacknetArchipelago
             if (isCommonItem)
             {
                 HandleCommonItem(itemName, itemID);
-            }
-            else if (ignoreNonExecutables)
-            {
-                return;
             }
             else if (_specialItems.Contains(itemName))
             {
