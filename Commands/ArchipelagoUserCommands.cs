@@ -2,6 +2,7 @@
 using System.Text;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Hacknet;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Commands
 {
@@ -11,7 +12,7 @@ namespace HacknetArchipelago.Commands
 
         public static void ViewPlayerInventory(OS os, string[] args)
         {
-            if(!HacknetAPCore._localInventory.Any())
+            if(!InventoryManager._localInventory.Any())
             {
                 WriteToTerminal("Your Archipelago inventory is empty!");
                 return;
@@ -19,7 +20,7 @@ namespace HacknetArchipelago.Commands
 
             StringBuilder resultBuilder = new("--- LOCAL INVENTORY:\n");
             resultBuilder.Append("Local Inventory only shows executable files.\n");
-            foreach(var item in HacknetAPCore._localInventory)
+            foreach(var item in InventoryManager._localInventory)
             {
                 resultBuilder.Append($"* {item}\n");
             }
@@ -34,7 +35,7 @@ namespace HacknetArchipelago.Commands
             if (!HacknetAPCore.SlotData.EnableFactionAccess) { resultBuilder.Append("N/A\n"); }
             else
             {
-                switch(HacknetAPCore._factionAccess)
+                switch(InventoryManager._factionAccess)
                 {
                     case FactionAccess.NoAccess:
                         resultBuilder.Append("None");
@@ -53,7 +54,7 @@ namespace HacknetArchipelago.Commands
                         resultBuilder.Append("Unknown");
                         break;
                 }
-                if (isDebug) resultBuilder.Append($" {(int)HacknetAPCore._factionAccess}");
+                if (isDebug) resultBuilder.Append($" {(int)InventoryManager._factionAccess}");
                 resultBuilder.Append("\n");
             }
             if(HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.Disabled)
@@ -65,7 +66,7 @@ namespace HacknetArchipelago.Commands
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShells
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShellsZero)
                 {
-                    resultBuilder.Append($"Shells: {HacknetAPCore._shellLimit}");
+                    resultBuilder.Append($"Shells: {InventoryManager._shellLimit}");
                 } else
                 {
                     resultBuilder.Append("Shells: N/A");
@@ -75,7 +76,7 @@ namespace HacknetArchipelago.Commands
                 if(HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyRAM)
                 {
-                    resultBuilder.Append("RAM: " + HacknetAPCore._ramLimit);
+                    resultBuilder.Append("RAM: " + InventoryManager._ramLimit);
                 } else
                 {
                     resultBuilder.Append("RAM: N/A");
@@ -110,12 +111,12 @@ namespace HacknetArchipelago.Commands
                 return;
             }
             DeathLink testDL = new("TestPlayer", "You activated a test DeathLink crash!");
-            HacknetAPCore.HandleDeathLink(testDL);
+            DeathLinkManager.HandleDeathLink(testDL);
         }
 
         public static void ForceRestockExecutables(OS os, string[] args)
         {
-            HacknetAPCore.ForceRestockItems();
+            InventoryManager.ForceRestockItems();
         }
 
         public static void ReconnectToArchipelago(OS os, string[] args)
@@ -128,7 +129,8 @@ namespace HacknetArchipelago.Commands
             }
 
             var conDetails = HacknetAPCore.CachedConnectionDetails;
-            var conResult = HacknetAPCore.ConnectToArchipelago(conDetails.Item1, conDetails.Item2, conDetails.Item3);
+            //var conResult = HacknetAPCore.ConnectToArchipelago(conDetails.Item1, conDetails.Item2, conDetails.Item3);
+            var conResult = ArchipelagoManager.ConnectToArchipelago(conDetails.Item1, conDetails.Item2, conDetails.Item3);
             if(!conResult.Successful)
             {
                 HacknetAPCore.SpeakAsSystem("Unable to connect to Archipelago -- check detached console.");
@@ -140,13 +142,13 @@ namespace HacknetArchipelago.Commands
 
         public static void ForceSendCachedLocations(OS os, string[] args)
         {
-            if(HacknetAPCore._cachedChecks.Count == 0)
+            if(LocationManager._cachedChecks.Count == 0)
             {
                 HacknetAPCore.SpeakAsSystem("There were no cached locations to send!");
                 return;
             }
 
-            HacknetAPCore.SendCachedLocations();
+            LocationManager.SendCachedLocations();
             HacknetAPCore.SpeakAsSystem("Sent out cached locations");
         }
 

@@ -1,4 +1,5 @@
-﻿using Pathfinder.Event.Saving;
+﻿using HacknetArchipelago.Managers;
+using Pathfinder.Event.Saving;
 using Pathfinder.Meta.Load;
 using Pathfinder.Replacements;
 using Pathfinder.Util.XML;
@@ -51,13 +52,13 @@ namespace HacknetArchipelago
 
                     cachedLocations.Add(cachedLoc.Attributes["ArchipelagoName"]);
                 }
-                HacknetAPCore._cachedChecks = cachedLocations;
+                LocationManager._cachedChecks = cachedLocations;
             }
 
             private void LoadCollectedFlags(string flags)
             {
                 List<string> collectedFlags = [.. flags.Split(',')];
-                HacknetAPCore._collectedFlags = collectedFlags;
+                LocationManager._collectedFlags = collectedFlags;
             }
 
             private void LoadStoredLocalInventory(List<ElementInfo> localItemElems)
@@ -69,7 +70,7 @@ namespace HacknetArchipelago
                         !localItem.Attributes.ContainsKey("ItemName")) continue;
 
                     localInventory.Add(localItem.Attributes["ItemName"]);
-                    HacknetAPCore._localInventory.Add(localItem.Attributes["ItemName"], 1);
+                    InventoryManager._localInventory.Add(localItem.Attributes["ItemName"], 1);
                 }
             }
         }
@@ -80,11 +81,11 @@ namespace HacknetArchipelago
             {
                 XElement archiElement = new(BASE_ELEMENT_NAME);
 
-                if (HacknetAPCore._cachedChecks.Count > 0)
+                if (LocationManager._cachedChecks.Count > 0)
                 {
                     XElement cachedLocsElem = new("CachedLocations");
 
-                    foreach (var loc in HacknetAPCore._cachedChecks)
+                    foreach (var loc in LocationManager._cachedChecks)
                     {
                         XElement cachedElem = new("CachedLoc");
                         XAttribute cachedAttr = new("ArchipelagoName", loc);
@@ -95,16 +96,16 @@ namespace HacknetArchipelago
                     archiElement.Add(cachedLocsElem);
                 }
 
-                if(HacknetAPCore._collectedFlags.Count > 0)
+                if(LocationManager._collectedFlags.Count > 0)
                 {
                     XElement collectedFlagsElem = new("CollectedFlags");
                     XAttribute flagsAttr = new("flags", "");
                     StringBuilder flagBuilder = new();
 
-                    foreach(var flag in HacknetAPCore._collectedFlags)
+                    foreach(var flag in LocationManager._collectedFlags)
                     {
                         flagBuilder.Append(flag);
-                        if (HacknetAPCore._collectedFlags.Last() != flag) flagBuilder.Append(",");
+                        if (LocationManager._collectedFlags.Last() != flag) flagBuilder.Append(",");
                     }
                     flagsAttr.SetValue(flagBuilder.ToString());
                     collectedFlagsElem.Add(flagsAttr);
@@ -112,11 +113,11 @@ namespace HacknetArchipelago
                     archiElement.Add(collectedFlagsElem);
                 }
 
-                if(HacknetAPCore._localInventory.Count > 0)
+                if(InventoryManager._localInventory.Count > 0)
                 {
                     XElement localInvElem = new("LocalInventory");
 
-                    foreach(var item in HacknetAPCore._localInventory)
+                    foreach(var item in InventoryManager._localInventory)
                     {
                         XElement invElem = new("LocalItem");
                         XAttribute nameAttr = new("ItemName", item.Key);
@@ -130,7 +131,7 @@ namespace HacknetArchipelago
                 if(HacknetAPCore.SlotData.EnableFactionAccess)
                 {
                     XElement facAccessElem = new("FactionAccess");
-                    XAttribute facAccessAttr = new("Value", HacknetAPCore._factionAccess);
+                    XAttribute facAccessAttr = new("Value", InventoryManager._factionAccess);
                     facAccessElem.Add(facAccessAttr);
                     archiElement.Add(facAccessElem);
                 }

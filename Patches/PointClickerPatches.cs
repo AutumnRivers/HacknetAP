@@ -2,6 +2,7 @@
 using Hacknet;
 using System;
 using System.Collections.Generic;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -31,7 +32,7 @@ namespace HacknetArchipelago.Patches
                 return;
             }
 
-            HacknetAPCore.SendArchipelagoLocations(locationID);
+            LocationManager.SendArchipelagoLocations(locationID);
         }
     }
 }

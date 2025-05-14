@@ -1,6 +1,8 @@
 ﻿using Hacknet;
 using System.Collections.Generic;
 
+using HacknetArchipelago.Managers;
+
 namespace HacknetArchipelago.Commands
 {
     public class ItemCommands
@@ -12,7 +14,7 @@ namespace HacknetArchipelago.Commands
 
         public static void UseForceHack(OS os, string[] args)
         {
-            if(HacknetAPCore._remainingForceHacks <= 0)
+            if(InventoryManager._remainingForceHacks <= 0)
             {
                 HacknetAPCore.SpeakAsSystem("You don't have any remaining ForceHacks!");
                 return;
@@ -37,8 +39,8 @@ namespace HacknetArchipelago.Commands
             target.securityLevel = 0;
             target.firewall = null;
             target.hasProxy = false;
-            HacknetAPCore._remainingForceHacks--;
-            os.terminal.writeLine($"SUCCESS : You have {HacknetAPCore._remainingForceHacks} remaining ForceHacks.");
+            InventoryManager._remainingForceHacks--;
+            os.terminal.writeLine($"SUCCESS : You have {InventoryManager._remainingForceHacks} remaining ForceHacks.");
         }
 
         private static readonly List<string> excludedMissions = new()
@@ -48,7 +50,7 @@ namespace HacknetArchipelago.Commands
 
         public static void UseMissionSkip(OS os, string[] args)
         {
-            if(HacknetAPCore._remainingMissionSkips <= 0)
+            if(InventoryManager._remainingMissionSkips <= 0)
             {
                 HacknetAPCore.SpeakAsSystem("You don't have any remaining Mission Skips!");
                 return;
@@ -67,9 +69,19 @@ namespace HacknetArchipelago.Commands
             }
 
             mission.goals.Clear();
-            HacknetAPCore._remainingMissionSkips--;
-            os.terminal.writeLine($"SUCCESS : You have {HacknetAPCore._remainingMissionSkips} remaining Mission Skips.");
+            InventoryManager._remainingMissionSkips--;
+            os.terminal.writeLine($"SUCCESS : You have {InventoryManager._remainingMissionSkips} remaining Mission Skips.");
             os.terminal.writeLine("(You can now reply to the mission email / posting, and it will complete.)");
+        }
+
+        public static void CheckRemainingInventory(OS os, string[] args)
+        {
+            string remSkips = string.Format("{0} remaining Mission Skips.", InventoryManager._remainingMissionSkips);
+            string remFhs = string.Format("{0} remaining ForceHacks.", InventoryManager._remainingForceHacks);
+
+            os.terminal.writeLine("You have:");
+            os.terminal.writeLine(remSkips);
+            os.terminal.writeLine(remFhs);
         }
     }
 }

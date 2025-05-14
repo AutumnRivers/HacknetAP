@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Hacknet;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -20,7 +21,7 @@ namespace HacknetArchipelago.Patches
                     HacknetAPCore.Logger.LogError($"Mission Function Location \"{locationName}\" ({name}) returned -1");
                     return;
                 }
-                HacknetAPCore.SendArchipelagoLocations(locationID);
+                LocationManager.SendArchipelagoLocations(locationID);
             }
         }
     }

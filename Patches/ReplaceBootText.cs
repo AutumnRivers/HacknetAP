@@ -41,7 +41,6 @@ namespace HacknetArchipelago.Patches
                     ];
             }
 
-
             return true;
         }
     }

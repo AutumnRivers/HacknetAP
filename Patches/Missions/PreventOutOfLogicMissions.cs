@@ -8,12 +8,15 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
 using System.Reflection;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches.Missions
 {
     [HarmonyPatch]
     public class PreventOutOfLogicMissions
     {
+        public const string ENTROPY_ID = "entropy00";
+
         [HarmonyILManipulator]
         [HarmonyPatch(typeof(MissionListingServer),"draw")]
         /*
@@ -22,6 +25,10 @@ namespace HacknetArchipelago.Patches.Missions
          */
         public static void PreventAcceptingOutOfLogicEntropyMissions(ILContext il)
         {
+            OS os = OS.currentInstance;
+            if (os != null) return;
+            if (os.connectedComp.idName != ENTROPY_ID) return;
+
             ILCursor c = new(il);
 
             ILLabel missionUnavailableLabel = il.DefineLabel();
@@ -66,7 +73,7 @@ namespace HacknetArchipelago.Patches.Missions
                     unavailableReason = "You are missing required Archipelago item(s).";
                 }
 
-                if(HacknetAPCore.SlotData.EnableFactionAccess && HacknetAPCore._factionAccess < FactionAccess.Entropy
+                if(HacknetAPCore.SlotData.EnableFactionAccess && InventoryManager._factionAccess < FactionAccess.Entropy
                 && hasRequiredItemsForMission)
                 {
                     hasRequiredItemsForMission = false;
@@ -161,11 +168,11 @@ namespace HacknetArchipelago.Patches.Missions
             c.EmitDelegate<Func<ActiveMission, (bool, string)>>((mission) =>
             {
                 bool hasCSECAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
-                (HacknetAPCore._factionAccess >= FactionAccess.LabyrinthsOrCSEC && !HacknetAPCore.SlotData.ShuffleLabyrinths) ||
-                (HacknetAPCore._factionAccess >= FactionAccess.CSEC);
+                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && !HacknetAPCore.SlotData.ShuffleLabyrinths) ||
+                (InventoryManager._factionAccess >= FactionAccess.CSEC);
 
                 bool hasKaguyaTrialsAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
-                (HacknetAPCore._factionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
+                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
 
                 var subject = mission.email.subject;
                 string reason = "UNAVAILABLE : ";

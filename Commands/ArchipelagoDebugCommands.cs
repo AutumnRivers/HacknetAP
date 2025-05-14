@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.Enums;
 using Hacknet;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Commands
 {
@@ -52,13 +53,19 @@ namespace HacknetArchipelago.Commands
 
             if (int.TryParse(args[1], out int access))
             {
+                if(access > 3 || access < -1)
+                {
+                    os.terminal.writeLine("Invalid Argument - Invalid faction access value");
+                    os.commandInvalid = true;
+                    return;
+                }
+
                 FactionAccess factionAccess = (FactionAccess)access;
-                HacknetAPCore._factionAccess = factionAccess;
+                InventoryManager._factionAccess = factionAccess;
                 os.terminal.writeLine($"Set faction access to {Enum.GetName(typeof(FactionAccess), factionAccess)} ({access})");
             } else
             {
                 os.terminal.writeLine("Invalid Argument - argument must be a number");
-                os.validCommand = false;
                 os.commandInvalid = true;
             }
         }

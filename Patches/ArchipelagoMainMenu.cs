@@ -20,6 +20,7 @@ using Pathfinder.Util;
 
 using TextBox = HacknetArchipelago.Replacements.ArchipelagoTextBox;
 using Pathfinder.GUI;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -142,9 +143,10 @@ namespace HacknetArchipelago.Patches
                     HacknetAPCore.Logger.LogWarning("You left either the Archipelago URI or Archipelago Slot field empty, don't do that.");
                 } else
                 {
-                    LoginResult archiLogin = HacknetAPCore.ConnectToArchipelago(archiURI, archiSlot, archiPassword);
+                    //LoginResult archiLogin = HacknetAPCore.ConnectToArchipelago(archiURI, archiSlot, archiPassword);
+                    LoginResult archiLogin = ArchipelagoManager.ConnectToArchipelago(archiURI, archiSlot, archiPassword);
 
-                    if(archiLogin.Successful)
+                    if (archiLogin.Successful)
                     {
                         Console.WriteLine("[Hacknet_Archipelago] Connected to the Archipelago session.");
                         archiLogoColor = Color.Green;
@@ -189,7 +191,7 @@ namespace HacknetArchipelago.Patches
                 }
             } else if(connectButton)
             {
-                HacknetAPCore.DisconnectFromArchipelago();
+                ArchipelagoManager.DisconnectFromArchipelago();
                 isConnected = false;
                 archiLogoColor = Color.White;
             }

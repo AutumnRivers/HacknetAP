@@ -10,6 +10,7 @@ using Pathfinder.Replacements;
 using Pathfinder.Util;
 using BepInEx;
 using System.Linq;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -42,9 +43,9 @@ namespace HacknetArchipelago.Patches
 
                 if (locations.TryGetValue(missionName, out string archiLocation))
                 {
-                    if(!HacknetAPCore.IsConnected)
+                    if(!ArchipelagoManager.IsConnected)
                     {
-                        HacknetAPCore._cachedChecks.Add(archiLocation);
+                        LocationManager._cachedChecks.Add(archiLocation);
                         HacknetAPCore.Logger.LogWarning($"Completed location \"{archiLocation}\", but player " +
                             "isn't currently connected to Archipelago. It's been saved for the next time the user " +
                             "connects to Archipelago.");
@@ -57,7 +58,7 @@ namespace HacknetArchipelago.Patches
                         archiLocation);
                     if (locationID > -1)
                     {
-                        HacknetAPCore.SendArchipelagoLocations(locationID);
+                        LocationManager.SendArchipelagoLocations(locationID);
                     }
                     else
                     {
@@ -214,7 +215,7 @@ namespace HacknetArchipelago.Patches
             [HarmonyPatch(typeof(HubFaction), "ForceStartBitMissions")]
             // My hatred for failsafes continue
             // This will probably break things... I hope not.
-            public static bool PreventLoadingFinaleAutomaticalle()
+            public static bool PreventLoadingFinaleAutomatically()
             {
                 Computer csecComp = ComputerLookup.FindById("mainHub");
                 MissionHubServer csecHub = (MissionHubServer)csecComp.getDaemon(typeof(MissionHubServer));

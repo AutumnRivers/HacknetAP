@@ -1,5 +1,5 @@
 ﻿using Hacknet;
-
+using HacknetArchipelago.Managers;
 using Pathfinder.Event.Gameplay;
 using System.Collections.Generic;
 
@@ -18,8 +18,8 @@ namespace HacknetArchipelago
 
             foreach(var flag in playerFlags)
             {
-                if (HacknetAPCore._collectedFlags.Contains(flag)) continue;
-                HacknetAPCore._collectedFlags.Add(flag);
+                if (LocationManager._collectedFlags.Contains(flag)) continue;
+                LocationManager._collectedFlags.Add(flag);
 
                 bool isArchiLocation = ArchipelagoLocations.FlagToLocation.ContainsKey(flag);
                 if (!isArchiLocation) continue;
@@ -40,7 +40,7 @@ namespace HacknetArchipelago
 
             if(flagIDsToSend.Count > 0)
             {
-                HacknetAPCore.SendArchipelagoLocations([.. flagIDsToSend]);
+                LocationManager.SendArchipelagoLocations([.. flagIDsToSend]);
             }
         }
     }

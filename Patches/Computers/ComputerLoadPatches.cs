@@ -5,6 +5,7 @@ using Pathfinder.Event.Loading;
 
 using Hacknet;
 using System.Collections.Generic;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -16,7 +17,7 @@ namespace HacknetArchipelago.Patches
             var itemName = ArchipelagoItems.ArchipelagoDataToItemName(replacement);
             if (itemName == null) return;
 
-            if(!HacknetAPCore._localInventory.ContainsKey(itemName))
+            if(!InventoryManager._localInventory.ContainsKey(itemName))
             {
                 var itemID = ArchipelagoItems.ArchipelagoDataToItem(replacement);
                 textReplaceEvent.Replacement = $"ArchipelagoItemID:{itemID}|{itemName}\n" +
@@ -36,7 +37,7 @@ namespace HacknetArchipelago.Patches
             if (fileName == default || _excludedExes.Contains(fileName)) return;
 
             string file = fileName.Split('.')[0];
-            if(!HacknetAPCore._localInventory.ContainsKey(file))
+            if(!InventoryManager._localInventory.ContainsKey(file))
             {
                 HacknetAPCore.SpeakAsSystem($"The executable file {file} isn't in your Archipelago inventory!\n" +
                     "If this item was shuffled into the item pool, then it won't launch until you've received it via Archipelago.\n" +

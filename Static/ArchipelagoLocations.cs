@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HacknetArchipelago.Managers;
+using System.Collections.Generic;
 
 namespace HacknetArchipelago
 {
@@ -110,7 +111,7 @@ namespace HacknetArchipelago
             {
                 if (!hasRequiredItems) return false;
 
-                hasRequiredItems = HacknetAPCore._localInventory.ContainsKey(reqItem);
+                hasRequiredItems = InventoryManager._localInventory.ContainsKey(reqItem);
             }
 
             return hasRequiredItems;

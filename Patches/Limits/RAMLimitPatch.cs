@@ -1,12 +1,14 @@
 ﻿using Hacknet;
 using Pathfinder.Event.Gameplay;
 
+using HacknetArchipelago.Managers;
+
 namespace HacknetArchipelago.Patches
 {
     public class RAMLimitPatch
     {
         public static bool ramWasSet = false;
-        private static int _lastRamLimit = HacknetAPCore._ramLimit;
+        private static int _lastRamLimit = InventoryManager._ramLimit;
 
         public static void LimitRAM(OSUpdateEvent oSUpdateEvent)
         {
@@ -18,12 +20,12 @@ namespace HacknetArchipelago.Patches
 
             OS os = oSUpdateEvent.OS;
 
-            if(!ramWasSet || _lastRamLimit != HacknetAPCore._ramLimit)
+            if(!ramWasSet || _lastRamLimit != InventoryManager._ramLimit)
             {
-                os.ramAvaliable -= HacknetAPCore._ramLimit - os.totalRam;
-                os.totalRam = HacknetAPCore._ramLimit - (OS.TOP_BAR_HEIGHT + 2);
+                os.ramAvaliable -= InventoryManager._ramLimit - os.totalRam;
+                os.totalRam = InventoryManager._ramLimit - (OS.TOP_BAR_HEIGHT + 2);
                 ramWasSet = true;
-                _lastRamLimit = HacknetAPCore._ramLimit;
+                _lastRamLimit = InventoryManager._ramLimit;
             }
         }
     }
