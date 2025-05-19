@@ -79,11 +79,15 @@ namespace HacknetArchipelago.Daemons
 
         public int MessagesSent = 0;
 
-        private const string FULL_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
-        private const int SENDER_OFFSET = 75;
+        private const int SENDER_OFFSET = 150;
+
+        private float _baseYOffset = 0;
+        private const int SPACING = 2;
 
         public void DrawIRCEntry(ArchipelagoIRCEntry entry, Rectangle bounds)
         {
+            if (ArchipelagoEntries.IndexOf(entry) == 0) _baseYOffset = bounds.Y;
+
             bool isItemEntry = entry.GetType() == typeof(ArchipelagoItemIRCEntry);
             
             if(isItemEntry)
@@ -95,27 +99,27 @@ namespace HacknetArchipelago.Daemons
             string sender = string.Format(SENDER_TEMPLATE, entry.Sender);
             bool isSentByPlayer = entry.Sender == PlayerName;
 
-            int index = ArchipelagoEntries.IndexOf(entry);
+            string messageContent = Utils.SmartTwimForWidth(entry.Content, (int)(bounds.Width - SENDER_OFFSET), GuiData.smallfont);
+            float yOffset = _baseYOffset + SPACING;
 
-            string messageContent = Utils.SmartTwimForWidth(entry.Content, (int)(bounds.Width - SeperatorWidth), GuiData.smallfont);
+            TextItem.doSmallLabel(new(bounds.X, yOffset), sender, isSentByPlayer ? OwnColor : OtherPlayerColor);
+            TextItem.doSmallLabel(new(SENDER_OFFSET + bounds.X, yOffset), messageContent, TextColor);
 
-            float yOffset = GuiData.smallfont.MeasureString(FULL_CHARACTERS).Y * (ArchipelagoEntries.Count - index);
-            bool willHitTop = yOffset + GuiData.smallfont.MeasureString(messageContent).Y >= bounds.Height;
+            _baseYOffset += GuiData.smallfont.MeasureString(messageContent).Y;
 
-            if (willHitTop) return;
-
-            TextItem.doSmallLabel(new(0, yOffset), sender, isSentByPlayer ? OwnColor : OtherPlayerColor);
-            TextItem.doSmallLabel(new(SENDER_OFFSET, yOffset), messageContent, TextColor);
+            RenderedRectangle.doRectangle(bounds.X, (int)_baseYOffset, bounds.Width, 2, Color.WhiteSmoke * 0.15f);
         }
 
         public void DrawItemIRCEntry(ArchipelagoItemIRCEntry entry, Rectangle bounds)
         {
-            int index = ArchipelagoEntries.IndexOf(entry);
-
+            if (entry.Sender == "Server") return;
+ 
             string sender = string.Format(SENDER_TEMPLATE, SYSTEM_SENDER);
             bool isSentByPlayer = entry.Sender == PlayerName;
             bool isReceivedByPlayer = entry.Receiver == PlayerName;
-            bool isOwnItem = isSentByPlayer && isReceivedByPlayer;
+            bool isOwnItem = (isSentByPlayer && isReceivedByPlayer);
+
+            StringBuilder offsetBuilder = new();
 
             string first = string.Format("{0}", entry.Sender);
             string second = isOwnItem ? " found their " : " found ";
@@ -125,51 +129,96 @@ namespace HacknetArchipelago.Daemons
             string sixth = isOwnItem ? ")" : "{0}";
             string seventh = isOwnItem ? "" : ")";
 
-            float xOffset = SENDER_OFFSET;
-            float yOffset = GuiData.smallfont.MeasureString(FULL_CHARACTERS).Y * (ArchipelagoEntries.Count - index);
-            TextItem.doSmallLabel(new(0, yOffset), sender, TextColor);
+            float xOffset = SENDER_OFFSET + bounds.X;
+            float yOffset = _baseYOffset + SPACING;
+            TextItem.doSmallLabel(new(bounds.X, yOffset), sender, _patternColor);
 
             float firstOffset = GuiData.smallfont.MeasureString(first).X;
             TextItem.doSmallLabel(new(xOffset, yOffset), first, isSentByPlayer ? OwnColor : OtherPlayerColor);
             xOffset += firstOffset;
+            offsetBuilder.Append(first);
 
             TextItem.doSmallLabel(new(xOffset, yOffset), second, TextColor);
             xOffset += GuiData.smallfont.MeasureString(second).X;
+            offsetBuilder.Append(second);
 
+            third = string.Format(third, isOwnItem ? entry.ItemName : entry.Receiver);
             TextItem.doSmallLabel(new(xOffset, yOffset), third, isOwnItem ? ItemColors[entry.ItemClassification] :
                 isReceivedByPlayer ? OwnColor : OtherPlayerColor);
             xOffset += GuiData.smallfont.MeasureString(third).X;
+            offsetBuilder.Append(third);
 
+            fourth = !isOwnItem ? string.Format(fourth, entry.ItemName) : fourth;
             TextItem.doSmallLabel(new(xOffset, yOffset), fourth, isOwnItem ? TextColor : ItemColors[entry.ItemClassification]);
             xOffset += GuiData.smallfont.MeasureString(fourth).X;
+            offsetBuilder.Append(fourth);
 
+            fifth = isOwnItem ? string.Format(fifth, entry.ItemLocation) : fifth;
             TextItem.doSmallLabel(new(xOffset, yOffset), fifth, isOwnItem ? LocationColor : TextColor);
             xOffset += GuiData.smallfont.MeasureString(fifth).X;
+            offsetBuilder.Append(fifth);
 
+            sixth = !isOwnItem ? string.Format(sixth, entry.ItemLocation) : sixth;
             TextItem.doSmallLabel(new(xOffset, yOffset), sixth, isOwnItem ? TextColor : LocationColor);
             xOffset += GuiData.smallfont.MeasureString(sixth).X;
+            offsetBuilder.Append(sixth);
 
             TextItem.doSmallLabel(new(xOffset, yOffset), seventh, TextColor);
+            offsetBuilder.Append(seventh);
+
+            string finalString = Utils.SmartTwimForWidth(offsetBuilder.ToString(), bounds.Width - SENDER_OFFSET, GuiData.smallfont);
+            _baseYOffset += GuiData.smallfont.MeasureString(finalString).Y;
+
+            RenderedRectangle.doRectangle(bounds.X, (int)_baseYOffset, bounds.Width, 2, Color.WhiteSmoke * 0.15f);
         }
+
+        private readonly List<Color> ArchipelagoColorCycle = new()
+        {
+            Color.LightSalmon,
+            Color.SteelBlue,
+            Color.PaleGoldenrod,
+            Color.IndianRed,
+            Color.PaleGreen,
+            Color.Plum
+        };
+        private Color _currentColor = Color.LightSalmon;
+        private Color _nextColor = Color.SteelBlue;
+        private float _colorCycleProgress = 0f;
+        private Color _patternColor = Color.LightSalmon;
 
         public override void draw(Rectangle bounds, SpriteBatch sb)
         {
             base.draw(bounds, sb);
 
-            PatternDrawer.draw(bounds, 0, Color.Transparent, OS.currentInstance.defaultHighlightColor * 0.5f,
-                sb, PatternDrawer.thinStripe);
-            RenderedRectangle.doRectangle(SENDER_OFFSET - 4, bounds.Y, 2, bounds.Height, Color.LightGray * 0.25f);
+            _colorCycleProgress += (float)OS.currentInstance.lastGameTime.ElapsedGameTime.TotalSeconds / 10;
+            if(_colorCycleProgress >= 1)
+            {
+                _colorCycleProgress = 0;
+                int curIndex = _currentColor == ArchipelagoColorCycle.Last() ? 0 : ArchipelagoColorCycle.IndexOf(_currentColor) + 1;
+                int nextIndex = _nextColor == ArchipelagoColorCycle.Last() ? 0 : ArchipelagoColorCycle.IndexOf(_nextColor) + 1;
 
-            entriesPanel.PanelHeight = bounds.Height;
+                _currentColor = ArchipelagoColorCycle[curIndex];
+                _nextColor = ArchipelagoColorCycle[nextIndex];
+            }
+            _patternColor = Color.Lerp(_currentColor, _nextColor, _colorCycleProgress);
+
+            PatternDrawer.draw(bounds, 0.15f, Color.Transparent, _patternColor * 0.25f,
+                sb, PatternDrawer.thinStripe);
+            RenderedRectangle.doRectangle(SENDER_OFFSET - 4 + bounds.X, bounds.Y, 2, bounds.Height, Color.LightGray * 0.25f);
+
+            entriesPanel.PanelHeight = (int)GuiData.smallfont.MeasureString("abcdef").Y;
             entriesPanel.NumberOfPanels = ArchipelagoEntries.Count + 1;
 
             Action<int, Rectangle, SpriteBatch> drawEntries = delegate (int index, Rectangle drawbounds, SpriteBatch spriteBatch)
             {
-                if(index + 1 < ArchipelagoEntries.Count)
+                if(index < ArchipelagoEntries.Count)
                 {
                     DrawIRCEntry(ArchipelagoEntries[index], drawbounds);
                 }
             };
+
+            _baseYOffset = 0;
+            entriesPanel.Draw(drawEntries, sb, bounds);
         }
     }
 

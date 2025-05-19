@@ -31,6 +31,7 @@ using Pathfinder.Util;
 
 using HacknetArchipelago.Managers;
 using HacknetArchipelago.Daemons;
+using Pathfinder.Daemon;
 
 namespace HacknetArchipelago
 {
@@ -115,6 +116,7 @@ namespace HacknetArchipelago
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
             EventManager<CommandExecuteEvent>.AddHandler(ComputerLoadPatches.WarnWhenDownloadingArchipelagoExes);
             EventManager<OSLoadedEvent>.AddHandler(InventoryManager.CheckItemsCacheOnLoad);
+            EventManager<OSLoadedEvent>.AddHandler(SetupArchipelagoIRC);
             EventManager<OSUpdateEvent>.AddHandler(CheckForFlagsPatch.CheckFlagsForArchiLocations);
             EventManager<OSUpdateEvent>.AddHandler(ArchipelagoManager.AssureArchiConnection);
             EventManager<UnloadEvent>.AddHandler(ArchipelagoManager.UpdateServerDataOnClose);
@@ -122,6 +124,8 @@ namespace HacknetArchipelago
 
             EventManager<ExecutableExecuteEvent>.AddHandler(ShellLimitPatch.LimitShells);
             EventManager<OSUpdateEvent>.AddHandler(RAMLimitPatch.LimitRAM);
+
+            DaemonManager.RegisterDaemon<ArchipelagoIRCDaemon>();
 
             return true;
         }
@@ -132,15 +136,17 @@ namespace HacknetArchipelago
         {
             OS os = oSLoadedEvent.Os;
 
-            bool existsAlready = ComputerLookup.FindById(ARCHI_IRC_ID) != default;
+            bool existsAlready = os.netMap.nodes.Any(c => c.idName == ARCHI_IRC_ID);
             if (existsAlready) return;
 
             Computer archiIRCComp = new("Archipelago IRC", "archipelago.gg", new(0.5f, 0.5f), 0, 0, os);
-            os.netMap.discoverNode(archiIRCComp);
-
+            archiIRCComp.idName = ARCHI_IRC_ID;
             ArchipelagoIRCDaemon archipelagoIRC = new(archiIRCComp, "", os);
             archiIRCComp.daemons.Add(archipelagoIRC);
             archiIRCComp.initDaemons();
+
+            os.netMap.nodes.Add(archiIRCComp);
+            os.netMap.discoverNode(archiIRCComp);
         }
 
         public const string SYSTEM_PREFIX = "(HACKNET_ARCHIPELAGO) ";

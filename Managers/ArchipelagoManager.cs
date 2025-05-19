@@ -20,6 +20,8 @@ using static HacknetArchipelago.Managers.DeathLinkManager;
 using Hacknet;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
+using HacknetArchipelago.Daemons;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
 
 namespace HacknetArchipelago.Managers
 {
@@ -89,7 +91,7 @@ namespace HacknetArchipelago.Managers
                         slotName,
                         ItemsHandlingFlags.AllItems,
                         null,
-                        ["NoText"],
+                        [],
                         null,
                         password, true);
             if (result.Successful)
@@ -147,6 +149,22 @@ namespace HacknetArchipelago.Managers
                     return EventManager.IsFullVIP;
                 case HacknetAPSlotData.VictoryCondition.Completionist:
                     return EventManager.IsCompletionist;
+            }
+        }
+
+        internal static void SendTextMessageToIRC(LogMessage message)
+        {
+            if (message.GetType() != typeof(ChatLogMessage)) return;
+
+            var chatMessage = (ChatLogMessage)message;
+
+            try
+            {
+                ArchipelagoIRCEntry entry = new(chatMessage.Player.Name, chatMessage.Message);
+                ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(entry);
+            } catch(Exception e)
+            {
+                HacknetAPCore.Logger.LogError("Unable to add text log to IRC:\n" + e.ToString());
             }
         }
 
@@ -316,6 +334,16 @@ namespace HacknetArchipelago.Managers
                     Logger.LogDebug($"Not notifying user of item {itemName} - user already has item");
                 }
                 return;
+            }
+
+            try
+            {
+                ArchipelagoItemIRCEntry itemIRCEntry = new(itemInfo.Player.Name, PlayerName,
+                    itemInfo.ItemDisplayName, itemInfo.LocationDisplayName, itemInfo.Flags);
+                ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(itemIRCEntry);
+            } catch(Exception e)
+            {
+                HacknetAPCore.Logger.LogError("Failed to log received archi item to IRC:\n" + e.ToString());
             }
 
             bool isCommonItem = ArchipelagoItems.ArchipelagoItemToData.ContainsKey(itemID);

@@ -2,7 +2,9 @@
 using System.Text;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Hacknet;
+using HacknetArchipelago.Daemons;
 using HacknetArchipelago.Managers;
+using System;
 
 namespace HacknetArchipelago.Commands
 {
@@ -164,6 +166,15 @@ namespace HacknetArchipelago.Commands
             var fullContent = string.Join(" ", content);
 
             HacknetAPCore.ArchipelagoSession.Say(fullContent);
+
+            try
+            {
+                ArchipelagoIRCEntry archiEntry = new(ArchipelagoManager.PlayerName, fullContent);
+                ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(archiEntry);
+            } catch(Exception e)
+            {
+                HacknetAPCore.Logger.LogError("Unable to add text log to IRC:\n" + e.ToString());
+            }
         }
 
         private static void WriteToTerminal(string message)
