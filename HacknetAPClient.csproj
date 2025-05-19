@@ -79,6 +79,7 @@
     <Compile Include="Commands\ArchipelagoDebugCommands.cs" />
     <Compile Include="Commands\ArchipelagoUserCommands.cs" />
     <Compile Include="Commands\ItemCommands.cs" />
+    <Compile Include="Daemons\ArchipelagoIRCDaemon.cs" />
     <Compile Include="HacknetAPCore.cs" />
     <Compile Include="Managers\ArchipelagoManager.cs" />
     <Compile Include="Managers\DeathLinkManager.cs" />

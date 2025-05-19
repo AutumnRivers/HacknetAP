@@ -1,5 +1,5 @@
 ﻿using Hacknet;
-
+using HacknetArchipelago.Managers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,7 +26,7 @@ namespace HacknetArchipelago
             { 115, new() { { "ThemeChanger", PortExploits.crackExeData[14] } } },
             { 116, new() { { "Clock", PortExploits.crackExeData[11] } } },
             { 117, new() { { "HexClock", PortExploits.crackExeData[16] } } },
-            { 118, new() { { "Hacknet", PortExploits.crackExeData[15] } } },
+            { 1337, new() { { "Hacknet", PortExploits.crackExeData[15] } } },
             // Labyrinths
             { 6881, new() { { "TorrentStreamInjector", PortExploits.crackExeData[6881] } } },
             { 443, new() { { "SSLTrojan", PortExploits.crackExeData[443] } } },
@@ -42,8 +42,85 @@ namespace HacknetArchipelago
             { 124, new() { { "DNotes", PortExploits.crackExeData[37] } } },
             { 125, new() { { "Tuneswap", PortExploits.crackExeData[39] } } },
             { 126, new() { { "ClockV2", PortExploits.crackExeData[38] } } },
-            { 193, new() { { "SignalScramble", PortExploits.crackExeData[32] } } }
-            // TODO: implement executable packs / regional groups
+            { 193, new() { { "SignalScramble", PortExploits.crackExeData[32] } } },
+            // Executable Packs
+            // Regional
+            { 1000, new() // Intro
+            {
+                { "FTPBounce", PortExploits.crackExeData[21] },
+                { "SSHCrack", PortExploits.crackExeData[22] }
+            } },
+            { 1001, new() // Entropy
+            {
+                { "SMTPOverflow", PortExploits.crackExeData[25] },
+                { "WebServerWorm", PortExploits.crackExeData[80] },
+                { "SQL_MemCorrupt", PortExploits.crackExeData[1433] },
+                { "eosDeviceScan", PortExploits.crackExeData[13] },
+                { "Clock", PortExploits.crackExeData[11] }
+            } },
+            { 1002, new() // CSEC
+            {
+                { "Decypher", PortExploits.crackExeData[9] },
+                { "DECHead", PortExploits.crackExeData[10] },
+                { "KBTPortTest", PortExploits.crackExeData[104] },
+                { "ThemeChanger", PortExploits.crackExeData[14] }
+            } },
+            { 1003, new() // Labyrinths
+            {
+                { "TorrentStreamInjector", PortExploits.crackExeData[6881] },
+                { "SSLTrojan", PortExploits.crackExeData[443] },
+                { "FTPSprint", PortExploits.crackExeData[211] },
+                { "MemForensics", PortExploits.crackExeData[33] },
+                { "MemDumpGenerator", PortExploits.crackExeData[34] },
+                { "PacificPortcrusher", PortExploits.crackExeData[192] },
+                { "ComShell", PortExploits.crackExeData[36] },
+                { "NetmapOrganizer", PortExploits.crackExeData[35] },
+                { "SignalScramble", PortExploits.crackExeData[32] }
+            } },
+            { 1004, new() // Finale
+            {
+                { "Tracekill", PortExploits.crackExeData[12] },
+                { "OpShell", PortExploits.crackExeData[41] }
+            } },
+            // Practicality
+            { 1005, new() // Portcrushers
+            {
+                { "FTPBounce", PortExploits.crackExeData[21] },
+                { "SSHCrack", PortExploits.crackExeData[22] },
+                { "SMTPOverflow", PortExploits.crackExeData[25] },
+                { "WebServerWorm", PortExploits.crackExeData[80] },
+                { "SQL_MemCorrupt", PortExploits.crackExeData[1433] },
+                { "eosDeviceScan", PortExploits.crackExeData[13] }, // "that's not a portcrusher!" idc
+                { "KBTPortTest", PortExploits.crackExeData[104] },
+                { "Tracekill", PortExploits.crackExeData[12] },
+                { "ThemeChanger", PortExploits.crackExeData[14] },
+                { "Decypher", PortExploits.crackExeData[9] },
+                { "DECHead", PortExploits.crackExeData[10] }
+            } },
+            { 1006, new() // Labyrinths Portcrushers
+            {
+                { "TorrentStreamInjector", PortExploits.crackExeData[6881] },
+                { "SSLTrojan", PortExploits.crackExeData[443] },
+                { "FTPSprint", PortExploits.crackExeData[211] },
+                { "PacificPortcrusher", PortExploits.crackExeData[192] },
+                { "SignalScramble", PortExploits.crackExeData[32] },
+                { "MemForensics", PortExploits.crackExeData[33] },
+                { "MemDumpGenerator", PortExploits.crackExeData[34] }
+            } },
+            { 1007, new() // Clock Pack
+            {
+                { "Clock", PortExploits.crackExeData[11] },
+                { "HexClock", PortExploits.crackExeData[16] },
+                { "ClockV2", PortExploits.crackExeData[38] }
+            } },
+            { 1008, new() // Misc.
+            {
+                { "OpShell", PortExploits.crackExeData[41] },
+                { "ComShell", PortExploits.crackExeData[36] },
+                { "NetmapOrganizer", PortExploits.crackExeData[35] },
+                { "DNotes", PortExploits.crackExeData[37] },
+                { "Tuneswap", PortExploits.crackExeData[39] }
+            } }
         };
 
         public static readonly List<string> ExecutableNames = new()
@@ -54,6 +131,12 @@ namespace HacknetArchipelago
             "HacknetEXE", "TorrentStreamInjector", "SSLTrojan", "FTPSprint",
             "Mem Suite", "PacificPortcrusher", "ComShell", "NetmapOrganizer",
             "DNotes", "Tuneswap", "ClockV2", "SignalScramble"
+        };
+
+        public static readonly List<string> LabyrinthsExecutableNames = new()
+        {
+            "TorrentStreamInjector", "SSLTrojan", "Mem Suite", "PacificPortcrusher", "ComShell",
+            "NetmapOrganizer", "DNotes", "Tuneswap", "ClockV2", "SignalScramble"
         };
 
         public static long ArchipelagoDataToItem(string data)
@@ -69,6 +152,43 @@ namespace HacknetArchipelago
             if (entry.Key < 21) return null;
             var itemName = entry.Value.First(subEntry => subEntry.Value == data).Key;
             return itemName;
+        }
+
+        public static bool PlayerHasExecutable(string execName)
+        {
+            if(InventoryManager._localInventory.ContainsKey(execName))
+            {
+                return true;
+            } else if(ArchipelagoManager.SlotData.ExecutableGrouping != HacknetAPSlotData.ExecutableGroupingMode.Individually)
+            {
+                foreach(var item in InventoryManager._localInventory)
+                {
+                    if (!item.Key.EndsWith("Pack")) continue;
+                    if (IsExecutableInPack(execName, item.Key)) return true;
+                }
+            }
+            return false;
+        }
+
+        public static readonly Dictionary<string, int> PackToID = new()
+        {
+            { "Intro Executable Pack", 1000 },
+            { "Entropy Executable Pack", 1001 },
+            { "CSEC Executable Pack", 1002 },
+            { "Labyrinths Executable Pack", 1003 },
+            { "Finale Executable Pack", 1004 },
+            { "Portcrusher Pack", 1005 },
+            { "Labyrinths Portcrusher Pack", 1006 },
+            { "Clock Pack", 1007 },
+            { "Misc. Executables Pack", 1008 }
+        };
+
+        public static bool IsExecutableInPack(string execName, string packName)
+        {
+            if (!PackToID.ContainsKey(packName)) return false;
+            var packID = PackToID[packName];
+            var pack = ArchipelagoItemToData[packID];
+            return pack.Any(pair => pair.Value == execName);
         }
     }
 }

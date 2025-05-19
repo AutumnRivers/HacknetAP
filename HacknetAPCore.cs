@@ -30,6 +30,7 @@ using Pathfinder.Event.Saving;
 using Pathfinder.Util;
 
 using HacknetArchipelago.Managers;
+using HacknetArchipelago.Daemons;
 
 namespace HacknetArchipelago
 {
@@ -107,6 +108,9 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("debugpeek", ArchipelagoDebugCommands.TestPeekLocation, false, true);
             CommandManager.RegisterCommand("setfactionaccess", ArchipelagoDebugCommands.DebugSetFactionAccess, false, true);
             CommandManager.RegisterCommand("printserverdata", ArchipelagoDebugCommands.DebugPrintStorage, false, true);
+            CommandManager.RegisterCommand("addtoptcrate", ArchipelagoDebugCommands.AddToConstantRate, false, true);
+            CommandManager.RegisterCommand("addtoptcpassive", ArchipelagoDebugCommands.AddToPassiveRate, false, true);
+            CommandManager.RegisterCommand("addarchidebugentries", ArchipelagoDebugCommands.AddTestEntriesToIRC, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
             EventManager<CommandExecuteEvent>.AddHandler(ComputerLoadPatches.WarnWhenDownloadingArchipelagoExes);
@@ -120,6 +124,23 @@ namespace HacknetArchipelago
             EventManager<OSUpdateEvent>.AddHandler(RAMLimitPatch.LimitRAM);
 
             return true;
+        }
+
+        public const string ARCHI_IRC_ID = "archiIRC";
+
+        public static void SetupArchipelagoIRC(OSLoadedEvent oSLoadedEvent)
+        {
+            OS os = oSLoadedEvent.Os;
+
+            bool existsAlready = ComputerLookup.FindById(ARCHI_IRC_ID) != default;
+            if (existsAlready) return;
+
+            Computer archiIRCComp = new("Archipelago IRC", "archipelago.gg", new(0.5f, 0.5f), 0, 0, os);
+            os.netMap.discoverNode(archiIRCComp);
+
+            ArchipelagoIRCDaemon archipelagoIRC = new(archiIRCComp, "", os);
+            archiIRCComp.daemons.Add(archipelagoIRC);
+            archiIRCComp.initDaemons();
         }
 
         public const string SYSTEM_PREFIX = "(HACKNET_ARCHIPELAGO) ";

@@ -26,8 +26,13 @@ namespace HacknetArchipelago.Patches.Missions
         public static void PreventAcceptingOutOfLogicEntropyMissions(ILContext il)
         {
             OS os = OS.currentInstance;
-            if (os != null) return;
-            if (os.connectedComp.idName != ENTROPY_ID) return;
+            if(os != null)
+            {
+                if(os.connectedComp != null)
+                {
+                    if (os.connectedComp.idName != ENTROPY_ID) return;
+                }
+            }
 
             ILCursor c = new(il);
 
@@ -111,7 +116,6 @@ namespace HacknetArchipelago.Patches.Missions
             if (!middleExists) return;
             c.Index -= 1;
 
-            Console.WriteLine($"{c.Next.OpCode}");
             c.MarkLabel(skipLabel);
 
             bool finalExists = c.TryGotoNext(x => x.MatchLdstr("User ID Assigned to Different Faction"));
@@ -214,10 +218,5 @@ namespace HacknetArchipelago.Patches.Missions
             c.Next.OpCode = OpCodes.Ldloc_S;
             c.Next.Operand = (byte)missionUnavailableLocal;
         }
-    }
-
-    public class MissionPreventionHelper
-    {
-        public static string Reason = "This mission is out of logic.";
     }
 }

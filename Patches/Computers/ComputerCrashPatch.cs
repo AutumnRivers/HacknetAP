@@ -40,12 +40,23 @@ namespace HacknetArchipelago.Patches.Computers
             newBsodText.Append("> DEATHLINK SERVICE : ACTIVE\n");
             newBsodText.Append("> Remote Crash caused by DeathLink Service\n");
             newBsodText.Append("> For more information, visit https://archipelago.gg/\n");
-            newBsodText.Append("\\-----------------------------------------------------/\n\n");
+            newBsodText.Append("\\-----------------------------------------------------/\n\n\n");
             newBsodText.Append($"REASON FOR REMOTE DETONATION :\n{DeathLinkManager._lastDeathLinkCause}\n");
             newBsodText.Append("ERROR CODE : 1337\n\nThe system will now restart. Please wait...");
             OS.currentInstance.crashModule.bsodText = newBsodText.ToString();
             Console.WriteLine("New BSOD Text:\n" + newBsodText.ToString());
             DeathLinkManager._crashCausedByDeathLink = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(OS),"timerExpired")]
+        public static void SendDeathlinkOnTraceBack()
+        {
+            if (DeathLinkManager.DLService == null) return;
+            string playerName = ArchipelagoManager.PlayerName;
+
+            DeathLink traceDL = new(playerName, playerName + " got traced back!");
+            DeathLinkManager.SendDeathLink(traceDL);
         }
     }
 }

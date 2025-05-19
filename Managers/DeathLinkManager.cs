@@ -31,5 +31,10 @@ namespace HacknetArchipelago.Managers
             OS.currentInstance.thisComputer.log($"RECEIVED_DEATHLINK_FROM_{deathLink.Source}");
             OS.currentInstance.thisComputer.crash(deathLink.Source);
         }
+
+        public static void SendDeathLink(DeathLink deathLink)
+        {
+            DLService.SendDeathLink(deathLink);
+        }
     }
 }

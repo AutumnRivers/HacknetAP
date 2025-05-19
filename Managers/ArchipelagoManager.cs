@@ -34,12 +34,21 @@ namespace HacknetArchipelago.Managers
         public static bool IsConnected = false;
         public static bool IsNewRun = false;
 
-        public static APEventManager EventManager = new();
+        public static GoalManager EventManager = new();
 
         private static ManualLogSource Logger => HacknetAPCore.Logger;
 
         private static bool _warnedAboutDisconnect = false;
         private static ReceivedItemsHelper _itemsCache;
+
+        public static string PlayerName
+        {
+            get
+            {
+                if (Session == null) return "Someone";
+                return Session.Players.ActivePlayer.Name;
+            }
+        }
 
         internal static void AssureArchiConnection(OSUpdateEvent oSUpdateEvent)
         {
@@ -173,15 +182,17 @@ namespace HacknetArchipelago.Managers
             Session.DataStorage[Scope.Slot, toggleName] = newValue;
         }
 
-        internal static bool GetServerToggle(string toggleName)
+        internal async static Task<bool> GetServerToggle(string toggleName)
         {
-            bool dataIsNull = Session.DataStorage[Scope.Slot, toggleName] == null;
-            if(dataIsNull)
+            var data = await Session.DataStorage[Scope.Slot, toggleName].GetAsync();
+            if(data.Type == JTokenType.Null)
             {
-                Session.DataStorage[Scope.Slot, toggleName] = false;
+                Session.DataStorage[Scope.Slot, toggleName].Initialize(false);
                 return false;
+            } else
+            {
+                return (bool)data;
             }
-            return (bool)Session.DataStorage[Scope.Slot, toggleName];
         }
 
         internal static async void RetrieveDataFromServer()
@@ -211,12 +222,12 @@ namespace HacknetArchipelago.Managers
                 Logger.LogDebug($"Stored FHs: {storedUserData.RemainingForceHacks}");
             }
 
-            EventManager.BrokeHeart = GetServerToggle("achieved_heartstopper");
-            EventManager.LostAltitude = GetServerToggle("achieved_altitudeloss");
-            EventManager.IsVeteran = GetServerToggle("achieved_veteran");
+            EventManager.BrokeHeart = await GetServerToggle("achieved_heartstopper");
+            EventManager.LostAltitude = await GetServerToggle("achieved_altitudeloss");
+            EventManager.IsVeteran = await GetServerToggle("achieved_veteran");
 
-            EventManager.IsEntropyVIP = GetServerToggle("is_entropy_vip");
-            EventManager.IsCSECVIP = GetServerToggle("is_csec_vip");
+            EventManager.IsEntropyVIP = await GetServerToggle("is_entropy_vip");
+            EventManager.IsCSECVIP = await GetServerToggle("is_csec_vip");
         }
 
         public static void ForceCheckItemsCache()
@@ -291,6 +302,8 @@ namespace HacknetArchipelago.Managers
             var itemID = (int)itemInfo.ItemId;
             string itemName = itemInfo.ItemName;
 
+            HacknetAPCore.Logger.LogDebug($"Received Item: {itemInfo.ItemDisplayName} ({itemInfo.ItemId})");
+
             if (itemInfo.Player.Slot != PlayerSlot)
             {
                 HacknetAPCore.SpeakAsSystem($"Received {itemInfo.ItemDisplayName}!");
@@ -318,11 +331,11 @@ namespace HacknetArchipelago.Managers
             }
             else if (_trapNames.Contains(itemName))
             {
-                HandleTrap(itemName, itemID);
+                HandleTrap(itemInfo.Player.Name, itemID);
             }
             else if (itemName.StartsWith("PointClicker"))
             {
-
+                PointClickerManager.HandlePointClickerUpgrade(itemName);
             }
             else if (logUnknownItems)
             {
@@ -385,7 +398,7 @@ namespace HacknetArchipelago.Managers
             }
         }
 
-        private static void HandleTrap(string _, int itemID)
+        private static void HandleTrap(string itemSentBy, int itemID)
         {
             switch (itemID)
             {
@@ -400,13 +413,13 @@ namespace HacknetArchipelago.Managers
                     PointClickerManager.ChangePointClickerPoints(-1);
                     break;
                 case 669: // ForkBomb
-                    PlayerManager.ForkbombPlayer("Archipelago");
+                    PlayerManager.ForkbombPlayer(itemSentBy);
                     break;
             }
         }
     }
 
-    public class APEventManager
+    public class GoalManager
     {
         public bool BrokeHeart = false;
         public bool LostAltitude = false;

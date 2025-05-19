@@ -56,6 +56,7 @@ namespace HacknetArchipelago.Managers
             if (osLoadedEvent.Thrown || osLoadedEvent.Cancelled) return;
             HacknetAPCore.Logger.LogDebug("Successful OS load detected. Checking items cache...");
             HacknetAPCore._originalBsodText = osLoadedEvent.Os.crashModule.bsodText;
+            PointClickerManager.RefreshPointClickerDaemon();
             ArchipelagoManager.ForceCheckItemsCache();
 
             if (ArchipelagoManager.SlotData.EnableFactionAccess && _factionAccess == FactionAccess.Disabled)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.Enums;
 using Hacknet;
+using HacknetArchipelago.Daemons;
 using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Commands
@@ -83,6 +84,83 @@ namespace HacknetArchipelago.Commands
             os.terminal.writeLine($"Mission Skips: {serverStorage.RemainingMissionSkips}");
             os.terminal.writeLine($"ForceHacks: {serverStorage.RemainingForceHacks}");
             os.terminal.writeLine("END");
+        }
+
+        public static void AddToConstantRate(OS os, string[] args)
+        {
+            if (!checkIfDebugIsEnabled()) return;
+
+            if (int.TryParse(args[1], out int rate))
+            {
+                if (rate < 0)
+                {
+                    os.terminal.writeLine("Invalid Argument - Value must be more than -1");
+                    os.commandInvalid = true;
+                    return;
+                }
+
+                PointClickerManager.ChangePointClickerRate(rate);
+            }
+            else
+            {
+                os.terminal.writeLine("Invalid Argument - argument must be a number");
+                os.commandInvalid = true;
+            }
+        }
+
+        public static void AddToPassiveRate(OS os, string[] args)
+        {
+            if (!checkIfDebugIsEnabled()) return;
+
+            if (int.TryParse(args[1], out int rate))
+            {
+                if (rate < 0)
+                {
+                    os.terminal.writeLine("Invalid Argument - Value must be more than -1");
+                    os.commandInvalid = true;
+                    return;
+                }
+
+                PointClickerManager.ChangeRateMultiplier(rate);
+                os.terminal.writeLine($"New passive rate: {PointClickerManager.RateMultiplier}");
+            }
+            else
+            {
+                os.terminal.writeLine("Invalid Argument - argument must be a number");
+                os.commandInvalid = true;
+            }
+        }
+
+        private static readonly List<ArchipelagoIRCEntry> TestEntries = new()
+        {
+            new("Test User", "Lorem ipsum dolor sit amet."),
+            new(ArchipelagoManager.PlayerName, "Consectetur adipiscing elit."),
+            new ArchipelagoItemIRCEntry("Test User", "Other User", "Progression Item", "Quick Brown Fox", ItemFlags.Advancement),
+            new ArchipelagoItemIRCEntry(ArchipelagoManager.PlayerName, ArchipelagoManager.PlayerName,
+                "Trap", "Three Blind Mice", ItemFlags.Trap),
+            new ArchipelagoItemIRCEntry("Test User", ArchipelagoManager.PlayerName, "Useful Item", "The TARDIS",
+                ItemFlags.NeverExclude),
+            new ArchipelagoItemIRCEntry(ArchipelagoManager.PlayerName, "Other User", "Filler Item",
+                "Cool Beans", ItemFlags.None)
+        };
+
+        public static void AddTestEntriesToIRC(OS os, string[] args)
+        {
+            // No debug check
+
+            if(args.Length >= 2)
+            {
+                if (args[1] == "--clear")
+                {
+                    ArchipelagoIRCDaemon.ArchipelagoEntries.Clear();
+                    os.terminal.writeLine("Cleared current entries!");
+                }
+            }
+            foreach(var entry in TestEntries)
+            {
+                ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(entry);
+            }
+            os.terminal.writeLine("Debug entries added!");
         }
 
         private static bool checkIfDebugIsEnabled()

@@ -20,7 +20,7 @@ namespace HacknetArchipelago
             { "Point Clicker", "Entropy -- PointClicker (Mission)" },
             { "The famous counter-hack", "Entropy -- The famous counter-hack" },
             { "Back to School", "Entropy -- Back to School" },
-            { "Internal investigations", "Entropy -- X-C Project" },
+            { "Re: Internal investigations", "Entropy -- X-C Project" },
             { "Smash N' Grab", "Entropy -- Smash N' Grab" },
             { "eOS Device Scanning", "Entropy -- eOS Device Scanning" },
             { "Aggression must be Punished", "Entropy -- Naix" },
@@ -81,10 +81,12 @@ namespace HacknetArchipelago
         public static readonly Dictionary<string, List<string>> RequiredItemsForLocation = new()
         {
             // Intro and Finale don't need this
-            // Entropy theoretically also doesn't need this
             { "eOS Device Scanning", ["eosDeviceScan"] },
             { "Smash N' Grab", ["eosDeviceScan"] },
-            { "Aggression must be Punished", ["eosDeviceScan"] },
+            { "Aggression must be Punished", [
+                "eosDeviceScan", "FTPBounce", "SSHCrack",
+                "WebServerWorm", "SMTPOverflow"
+                ] },
 
             { "Ghosting the Vault", ["DEC Suite"] },
             { "Through the Spyglass", ["DEC Suite"] },
@@ -96,7 +98,7 @@ namespace HacknetArchipelago
             { "Bit -- Foundation", [
                 "DEC Suite", "KBTPortTest",
                 "SMTPOverflow", "WebServerWorm",
-                "SSHCrack", "SQL_MemCorrupt"
+                "SSHCrack", "SQL_MemCorrupt", "FTPBounce"
                 ] }
         };
 
@@ -111,7 +113,16 @@ namespace HacknetArchipelago
             {
                 if (!hasRequiredItems) return false;
 
-                hasRequiredItems = InventoryManager._localInventory.ContainsKey(reqItem);
+                if(ArchipelagoItems.ExecutableNames.Contains(reqItem))
+                {
+                    hasRequiredItems = ArchipelagoItems.PlayerHasExecutable(reqItem);
+                } else
+                {
+                    var alternateItem = reqItem;
+                    if (reqItem == "FTPBounce") alternateItem = "FTPSprint";
+                    hasRequiredItems = InventoryManager._localInventory.ContainsKey(reqItem) ||
+                        InventoryManager._localInventory.ContainsKey(alternateItem);
+                }
             }
 
             return hasRequiredItems;
