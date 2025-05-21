@@ -11,6 +11,7 @@ using Pathfinder.Util;
 using BepInEx;
 using System.Linq;
 using HacknetArchipelago.Managers;
+using System.Collections.Generic;
 
 namespace HacknetArchipelago.Patches
 {
@@ -108,7 +109,7 @@ namespace HacknetArchipelago.Patches
 
                 if (csecHub.listingMissions.Any(m => m.Value.postingTitle == bitMission.postingTitle)) return;
 
-                bitMission.postingBody = "---------------------------------------------\n" +
+                bitMission.postingBody = "\n---------------------------------------------\n" +
                     "!! WARNING !! READ CAREFULLY !!\n" +
                     "---------------------------------------------\n" +
                     "This will trigger the FINALE FOR HACKNET!\n" +
@@ -203,29 +204,26 @@ namespace HacknetArchipelago.Patches
                     }
                     if(missionToLoad.postingTitle.IsNullOrWhiteSpace())
                     {
-                        missionToLoad.postingTitle = missionToLoad.email.subject;
-                        missionToLoad.postingBody = "--- PROGRESSION MISSION ---\n" +
+                        missionToLoad.postingBody = "\n--- PROGRESSION MISSION ---\n" +
                             "You may not be able to collect checks from Entropy missions for a while if " +
                             "this mission is accepted. You have been warned!";
                     }
                     missionToLoad.postingTitle = "#PROGRESSION# - " + missionToLoad.postingTitle;
 
                     entropyListing.addMisison(missionToLoad, true);
-
                     sendCriticalMissionEmail(missionToLoad.email.subject);
                 }
 
                 static void sendCriticalMissionEmail(string missionName)
                 {
-                    MailServer.EMailData fauxEmail = new("Entropy MailBot",
-                        "Hello, agent. This is to let you know that a critical mission, " +
+                    var body = "Hello, agent. This is to let you know that a critical mission, " +
                         $"\"{missionName}\", is now available for claiming in Entropy.\n\n" +
                         "We recommend you clear all previous contracts before claiming this mission.\n\n" +
-                        "This email need not be replied to.",
-                        "Critical Mission Alert",
-                        []);
-                    ActiveMission fauxMission = new([], "NONE", fauxEmail);
-                    fauxMission.sendEmail(OS.currentInstance);
+                        "This email need not be replied to.";
+                    var jmailComp = ComputerLookup.FindById("jmail");
+                    var jmailDaemon = (MailServer)jmailComp.getDaemon(typeof(MailServer));
+                    var email = MailServer.generateEmail("Critical Mission Alert", body, "Entropy MailBot");
+                    jmailDaemon.addMail(email, OS.currentInstance.defaultUser.name);
                 }
 
                 void actuallyAddValue()
@@ -255,6 +253,30 @@ namespace HacknetArchipelago.Patches
             // This will probably break things... I hope not.
             public static bool PreventLoadingFinaleAutomatically()
             {
+                return false;
+            }
+
+            public static readonly List<string> AlwaysShowMissions = [
+                "#PROGRESSION# - eOS Device Scanning",
+                "#PROGRESSION# - Aggression must be Punished",
+                "Smash N' Grab",
+                "eOS Device Scanning",
+                "Aggression must be Punished"
+                ];
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(MissionListingServer), "hasListingFile")]
+            /*
+             * Entropy has this really weird bug where it clears Archipelago missions
+             * (and also smash n' grab for some reason????????)
+             * when loading save files. This basically tells Entropy,
+             * "hey, pal! please load these. no i dont care if they dont have a file or not"
+             */
+            public static bool AlwaysShowArchipelagoMissions(string name, ref bool __result)
+            {
+                if (!AlwaysShowMissions.Contains(name)) return true;
+
+                __result = true;
                 return false;
             }
         }
