@@ -1,4 +1,5 @@
 ﻿using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.Models;
 using BepInEx;
 using Hacknet;
 using Pathfinder.Event.Loading;
@@ -18,7 +19,41 @@ namespace HacknetArchipelago.Managers
         internal static int _remainingMissionSkips = 0;
         internal static int _remainingForceHacks = 0;
 
-        internal static Dictionary<string, int> _localInventory = [];
+        internal static Dictionary<string, string> _localInventory = [];
+        internal static Dictionary<string, List<string>> allCollectedItems = [];
+
+        internal static void AddNewItem(ItemInfo itemInfo)
+        {
+            var name = itemInfo.ItemDisplayName;
+            var player = itemInfo.Player.Name + itemInfo.LocationId;
+
+            if(!allCollectedItems.ContainsKey(name))
+            {
+                List<string> players = [player];
+                allCollectedItems.Add(name, players);
+            } else if (!allCollectedItems[name].Contains(player))
+            {
+                allCollectedItems[name].Add(player);
+            }
+        }
+
+        internal static void AddNewItem(string itemName, List<string> playerValues)
+        {
+            if(!allCollectedItems.ContainsKey(itemName))
+            {
+                allCollectedItems.Add(itemName, playerValues);
+            } else
+            {
+                allCollectedItems[itemName] = playerValues;
+            }
+        }
+
+        internal static bool PlayerAlreadyCollectedItem(ItemInfo itemInfo)
+        {
+            if (!allCollectedItems.ContainsKey(itemInfo.ItemDisplayName)) return false;
+            return allCollectedItems[itemInfo.ItemDisplayName].Contains(
+                itemInfo.Player.Name + itemInfo.LocationId);
+        }
 
         internal static bool PlayerHasItem(string itemName)
         {
@@ -29,15 +64,15 @@ namespace HacknetArchipelago.Managers
             return _localInventory.ContainsKey(itemName);
         }
 
-        internal static void AddToInventory(string itemName, int amount = 1)
+        internal static void AddToInventory(string itemName, string player)
         {
             if (!_localInventory.ContainsKey(itemName))
             {
-                _localInventory.Add(itemName, amount);
+                _localInventory.Add(itemName, player);
             }
-            else
+            else if (player != "Server")
             {
-                _localInventory[itemName] += amount;
+                _localInventory[itemName] = player;
             }
         }
 
@@ -89,7 +124,7 @@ namespace HacknetArchipelago.Managers
             foreach (var exe in collectedExecutables)
             {
                 if (_localInventory.ContainsKey(exe.ItemDisplayName)) continue;
-                _localInventory.Add(exe.ItemDisplayName, 1);
+                _localInventory.Add(exe.ItemDisplayName, exe.Player.Name);
             }
 
             if (OS.currentInstance == null) return;
@@ -102,16 +137,6 @@ namespace HacknetArchipelago.Managers
                 { "Decypher", "DEC Suite" },
                 { "MemDumpGenerator", "Mem Suite" }
             };
-
-            foreach (var file in exeFiles)
-            {
-                var cleanName = file.name.Split('.')[0];
-                string exeName = cleanName;
-                if (exeToPack.ContainsKey(exeName)) exeName = exeToPack[exeName];
-
-                if (_localInventory.ContainsKey(exeName) || !ArchipelagoItems.ExecutableNames.Contains(exeName)) continue;
-                _localInventory.Add(exeName, 1);
-            }
         }
     }
 }

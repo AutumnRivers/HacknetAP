@@ -36,9 +36,31 @@ namespace HacknetArchipelago
                         case "LocalInventory":
                             LoadStoredLocalInventory(child.Children);
                             break;
+                        case "AllCollectedItems":
+                            LoadStoredCollectedItemData(child.Children);
+                            break;
                         default:
                             break;
                     }
+                }
+            }
+
+            private void LoadStoredCollectedItemData(List<ElementInfo> collectedItemsElems)
+            {
+                string nameAttr = "ItemName";
+                string playersChild = "AssociatedPlayer";
+                string playerValue = "Value";
+
+                foreach(var item in collectedItemsElems)
+                {
+                    List<string> players = [];
+                    string name = item.Attributes[nameAttr];
+                    foreach(var child in item.Children)
+                    {
+                        if (child.Name != playersChild) continue;
+                        players.Add(child.Attributes[playerValue]);
+                    }
+                    InventoryManager.AddNewItem(name, players);
                 }
             }
 
@@ -70,7 +92,9 @@ namespace HacknetArchipelago
                         !localItem.Attributes.ContainsKey("ItemName")) continue;
 
                     localInventory.Add(localItem.Attributes["ItemName"]);
-                    InventoryManager._localInventory.Add(localItem.Attributes["ItemName"], 1);
+                    InventoryManager._localInventory.Add(
+                        localItem.Attributes["ItemName"],
+                        localItem.Attributes["AssociatedPlayer"]);
                 }
             }
         }
@@ -80,6 +104,12 @@ namespace HacknetArchipelago
             public static void InjectArchipelagoSaveData(SaveEvent saveEvent)
             {
                 XElement archiElement = new(BASE_ELEMENT_NAME);
+
+                XElement slotElem = new("AssociatedSlot");
+                XAttribute slotName = new("SlotName", ArchipelagoManager.PlayerName);
+                XAttribute slotURI = new("URI", ArchipelagoManager.Session.Socket.Uri);
+                slotElem.Add([slotName, slotURI]);
+                archiElement.Add(slotElem);
 
                 if (LocationManager._cachedChecks.Count > 0)
                 {
@@ -128,6 +158,30 @@ namespace HacknetArchipelago
                     archiElement.Add(localInvElem);
                 }
 
+                if(InventoryManager.allCollectedItems.Count > 0)
+                {
+                    XElement collectedItemsElem = new("AllCollectedItems");
+
+                    foreach(var item in InventoryManager.allCollectedItems)
+                    {
+                        XElement itemElem = new("CollectedItem");
+                        XElement nameAttr = new("ItemName", item.Key);
+                        itemElem.Add(nameAttr);
+
+                        foreach(var player in item.Value)
+                        {
+                            XElement playerElem = new("AssociatedPlayer");
+                            XAttribute playerName = new("Value", player);
+                            playerElem.Add(playerName);
+                            itemElem.Add(playerElem);
+                        }
+
+                        collectedItemsElem.Add(itemElem);
+                    }
+
+                    archiElement.Add(collectedItemsElem);
+                }
+
                 if(HacknetAPCore.SlotData.EnableFactionAccess)
                 {
                     XElement facAccessElem = new("FactionAccess");
@@ -135,6 +189,11 @@ namespace HacknetArchipelago
                     facAccessElem.Add(facAccessAttr);
                     archiElement.Add(facAccessElem);
                 }
+
+                XElement ptcElem = new("PointClickerSaveData");
+                XAttribute ptcRate = new("RateMult", PointClickerManager.RateMultiplier);
+                ptcElem.Add(ptcRate);
+                archiElement.Add(ptcElem);
 
                 saveEvent.Save.FirstNode.AddAfterSelf(archiElement);
             }

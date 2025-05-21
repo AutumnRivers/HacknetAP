@@ -254,13 +254,8 @@ namespace HacknetArchipelago.Managers
             ReceiveArchipelagoItem(_itemsCache);
         }
 
-        private static int facAccessReceived = (int)_factionAccess;
-        private static int facAccessQueued = 0;
-
         private static void ReceiveArchipelagoItem(ReceivedItemsHelper receivedItemsHelper)
         {
-            facAccessReceived = (int)_factionAccess;
-
             if (OS.currentInstance == null)
             {
                 _itemsCache = receivedItemsHelper;
@@ -271,16 +266,11 @@ namespace HacknetArchipelago.Managers
             while (receivedItemsHelper.Any() && OS.currentInstance != null)
             {
                 var item = receivedItemsHelper.PeekItem();
-
-                if (item.ItemDisplayName == "Progressive Faction Access")
+                if(PlayerAlreadyCollectedItem(item))
                 {
-                    facAccessQueued++;
-                    if (facAccessQueued <= facAccessReceived)
-                    {
-                        receivedItemsHelper.DequeueItem();
-                        continue;
-                    }
-                };
+                    receivedItemsHelper.DequeueItem();
+                    continue;
+                }
 
                 if (OS.DEBUG_COMMANDS) Logger.LogDebug($"Received Item: {item.ItemDisplayName} ({item.ItemId})");
                 CollectArchipelagoItem(receivedItemsHelper.PeekItem(), true);
@@ -317,6 +307,17 @@ namespace HacknetArchipelago.Managers
         internal static void CollectArchipelagoItem(ItemInfo itemInfo, bool logUnknownItems = false,
             bool ignoreNonExecutables = false)
         {
+            if(PlayerAlreadyCollectedItem(itemInfo))
+            {
+                if(OS.DEBUG_COMMANDS)
+                {
+                    HacknetAPCore.Logger.LogDebug($"Player already received item {itemInfo.ItemDisplayName} ({itemInfo.ItemId}) " +
+                        $"from {itemInfo.Player.Name} at location ID {itemInfo.LocationId}. Skipping...");
+                }
+                return;
+            }
+            AddNewItem(itemInfo);
+
             var itemID = (int)itemInfo.ItemId;
             string itemName = itemInfo.ItemName;
 
@@ -350,7 +351,7 @@ namespace HacknetArchipelago.Managers
 
             if (isCommonItem)
             {
-                HandleCommonItem(itemName, itemID);
+                HandleCommonItem(itemInfo);
             }
             else if (_specialItems.Contains(itemName))
             {
@@ -371,16 +372,16 @@ namespace HacknetArchipelago.Managers
             }
         }
 
-        private static void HandleCommonItem(string itemName, int itemID)
+        private static void HandleCommonItem(ItemInfo itemInfo)
         {
-            var item = ArchipelagoItems.ArchipelagoItemToData[itemID];
+            var item = ArchipelagoItems.ArchipelagoItemToData[(int)itemInfo.ItemId];
             foreach (var key in item.Keys)
             {
                 var filename = key + ".exe";
                 var filedata = item[key];
                 PlayerManager.AddItemFileToPlayerComputer(filename, filedata);
             }
-            AddToInventory(itemName);
+            AddToInventory(itemInfo.ItemDisplayName, itemInfo.Player.Name);
         }
 
         private static void HandleSpecialItem(string itemName, int itemID)

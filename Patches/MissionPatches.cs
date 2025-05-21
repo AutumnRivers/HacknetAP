@@ -279,6 +279,30 @@ namespace HacknetArchipelago.Patches
                 __result = true;
                 return false;
             }
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MissionSerializer), "restoreMissionFromFile",
+                [typeof(string), typeof(int), typeof(string)], [ArgumentType.Normal, ArgumentType.Out, ArgumentType.Out])]
+            public static void AddPostingContentToSerializedMissions(string data, ref object __result)
+            {
+                string[] separator = ["  #%#\n"];
+                string[] array = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                ActiveMission mission = (ActiveMission)__result;
+
+                for(int i = 0; i < array.Length; i++)
+                {
+                    string elem = array[i];
+                    if(elem.StartsWith("Title"))
+                    {
+                        mission.postingTitle = MissionSerializer.getDataFromConfigLine(elem);
+                    } else if(elem.StartsWith("Posting"))
+                    {
+                        mission.postingBody = MissionSerializer.getDataFromConfigLine(elem);
+                    }
+                }
+
+                __result = (object)mission;
+            }
         }
     }
 }

@@ -89,9 +89,10 @@
     <Compile Include="Managers\PointClickerManager.cs" />
     <Compile Include="Patches\ArchipelagoMainMenu.cs" />
     <Compile Include="Patches\CheckForFlagsPatch.cs" />
+    <Compile Include="Patches\CommandPatches.cs" />
     <Compile Include="Patches\Computers\ComputerCrashPatch.cs" />
     <Compile Include="Patches\Computers\ComputerLoadPatches.cs" />
-    <Compile Include="Patches\Debug\LogLoadedMissions.cs" />
+    <Compile Include="Patches\Debugging\LogLoadedMissions.cs" />
     <Compile Include="Patches\ForceLogErrorsPatch.cs" />
     <Compile Include="Patches\Goals\AltitudeLossPatch.cs" />
     <Compile Include="Patches\Goals\HeartstopperPatch.cs" />
