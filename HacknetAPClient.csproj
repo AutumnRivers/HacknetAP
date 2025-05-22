@@ -102,6 +102,7 @@
     <Compile Include="Patches\Limits\ShellLimitPatch.cs" />
     <Compile Include="Patches\MissionFunctionChecker.cs" />
     <Compile Include="Patches\MissionPatches.cs" />
+    <Compile Include="Patches\Missions\AbandoningMissionsPatch.cs" />
     <Compile Include="Patches\Missions\ForcePlayerOnNaixPath.cs" />
     <Compile Include="Patches\Missions\PreventOutOfLogicMissions.cs" />
     <Compile Include="Patches\PointClickerPatches.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="SaveLoadExecutors.cs" />
     <Compile Include="Static\ArchipelagoItems.cs" />
     <Compile Include="Static\ArchipelagoLocations.cs" />
+    <Compile Include="Static\MissionToFaction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\archipelago.png" />
