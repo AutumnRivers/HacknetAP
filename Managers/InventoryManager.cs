@@ -41,6 +41,15 @@ namespace HacknetArchipelago.Managers
         {
             if(!allCollectedItems.ContainsKey(itemName))
             {
+                if(OS.DEBUG_COMMANDS)
+                {
+                    HacknetAPCore.Logger.LogDebug("Adding new item to inventory: " + itemName);
+                    HacknetAPCore.Logger.LogDebug("Collected by: ");
+                    foreach(var player in playerValues)
+                    {
+                        HacknetAPCore.Logger.LogDebug("* " + player);
+                    }
+                }
                 allCollectedItems.Add(itemName, playerValues);
             } else
             {
@@ -50,7 +59,21 @@ namespace HacknetArchipelago.Managers
 
         internal static bool PlayerAlreadyCollectedItem(ItemInfo itemInfo)
         {
-            if (!allCollectedItems.ContainsKey(itemInfo.ItemDisplayName)) return false;
+            bool keyExists = allCollectedItems.ContainsKey(itemInfo.ItemDisplayName);
+            if (OS.DEBUG_COMMANDS)
+            {
+                HacknetAPCore.Logger.LogDebug("Checking if player collected item " + itemInfo.ItemDisplayName);
+                HacknetAPCore.Logger.LogDebug("Sent by " + itemInfo.Player.Name + itemInfo.LocationId);
+                HacknetAPCore.Logger.LogDebug("Name exists in collected items: " + keyExists);
+                if(keyExists)
+                {
+                    foreach(var player in allCollectedItems[itemInfo.ItemDisplayName])
+                    {
+                        HacknetAPCore.Logger.LogDebug($"Already collected from {itemInfo.Player.Name}{itemInfo.LocationId}");
+                    }
+                }
+            }
+            if (!keyExists) return false;
             return allCollectedItems[itemInfo.ItemDisplayName].Contains(
                 itemInfo.Player.Name + itemInfo.LocationId);
         }

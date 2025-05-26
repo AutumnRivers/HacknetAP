@@ -156,7 +156,10 @@ namespace HacknetArchipelago
 
         public static bool PlayerHasExecutable(string execName)
         {
-            if(InventoryManager._localInventory.ContainsKey(execName))
+            string alternateItemName = execName;
+            if (execName == "FTPBounce") alternateItemName = "FTPSprint";
+            if(InventoryManager._localInventory.ContainsKey(execName) ||
+                InventoryManager._localInventory.ContainsKey(alternateItemName))
             {
                 return true;
             } else if(ArchipelagoManager.SlotData.ExecutableGrouping != HacknetAPSlotData.ExecutableGroupingMode.Individually)

@@ -1,27 +1,26 @@
 ﻿using HacknetArchipelago.Managers;
+
 using Pathfinder.Event.Saving;
 using Pathfinder.Meta.Load;
 using Pathfinder.Replacements;
 using Pathfinder.Util.XML;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace HacknetArchipelago
 {
     public class SaveLoadExecutors
     {
-        public const string BASE_ELEMENT_NAME = "HacknetArchipelagoSave";
-
-        [SaveExecutor("HacknetSave." + BASE_ELEMENT_NAME)]
+        [SaveExecutor("HacknetSave.HacknetArchipelagoSave", ParseOption.ParseInterior)]
         public class ArchipelagoSaveReader : SaveLoader.SaveExecutor
         {
             public override void Execute(EventExecutor exec, ElementInfo info)
             {
-                if (info.Children.Count == 0) return;
+                if (!info.Children.Any()) return;
 
                 foreach(var child in info.Children)
                 {
@@ -47,18 +46,24 @@ namespace HacknetArchipelago
 
             private void LoadStoredCollectedItemData(List<ElementInfo> collectedItemsElems)
             {
-                string nameAttr = "ItemName";
+                string nameElem = "ItemName";
                 string playersChild = "AssociatedPlayer";
                 string playerValue = "Value";
 
                 foreach(var item in collectedItemsElems)
                 {
+                    Console.WriteLine(item.Name);
                     List<string> players = [];
-                    string name = item.Attributes[nameAttr];
+                    string name = "Item";
                     foreach(var child in item.Children)
                     {
-                        if (child.Name != playersChild) continue;
-                        players.Add(child.Attributes[playerValue]);
+                        if(child.Name == nameElem)
+                        {
+                            name = child.Content;
+                        } else if(child.Name == playersChild)
+                        {
+                            players.Add(child.Attributes[playerValue]);
+                        } else { continue; }
                     }
                     InventoryManager.AddNewItem(name, players);
                 }
@@ -92,9 +97,8 @@ namespace HacknetArchipelago
                         !localItem.Attributes.ContainsKey("ItemName")) continue;
 
                     localInventory.Add(localItem.Attributes["ItemName"]);
-                    InventoryManager._localInventory.Add(
-                        localItem.Attributes["ItemName"],
-                        localItem.Attributes["AssociatedPlayer"]);
+                    if (InventoryManager._localInventory.ContainsKey(localItem.Attributes["ItemName"])) continue;
+                    InventoryManager._localInventory.Add(localItem.Attributes["ItemName"], null);
                 }
             }
         }
@@ -103,7 +107,7 @@ namespace HacknetArchipelago
         {
             public static void InjectArchipelagoSaveData(SaveEvent saveEvent)
             {
-                XElement archiElement = new(BASE_ELEMENT_NAME);
+                XElement archiElement = new("HacknetArchipelagoSave");
 
                 XElement slotElem = new("AssociatedSlot");
                 XAttribute slotName = new("SlotName", ArchipelagoManager.PlayerName);
@@ -195,7 +199,14 @@ namespace HacknetArchipelago
                 ptcElem.Add(ptcRate);
                 archiElement.Add(ptcElem);
 
-                saveEvent.Save.FirstNode.AddAfterSelf(archiElement);
+                XElement archiDataElem = new("ArchipelagoConnection");
+                XAttribute archiSlotElem = new("SlotName", ArchipelagoManager.PlayerName);
+                XAttribute archiURI = new("URI", ArchipelagoManager.Session.Socket.Uri.OriginalString);
+                XAttribute archiUUID = new("UUID", ArchipelagoManager.Session.ConnectionInfo.Uuid);
+                archiDataElem.Add([archiSlotElem, archiUUID, archiURI]);
+
+                saveEvent.Save.FirstNode.AddBeforeSelf(archiElement);
+                archiElement.AddAfterSelf(archiDataElem);
             }
         }
     }

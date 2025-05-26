@@ -75,7 +75,8 @@ namespace HacknetArchipelago
             { "Expo Grave", "Labyrinths -- Bean Stalk/Expo Grave/The Keyboard Life" },
             { "The Keyboard Life", "Labyrinths -- Bean Stalk/Expo Grave/The Keyboard Life" },
             { "Take Flight", "Labyrinths -- Take Flight" },
-            { "Take_Flight Cont.", "Labyrinths -- Take Flight Cont." }
+            { "Take_Flight Cont.", "Labyrinths -- Take Flight Cont." },
+            { "Silence Psylance", "CSEC -- Subvert Psylance Investigation" }
         };
 
         public static readonly Dictionary<string, List<string>> RequiredItemsForLocation = new()

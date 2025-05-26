@@ -3,9 +3,6 @@ using Hacknet.Gui;
 
 using HarmonyLib;
 
-using BepInEx;
-using BepInEx.Hacknet;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,11 +12,8 @@ using Archipelago.MultiClient.Net.Enums;
 using System;
 using System.IO;
 
-using Pathfinder.Replacements;
-using Pathfinder.Util;
-
 using TextBox = HacknetArchipelago.Replacements.ArchipelagoTextBox;
-using Pathfinder.GUI;
+
 using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
@@ -27,6 +21,8 @@ namespace HacknetArchipelago.Patches
     [HarmonyPatch]
     public class ArchipelagoMainMenu
     {
+        public const string ARCHIPELAGO_LOGO_FILENAME = "archipelago.png";
+
         static string archiURI = "archipelago.gg";
         static string archiPort = "38281";
         static string archiSlot = "";
@@ -95,7 +91,7 @@ namespace HacknetArchipelago.Patches
             {
                 GraphicsDevice userGraphics = GuiData.spriteBatch.GraphicsDevice;
 
-                FileStream logoStream = File.OpenRead("./BepInEx/plugins/assets/aplogo.png");
+                FileStream logoStream = File.OpenRead("./BepInEx/plugins/assets/" + ARCHIPELAGO_LOGO_FILENAME);
                 archiLogo = Texture2D.FromStream(userGraphics, logoStream);
                 logoStream.Dispose();
             }

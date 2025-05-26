@@ -122,6 +122,9 @@ namespace HacknetArchipelago
             EventManager<UnloadEvent>.AddHandler(ArchipelagoManager.UpdateServerDataOnClose);
             EventManager<SaveEvent>.AddHandler(SaveLoadExecutors.ArchipelagoDataSaver.InjectArchipelagoSaveData);
 
+            EventManager<CommandExecuteEvent>.AddHandler(CommandPatches.PreventDownloadingUncollectedExecutables);
+            EventManager<CommandExecuteEvent>.AddHandler(CommandPatches.PreventModifyingPTCSaveData);
+
             EventManager<ExecutableExecuteEvent>.AddHandler(ShellLimitPatch.LimitShells);
             EventManager<OSUpdateEvent>.AddHandler(RAMLimitPatch.LimitRAM);
 
