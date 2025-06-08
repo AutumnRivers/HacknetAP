@@ -18,6 +18,7 @@ namespace HacknetArchipelago.Patches
     {
         private static readonly List<int> _collectedIndices = [];
         private static bool _purchasedFinalUpgrade = false;
+        private static int _storedPassivePoints = 0;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
@@ -103,7 +104,8 @@ namespace HacknetArchipelago.Patches
                 double pointsToAdd = __instance.currentRate * __instance.os.lastGameTime.ElapsedGameTime.TotalSeconds
                     * PointClickerManager.RateMultiplier;
                 var newPoints = __instance.activeState.points + (int)pointsToAdd;
-                if((newPoints >= __instance.upgradeCosts.Last() || newPoints <= -1.0) && !_purchasedFinalUpgrade)
+                if((newPoints >= __instance.upgradeCosts.Last() || newPoints <= -1.0) && !_purchasedFinalUpgrade &&
+                    !PointClickerManager.BlockUpgrades)
                 {
                     __instance.activeState.points = (long)__instance.upgradeCosts.Last();
                     return false;
@@ -141,7 +143,7 @@ namespace HacknetArchipelago.Patches
         [HarmonyPatch(typeof(PointClickerDaemon), "DrawStatsTextBlock")]
         public static bool PointClickerReplaceMainText(string anouncer, ref string main)
         {
-            if(anouncer == "+PPS" && ArchipelagoManager.SlotData.PointClickerMode == "block_upgrade_effects")
+            if(anouncer == "+PPS" && PointClickerManager.BlockUpgrades)
             {
                 main = "CHECK!";
                 return true;

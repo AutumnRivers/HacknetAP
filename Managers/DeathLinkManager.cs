@@ -17,6 +17,7 @@ namespace HacknetArchipelago.Managers
 
         public static void SetupDeathLink()
         {
+            if (ArchipelagoManager.Session == null) return;
             DLService = ArchipelagoManager.Session.CreateDeathLinkService();
             DLService.OnDeathLinkReceived += HandleDeathLink;
             DLService.EnableDeathLink();

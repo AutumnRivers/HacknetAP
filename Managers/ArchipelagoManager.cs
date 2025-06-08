@@ -99,11 +99,11 @@ namespace HacknetArchipelago.Managers
                 var sessionData = (LoginSuccessful)result;
                 SlotData = new HacknetAPSlotData(sessionData.SlotData);
                 PlayerSlot = session.ConnectionInfo.Slot;
+                Session = session;
                 if (SlotData.DeathLink)
                 {
                     SetupDeathLink();
                 }
-                Session = session;
                 IsConnected = true;
                 Logger.LogInfo("Successfully (re-)connected to Archipelago!");
                 RetrieveDataFromServer();

@@ -141,7 +141,8 @@ namespace HacknetArchipelago
             { "pointclicker_expert_Unlocked", "Achievement -- You better not have clicked for those..." },
             { "themeswitch_run_Unlocked", "Achievement -- Makeover!" },
             { "trace_close_Unlocked", "Achievement -- To the Wire" },
-            { "progress_entropy_Unlocked", "Achievement -- Join Entropy" }
+            { "progress_entropy_Unlocked", "Achievement -- Join Entropy" },
+            { "secret_path_complete_Unlocked", "Achievement -- Rude//el Sec Champion" }
         };
 
         public static readonly Dictionary<string, string> CommandToLocation = new()

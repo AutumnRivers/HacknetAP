@@ -38,6 +38,9 @@ namespace HacknetArchipelago
                         case "AllCollectedItems":
                             LoadStoredCollectedItemData(child.Children);
                             break;
+                        case "PointClickerSaveData":
+                            LoadPointClickerSaveData(child);
+                            break;
                         default:
                             break;
                     }
@@ -100,6 +103,21 @@ namespace HacknetArchipelago
                     if (InventoryManager._localInventory.ContainsKey(localItem.Attributes["ItemName"])) continue;
                     InventoryManager._localInventory.Add(localItem.Attributes["ItemName"], null);
                 }
+            }
+
+            private void LoadPointClickerSaveData(ElementInfo ptcElem)
+            {
+                string rateAttr = "RateMult";
+                string ptsAttr = "PassivePts";
+
+                int mult = 1;
+                int pts = 0;
+
+                if (int.TryParse(ptcElem.Attributes[rateAttr], out int storedMult)) { mult = storedMult; }
+                if (int.TryParse(ptcElem.Attributes[ptsAttr], out int storedPts)) { pts = storedPts; }
+
+                PointClickerManager.ChangePointClickerPassiveRate(pts);
+                PointClickerManager.ChangeRateMultiplier(mult);
             }
         }
 
@@ -196,7 +214,8 @@ namespace HacknetArchipelago
 
                 XElement ptcElem = new("PointClickerSaveData");
                 XAttribute ptcRate = new("RateMult", PointClickerManager.RateMultiplier);
-                ptcElem.Add(ptcRate);
+                XAttribute ptcPassive = new("PassivePts", PointClickerManager.PassivePoints);
+                ptcElem.Add([ptcRate, ptcPassive]);
                 archiElement.Add(ptcElem);
 
                 XElement archiDataElem = new("ArchipelagoConnection");

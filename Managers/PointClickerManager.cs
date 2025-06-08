@@ -5,6 +5,15 @@ namespace HacknetArchipelago.Managers
 {
     public static class PointClickerManager
     {
+        public static bool BlockUpgrades
+        {
+            get
+            {
+                if (ArchipelagoManager.Session == null) return false;
+                return ArchipelagoManager.SlotData.PointClickerMode == "block_upgrade_effects";
+            }
+        }
+
         private static PointClickerDaemon _ptcDaemon;
 
         private static float _storedPoints = 0;
@@ -15,6 +24,12 @@ namespace HacknetArchipelago.Managers
             get { return _rateMultiplier; }
         }
         private static int _rateMultiplier = 1;
+
+        public static int PassivePoints
+        {
+            get { return _passivePoints; }
+        }
+        private static int _passivePoints = 0;
 
         public static void RefreshPointClickerDaemon()
         {
@@ -58,9 +73,13 @@ namespace HacknetArchipelago.Managers
             }
         }
 
-        internal static void ChangePointClickerRate(int amount)
+        internal static void ChangePointClickerPassiveRate(int amount)
         {
-            _ptcDaemon.currentRate += amount;
+            _passivePoints += amount;
+            if(_ptcDaemon != null)
+            {
+                _ptcDaemon.currentRate += PassivePoints;
+            }
         }
 
         internal static void ChangeRateMultiplier(int amount)
@@ -81,7 +100,7 @@ namespace HacknetArchipelago.Managers
 
                 if(passive)
                 {
-                    ChangePointClickerRate(int.Parse(valueString));
+                    ChangePointClickerPassiveRate(int.Parse(valueString));
                 } else
                 {
                     ChangePointClickerPoints(int.Parse(valueString));

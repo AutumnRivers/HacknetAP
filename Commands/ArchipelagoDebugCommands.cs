@@ -99,7 +99,7 @@ namespace HacknetArchipelago.Commands
                     return;
                 }
 
-                PointClickerManager.ChangePointClickerRate(rate);
+                PointClickerManager.ChangeRateMultiplier(rate);
             }
             else
             {
@@ -121,8 +121,8 @@ namespace HacknetArchipelago.Commands
                     return;
                 }
 
-                PointClickerManager.ChangeRateMultiplier(rate);
-                os.terminal.writeLine($"New passive rate: {PointClickerManager.RateMultiplier}");
+                PointClickerManager.ChangePointClickerPassiveRate(rate);
+                os.terminal.writeLine($"New passive rate: {PointClickerManager.PassivePoints}");
             }
             else
             {

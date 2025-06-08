@@ -191,7 +191,7 @@ namespace HacknetArchipelago
             if (!PackToID.ContainsKey(packName)) return false;
             var packID = PackToID[packName];
             var pack = ArchipelagoItemToData[packID];
-            return pack.Any(pair => pair.Value == execName);
+            return pack.Any(pair => pair.Key == execName);
         }
     }
 }

@@ -112,6 +112,7 @@
     <Compile Include="SaveLoadExecutors.cs" />
     <Compile Include="Static\ArchipelagoItems.cs" />
     <Compile Include="Static\ArchipelagoLocations.cs" />
+    <Compile Include="Static\ArchipelagoNodeLocations.cs" />
     <Compile Include="Static\MissionToFaction.cs" />
   </ItemGroup>
   <ItemGroup>
