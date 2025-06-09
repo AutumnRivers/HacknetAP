@@ -69,7 +69,8 @@ namespace HacknetArchipelago
             "...then I wanna be the very best, like no-one ever was.",
             "...then kids like you, should be burning in hell.",
             "...then I need a Puzzle Skip.",
-            "...bowties are cool."
+            "...bowties are cool.",
+            "...I'm with you in the dark."
         ];
 
         public static ArchipelagoSession ArchipelagoSession => ArchipelagoManager.Session;
@@ -98,6 +99,7 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("rearchi", ArchipelagoUserCommands.ReconnectToArchipelago);
             CommandManager.RegisterCommand("uncachechecks", ArchipelagoUserCommands.ForceSendCachedLocations);
             CommandManager.RegisterCommand("archisay", ArchipelagoUserCommands.SayCommand);
+            CommandManager.RegisterCommand("remaining", ArchipelagoUserCommands.PrintRemainingItems);
 
             CommandManager.RegisterCommand("archifh", ItemCommands.UseForceHack);
             CommandManager.RegisterCommand("skipmission", ItemCommands.UseMissionSkip);
@@ -125,7 +127,7 @@ namespace HacknetArchipelago
             EventManager<CommandExecuteEvent>.AddHandler(CommandPatches.PreventDownloadingUncollectedExecutables);
             EventManager<CommandExecuteEvent>.AddHandler(CommandPatches.PreventModifyingPTCSaveData);
 
-            EventManager<ExecutableExecuteEvent>.AddHandler(ShellLimitPatch.LimitShells);
+            EventManager<CommandExecuteEvent>.AddHandler(ShellLimitPatch.LimitShells);
             EventManager<OSUpdateEvent>.AddHandler(RAMLimitPatch.LimitRAM);
 
             DaemonManager.RegisterDaemon<ArchipelagoIRCDaemon>();

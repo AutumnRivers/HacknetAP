@@ -98,6 +98,11 @@ namespace HacknetArchipelago
                 {
                     if (localItem.Name != "LocalItem" ||
                         !localItem.Attributes.ContainsKey("ItemName")) continue;
+                    
+                    if(Hacknet.OS.DEBUG_COMMANDS)
+                    {
+                        HacknetAPCore.Logger.LogDebug($"Adding {localItem.Attributes["ItemName"]} to local inventory...");
+                    }
 
                     localInventory.Add(localItem.Attributes["ItemName"]);
                     if (InventoryManager._localInventory.ContainsKey(localItem.Attributes["ItemName"])) continue;

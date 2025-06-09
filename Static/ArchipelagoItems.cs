@@ -1,5 +1,6 @@
 ﻿using Hacknet;
 using HacknetArchipelago.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -188,6 +189,7 @@ namespace HacknetArchipelago
 
         public static bool IsExecutableInPack(string execName, string packName)
         {
+            Console.WriteLine($"Checking if {execName} is in {packName}");
             if (!PackToID.ContainsKey(packName)) return false;
             var packID = PackToID[packName];
             var pack = ArchipelagoItemToData[packID];

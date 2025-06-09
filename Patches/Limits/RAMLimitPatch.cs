@@ -1,14 +1,15 @@
 ﻿using Hacknet;
-using Pathfinder.Event.Gameplay;
-
 using HacknetArchipelago.Managers;
+using Microsoft.Xna.Framework;
+using Pathfinder.Event.Gameplay;
+using System;
 
 namespace HacknetArchipelago.Patches
 {
     public class RAMLimitPatch
     {
         public static bool ramWasSet = false;
-        private static int _lastRamLimit = InventoryManager._ramLimit;
+        internal static int _lastRamLimit = -1;
 
         public static void LimitRAM(OSUpdateEvent oSUpdateEvent)
         {
@@ -17,16 +18,34 @@ namespace HacknetArchipelago.Patches
             {
                 return;
             }
+            if(InventoryManager._ramLimit == 0 || OS.currentInstance.initShowsTutorial) { return; }
 
             OS os = oSUpdateEvent.OS;
 
-            if(!ramWasSet || _lastRamLimit != InventoryManager._ramLimit)
+            if(_lastRamLimit != InventoryManager._ramLimit)
             {
-                os.ramAvaliable -= InventoryManager._ramLimit - os.totalRam;
+                if(OS.DEBUG_COMMANDS)
+                {
+                    HacknetAPCore.Logger.LogDebug($"Updating RAM to new value: {InventoryManager._ramLimit}");
+                }
+
+                os.ramAvaliable = InventoryManager._ramLimit;
                 os.totalRam = InventoryManager._ramLimit - (OS.TOP_BAR_HEIGHT + 2);
-                ramWasSet = true;
                 _lastRamLimit = InventoryManager._ramLimit;
+
+                UpdateRamModule();
             }
+        }
+
+        public static void UpdateRamModule()
+        {
+            OS os = OS.currentInstance;
+
+            os.modules.Remove(os.ram);
+            os.ram = new RamModule(new Rectangle(2, OS.TOP_BAR_HEIGHT,
+                RamModule.MODULE_WIDTH, os.ramAvaliable + RamModule.contentStartOffset), os);
+            os.ram.name = "RAM";
+            os.modules.Add(os.ram);
         }
     }
 }

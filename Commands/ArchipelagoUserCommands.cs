@@ -177,6 +177,16 @@ namespace HacknetArchipelago.Commands
             }
         }
 
+        public static void PrintRemainingItems(OS os, string[] args)
+        {
+            string template = "Remaining Mission Skips: {0}\nRemaining ForceHacks: {1}";
+            string seperator = "-----------------------";
+
+            WriteToTerminal(seperator);
+            WriteToTerminal(string.Format(template, InventoryManager._remainingMissionSkips, InventoryManager._remainingForceHacks));
+            WriteToTerminal(seperator);
+        }
+
         private static void WriteToTerminal(string message)
         {
             OS.currentInstance.terminal.writeLine(message);

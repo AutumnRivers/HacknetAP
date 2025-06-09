@@ -13,6 +13,8 @@ namespace HacknetArchipelago.Managers
 {
     public static class InventoryManager
     {
+        public const int DEFAULT_RAM_LIMIT = 350;
+
         internal static FactionAccess _factionAccess = FactionAccess.Disabled;
         internal static int _shellLimit = -1; // -1 = disabled
         internal static int _ramLimit = 0; // 0 = disabled
@@ -21,6 +23,8 @@ namespace HacknetArchipelago.Managers
 
         internal static Dictionary<string, string> _localInventory = [];
         internal static Dictionary<string, List<string>> allCollectedItems = [];
+
+        private static bool _initialized = false;
 
         internal static void AddNewItem(ItemInfo itemInfo)
         {
@@ -59,6 +63,7 @@ namespace HacknetArchipelago.Managers
 
         internal static bool PlayerAlreadyCollectedItem(ItemInfo itemInfo)
         {
+            if (_initialized && itemInfo.Player.Name == "Server") return false; // Always collect server items after loading savedata
             bool keyExists = allCollectedItems.ContainsKey(itemInfo.ItemDisplayName);
             if (OS.DEBUG_COMMANDS)
             {
@@ -132,6 +137,12 @@ namespace HacknetArchipelago.Managers
                 _shellLimit = 1;
             }
 
+            if((ArchipelagoManager.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyRAM ||
+                ArchipelagoManager.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits) && _ramLimit == 0)
+            {
+                _ramLimit = DEFAULT_RAM_LIMIT;
+            }
+
             GetLocalInventoryFromServerInventory();
         }
 
@@ -150,16 +161,7 @@ namespace HacknetArchipelago.Managers
                 _localInventory.Add(exe.ItemDisplayName, exe.Player.Name);
             }
 
-            if (OS.currentInstance == null) return;
-
-            var playerBin = OS.currentInstance.thisComputer.getFolderFromPath("bin");
-            var exeFiles = playerBin.files.Where(f => f.name.EndsWith(".exe"));
-
-            Dictionary<string, string> exeToPack = new()
-            {
-                { "Decypher", "DEC Suite" },
-                { "MemDumpGenerator", "Mem Suite" }
-            };
+            _initialized = true;
         }
     }
 }

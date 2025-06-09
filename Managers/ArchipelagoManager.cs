@@ -22,6 +22,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using HacknetArchipelago.Daemons;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
+using HacknetArchipelago.Patches;
 
 namespace HacknetArchipelago.Managers
 {
@@ -123,6 +124,9 @@ namespace HacknetArchipelago.Managers
                 SlotData = null;
                 DLService = null;
                 Logger.LogInfo("Successfully disconnected from Archipelago.");
+
+                InventoryManager._ramLimit = 0;
+                InventoryManager._shellLimit = -1;
             }
         }
 
@@ -410,10 +414,10 @@ namespace HacknetArchipelago.Managers
                             break;
                     }
                     break;
-                case 131: // Progressive Shell Limit
+                case 130: // Progressive Shell Limit
                     _shellLimit++;
                     break;
-                case 132: // Progressive RAM
+                case 131: // Progressive RAM
                     _ramLimit += RAM_UPGRADE_AMOUNT;
                     break;
                 case 140: // Mission Skip
