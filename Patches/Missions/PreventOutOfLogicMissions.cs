@@ -10,6 +10,7 @@ using MonoMod.Cil;
 using System.Reflection;
 using HacknetArchipelago.Managers;
 using System.Runtime.InteropServices;
+using Pathfinder.Util;
 
 namespace HacknetArchipelago.Patches.Missions
 {
@@ -236,6 +237,58 @@ namespace HacknetArchipelago.Patches.Missions
                 );
             c.Next.OpCode = OpCodes.Ldloc_S;
             c.Next.Operand = (byte)missionUnavailableLocal;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MissionHubServer),"acceptMission")]
+        public static bool PreventLoadingOutOfLogicCSECMissionsOnLinux(ActiveMission mission)
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return true;
+            
+            bool hasCSECAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
+                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && !HacknetAPCore.SlotData.ShuffleLabyrinths) ||
+                (InventoryManager._factionAccess >= FactionAccess.CSEC);
+
+            bool hasKaguyaTrialsAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
+                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
+
+            var subject = mission.email.subject;
+            bool hasRequiredExecs = ArchipelagoLocations.HasItemsForLocation(subject);
+            bool result = true;
+
+            string denialReason = "This mission is out of logic.";
+
+            if(subject == KAGUYA_TRIALS_SUBJECT && !hasKaguyaTrialsAccess)
+            {
+                denialReason = "You don't have enough Faction Access.";
+                result = false;
+            } else
+            {
+                if (!hasRequiredExecs)
+                {
+                    denialReason += "You are missing required Archipelago item(s).";
+                    result = false;
+                }
+                else if (!hasCSECAccess)
+                {
+                    denialReason += "You don't have enough Faction Access.";
+                    result = false;
+                }
+            }
+
+            if(!result)
+            {
+                string upperBody = string.Format("You were unable to accept the mission \"{0}\", because:\n\n",
+                    mission.postingTitle);
+
+                string email = MailServer.generateEmail("Mission Unavailable",
+                    upperBody + denialReason, "Archipelago");
+                OS os = OS.currentInstance;
+                MailServer mailServer = (MailServer)os.netMap.mailServer.getDaemon(typeof(MailServer));
+                mailServer.addMail(email, os.defaultUser.name);
+            }
+
+            return result;
         }
     }
 }
