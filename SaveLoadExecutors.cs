@@ -218,7 +218,9 @@ namespace HacknetArchipelago
                 }
 
                 XElement ptcElem = new("PointClickerSaveData");
-                XAttribute ptcRate = new("RateMult", PointClickerManager.RateMultiplier);
+                int rateMult = PointClickerManager.RateMultiplier;
+                if (rateMult <= 0) rateMult = 1;
+                XAttribute ptcRate = new("RateMult", rateMult);
                 XAttribute ptcPassive = new("PassivePts", PointClickerManager.PassivePoints);
                 ptcElem.Add([ptcRate, ptcPassive]);
                 archiElement.Add(ptcElem);

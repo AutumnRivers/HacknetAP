@@ -2,7 +2,6 @@
 using HacknetArchipelago.Managers;
 using Microsoft.Xna.Framework;
 using Pathfinder.Event.Gameplay;
-using System;
 
 namespace HacknetArchipelago.Patches
 {

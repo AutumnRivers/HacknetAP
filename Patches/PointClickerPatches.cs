@@ -1,14 +1,7 @@
 ﻿using HarmonyLib;
 using Hacknet;
-using System;
 using System.Collections.Generic;
 using HacknetArchipelago.Managers;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using System.Reflection;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using Hacknet.Gui;
 using System.Linq;
 
 namespace HacknetArchipelago.Patches

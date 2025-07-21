@@ -84,8 +84,19 @@ namespace HacknetArchipelago
 
         internal static string _originalBsodText = "";
 
+        public const string DISABLE_CLIENT_ARGUMENT = "-disableap";
+
         public override bool Load()
         {
+            var launchArguments = Environment.GetCommandLineArgs();
+
+            if(launchArguments.Contains(DISABLE_CLIENT_ARGUMENT))
+            {
+                Log.LogWarning(string.Format("Hacknet was started with \"{0}\", so the Archipelago " +
+                    "client will be disabled.", DISABLE_CLIENT_ARGUMENT));
+                return true;
+            }
+
             BepInEx.Logging.Logger.Sources.Add(Logger);
 
             HarmonyInstance.PatchAll(typeof(HacknetAPCore).Assembly);

@@ -85,46 +85,6 @@ namespace HacknetArchipelago.Patches
         [HarmonyPatch]
         public class MissionModificationPatches
         {
-            public const string BIT_FILEPATH = "Content/Missions/BitPath/BitAdv_Intro.xml";
-
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ActiveMission), "finish")]
-            public static void PreventBitMissionFromAutoFiring(ActiveMission __instance)
-            {
-                if (__instance.nextMission == BIT_FILEPATH)
-                {
-                    __instance.nextMission = "NONE";
-                } else
-                {
-                    return;
-                }
-
-                if (OS.currentInstance.currentFaction.GetType() != typeof(HubFaction)) return;
-
-                Computer csecComp = ComputerLookup.FindById("mainHub");
-                MissionHubServer csecHub = (MissionHubServer)csecComp.getDaemon(typeof(MissionHubServer));
-
-                ActiveMission bitMission = (ActiveMission)ComputerLoader.readMission(BIT_FILEPATH);
-                bitMission.postingTitle = "#FINALE# - Bit -- Foundation";
-
-                if (csecHub.listingMissions.Any(m => m.Value.postingTitle == bitMission.postingTitle)) return;
-
-                bitMission.postingBody = "\n---------------------------------------------\n" +
-                    "!! WARNING !! READ CAREFULLY !!\n" +
-                    "---------------------------------------------\n" +
-                    "This will trigger the FINALE FOR HACKNET!\n" +
-                    "No going back once you accept this! Tread carefully!";
-                csecHub.addMission(bitMission, true, false, -1);
-
-                string emailBody = "Agent, an important contract awaits you in CSEC.\n\n" +
-                    "This contract has the potential to terminate any future involvement with CSEC, so we " +
-                    "recommend only accepting it when you have no other contracts. Not here, not in Entropy.\n\n" +
-                    "[ THIS IS THE ENDGAME! Bit -- Foundation ADDED TO CSEC ]";
-
-                HubFaction csecFaction = (HubFaction)OS.currentInstance.currentFaction;
-                csecFaction.SendNotification(OS.currentInstance, emailBody, "IMPORTANT : Critical Mission Added");
-            }
-
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ActiveMission),"isComplete")]
             // This patch replaces goals that require a user to download/upload an executable
@@ -154,6 +114,18 @@ namespace HacknetArchipelago.Patches
                         goals[i] = new GetAdminMission(uploadGoal.targetComp.ip, OS.currentInstance);
                     }
                 }
+            }
+
+            public const string STRIKER_COMP_ID = "dAttackSource";
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(Computer),"connect")]
+            public static void ChangeStrikerAdminType(Computer __instance, string ipFrom)
+            {
+                if (__instance.idName != STRIKER_COMP_ID) return;
+                if (ipFrom != OS.currentInstance.thisComputer.ip) return;
+
+                __instance.admin = new BasicAdministrator();
             }
 
             public const int ENTROPY_EOS_VALUE = 3;
@@ -244,15 +216,6 @@ namespace HacknetArchipelago.Patches
             public static bool PreventLoadingNaixAutomatically(EntropyFaction __instance)
             {
                 __instance.playerHasPassedValue = true;
-                return false;
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(HubFaction), "ForceStartBitMissions")]
-            // My hatred for failsafes continue
-            // This will probably break things... I hope not.
-            public static bool PreventLoadingFinaleAutomatically()
-            {
                 return false;
             }
 

@@ -24,6 +24,8 @@ namespace HacknetArchipelago.Patches
             var currentlyOpenShells = os.exes.Count(exe => exe.GetType() == typeof(ShellExe));
             var shellLimit = InventoryManager._shellLimit;
 
+            if (shellLimit < 0) return;
+
             var newOpenAmount = currentlyOpenShells + 1;
             string errorText = string.Format("ERROR : Maximum Shell Limit ({0}) Reached", InventoryManager._shellLimit);
 

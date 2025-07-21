@@ -140,20 +140,15 @@ namespace HacknetArchipelago.Managers
 
         public static bool HasReachedGoal()
         {
-            switch(SlotData.PlayerGoal)
+            return SlotData.PlayerGoal switch
             {
-                case HacknetAPSlotData.VictoryCondition.Heartstopper:
-                default:
-                    return EventManager.BrokeHeart;
-                case HacknetAPSlotData.VictoryCondition.AltitudeLoss:
-                    return EventManager.LostAltitude;
-                case HacknetAPSlotData.VictoryCondition.Veteran:
-                    return EventManager.IsVeteran;
-                case HacknetAPSlotData.VictoryCondition.VIP:
-                    return EventManager.IsFullVIP;
-                case HacknetAPSlotData.VictoryCondition.Completionist:
-                    return EventManager.IsCompletionist;
-            }
+                HacknetAPSlotData.VictoryCondition.Heartstopper => EventManager.BrokeHeart,
+                HacknetAPSlotData.VictoryCondition.AltitudeLoss => EventManager.LostAltitude,
+                HacknetAPSlotData.VictoryCondition.Veteran => EventManager.IsVeteran,
+                HacknetAPSlotData.VictoryCondition.VIP => EventManager.IsFullVIP,
+                HacknetAPSlotData.VictoryCondition.Completionist => EventManager.IsCompletionist,
+                _ => EventManager.BrokeHeart,
+            };
         }
 
         internal static void SendTextMessageToIRC(LogMessage message)

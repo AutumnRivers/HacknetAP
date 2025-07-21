@@ -9,6 +9,7 @@ using MonoMod.Cil;
 
 using System.Reflection;
 using HacknetArchipelago.Managers;
+using System.Runtime.InteropServices;
 
 namespace HacknetArchipelago.Patches.Missions
 {
@@ -135,6 +136,24 @@ namespace HacknetArchipelago.Patches.Missions
          */
         public static void PreventAcceptingOutOfLogicCSECMissions(ILContext il)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                HacknetAPCore.Logger.LogWarning("!! PLUGIN DETECTED AS BEING RAN ON LINUX !!\n" +
+                    "Due to a bug within Mono, the CSEC logic wall is disabled on Linux. This will be reversed when " +
+                    "Pathfinder finishes its coreclr branch. Relevant issue:\n" +
+                    "https://github.com/AutumnRivers/HacknetAP/issues/3");
+                return;
+            }
+
+            OS os = OS.currentInstance;
+            if (os != null)
+            {
+                if (os.connectedComp != null)
+                {
+                    if (os.connectedComp.idName != "mainHub") return;
+                }
+            }
+
             ILCursor c = new(il);
 
             FieldInfo daemonOSField = typeof(Daemon).GetField("os",

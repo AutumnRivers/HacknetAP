@@ -8,6 +8,7 @@
 * `archisay <message/str>` - Sends `message` as a text message to the Archipelago lobby.
 * `archifh` - Uses a ForceHack, if you have any available.
 * `skipmission` - Skips the current mission, if you have any Mission Skips available.
+* `remaining` - Prints your remaining mission skips and forcehacks to the in-game terminal.
 ---
 ## Debug Commands
 These can only be ran if Hacknet has debug commands enabled.

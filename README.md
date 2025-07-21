@@ -8,6 +8,10 @@ The circumstances of my death were... unique, to say the least. In order to prev
 Work smart, work hard, and work in unison to find me and avenge my death. Doing this now is our last chance, I think.
 
 ---
+## Known Issues
+* **LINUX ONLY** - The mod fails to load due to "invalid IL code" on Linux. This is fixed in Pathfinder in its `coreclr` branch, which still isn't ready for production.
+
+---
 ## Installation
 * Download and install [Hacknet: Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder)
 * Download the latest `HacknetAPClient.zip` release from the Releases page

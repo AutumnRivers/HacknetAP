@@ -85,7 +85,7 @@ namespace HacknetArchipelago
             { "eOS Device Scanning", ["eosDeviceScan"] },
             { "Smash N' Grab", ["eosDeviceScan"] },
             { "Aggression must be Punished", [
-                "eosDeviceScan", "FTPBounce", "SSHCrack",
+                "eosDeviceScan", "SSHCrack",
                 "WebServerWorm", "SMTPOverflow"
                 ] },
 
