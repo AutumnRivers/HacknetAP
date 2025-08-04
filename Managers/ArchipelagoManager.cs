@@ -304,9 +304,9 @@ namespace HacknetArchipelago.Managers
         private const int RAM_UPGRADE_AMOUNT = 50;
 
         internal static void CollectArchipelagoItem(ItemInfo itemInfo, bool logUnknownItems = false,
-            bool ignoreNonExecutables = false)
+            bool ignoreNonExecutables = false, bool allowDuplicates = false)
         {
-            if(PlayerAlreadyCollectedItem(itemInfo))
+            if (PlayerAlreadyCollectedItem(itemInfo) && !allowDuplicates)
             {
                 if(OS.DEBUG_COMMANDS)
                 {
@@ -322,12 +322,13 @@ namespace HacknetArchipelago.Managers
 
             HacknetAPCore.Logger.LogDebug($"Received Item: {itemInfo.ItemDisplayName} ({itemInfo.ItemId})");
 
-            if (itemInfo.Player.Slot != PlayerSlot)
+            if (itemInfo.Player.Slot != PlayerSlot && !allowDuplicates)
             {
                 HacknetAPCore.SpeakAsSystem($"Received {itemInfo.ItemDisplayName}!");
             }
 
-            if (_junkItems.Contains(itemName) || PlayerHasItem(itemName) || _eventNames.Contains(itemName))
+            if ((_junkItems.Contains(itemName) || PlayerHasItem(itemName) || _eventNames.Contains(itemName)) &&
+                !allowDuplicates)
             {
                 if (OS.DEBUG_COMMANDS && PlayerHasItem(itemName))
                 {
@@ -338,17 +339,22 @@ namespace HacknetArchipelago.Managers
 
             try
             {
-                ArchipelagoItemIRCEntry itemIRCEntry = new(itemInfo.Player.Name, PlayerName,
-                    itemInfo.ItemDisplayName, itemInfo.LocationDisplayName, itemInfo.Flags);
-                ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(itemIRCEntry);
+                if(!allowDuplicates)
+                {
+                    ArchipelagoItemIRCEntry itemIRCEntry = new(itemInfo.Player.Name, PlayerName,
+                        itemInfo.ItemDisplayName, itemInfo.LocationDisplayName, itemInfo.Flags);
+                    ArchipelagoIRCDaemon.GlobalInstance.AddIRCEntry(itemIRCEntry);
+                }
             } catch(Exception e)
             {
                 HacknetAPCore.Logger.LogError("Failed to log received archi item to IRC:\n" + e.ToString());
             }
 
-            bool isCommonItem = ArchipelagoItems.ArchipelagoItemToData.ContainsKey(itemID);
+            bool isExecutableItem = ArchipelagoItems.ArchipelagoItemToData.ContainsKey(itemID);
 
-            if (isCommonItem)
+            if (!isExecutableItem && ignoreNonExecutables) return;
+
+            if (isExecutableItem)
             {
                 HandleCommonItem(itemInfo);
             }

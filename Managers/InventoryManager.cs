@@ -26,16 +26,16 @@ namespace HacknetArchipelago.Managers
 
         private static bool _initialized = false;
 
-        internal static void AddNewItem(ItemInfo itemInfo)
+        internal static void AddNewItem(ItemInfo itemInfo, bool isRestock = false)
         {
             var name = itemInfo.ItemDisplayName;
             var player = itemInfo.Player.Name + itemInfo.LocationId;
 
-            if(!allCollectedItems.ContainsKey(name))
+            if(!allCollectedItems.ContainsKey(name) && !isRestock)
             {
                 List<string> players = [player];
                 allCollectedItems.Add(name, players);
-            } else if (!allCollectedItems[name].Contains(player))
+            } else if (!allCollectedItems[name].Contains(player) && !isRestock)
             {
                 allCollectedItems[name].Add(player);
             }
@@ -110,7 +110,7 @@ namespace HacknetArchipelago.Managers
             PlayerManager.ClearPlayerBinaries();
             foreach (var item in items)
             {
-                ArchipelagoManager.CollectArchipelagoItem(item, false, true);
+                ArchipelagoManager.CollectArchipelagoItem(item, false, true, true);
             }
         }
 
