@@ -103,6 +103,15 @@ namespace HacknetArchipelago
                 ] }
         };
 
+        public static readonly Dictionary<string, int> RequiredRAMUpgradesForLocation = new()
+        {
+            { "Bit -- Foundation", 650 },
+            { "Project Junebug", 450 },
+            { "The Kaguya Trials", 500 },
+            { "Take Flight", 600 },
+            { "Take Flight Cont.", 600 }
+        };
+
         public static bool HasItemsForLocation(string locationName)
         {
             if (!RequiredItemsForLocation.ContainsKey(locationName)) return true;

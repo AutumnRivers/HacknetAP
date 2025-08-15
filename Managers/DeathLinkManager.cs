@@ -26,11 +26,14 @@ namespace HacknetArchipelago.Managers
         internal static void HandleDeathLink(DeathLink deathLink)
         {
             _crashCausedByDeathLink = true;
+            OS os = OS.currentInstance;
             string cause = deathLink.Cause;
             cause ??= $"{deathLink.Source} sent out a deathlink!";
             _lastDeathLinkCause = cause;
-            OS.currentInstance.thisComputer.log($"RECEIVED_DEATHLINK_FROM_{deathLink.Source}");
-            OS.currentInstance.thisComputer.crash(deathLink.Source);
+            os.thisComputer.log($"RECEIVED_DEATHLINK_FROM_{deathLink.Source}");
+            os.thisComputer.disabled = true;
+            os.thisComputer.bootTimer = Computer.BASE_BOOT_TIME;
+            os.thisComputerCrashed();
         }
 
         public static void SendDeathLink(DeathLink deathLink)

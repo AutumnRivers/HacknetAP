@@ -337,6 +337,16 @@ namespace HacknetArchipelago.Managers
                 return;
             }
 
+            if(!allowDuplicates && itemInfo.Flags == ItemFlags.Advancement && OS.currentInstance != null &&
+                !itemInfo.ItemDisplayName.Contains("PointClicker"))
+            {
+                OS.currentInstance.warningFlash();
+                if(HacknetAPCore.BeepOnItemReceived)
+                {
+                    OS.currentInstance.beepSound.Play();
+                }
+            }
+
             try
             {
                 if(!allowDuplicates)

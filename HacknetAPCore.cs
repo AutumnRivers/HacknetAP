@@ -50,7 +50,7 @@ namespace HacknetArchipelago
     {
         public const string ModGUID = "autumnrivers.archipelago";
         public const string ModName = "Hacknet Archipelago Client";
-        public const string ModVer = "0.6.2";
+        public const string ModVer = "0.5.0";
 
         public const string GameString = "Hacknet";
 
@@ -80,6 +80,7 @@ namespace HacknetArchipelago
         public static ManualLogSource Logger = new(ModName);
 
         public static bool SkipBootIntroText = false;
+        public static bool BeepOnItemReceived = true;
         public static Tuple<string, string, string> CachedConnectionDetails = new(null, null, null);
 
         internal static string _originalBsodText = "";

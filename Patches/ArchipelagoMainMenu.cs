@@ -68,7 +68,7 @@ namespace HacknetArchipelago.Patches
             var screenManager = __instance.screenManager;
             int rightOffset = 600;
 
-            TextItem.doFontLabel(new Vector2(520, 147), "Archipelago Edition", GuiData.font, Color.Orange);
+            TextItem.doFontLabel(new Vector2(520, 147), "Archipelago Edition (v" + HacknetAPCore.ModVer + ")", GuiData.font, Color.Orange);
 
             if(!DLC1SessionUpgrader.HasDLC1Installed)
             {
@@ -98,16 +98,29 @@ namespace HacknetArchipelago.Patches
 
             TextItem.doLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 135), "Archipelago Options", Color.White);
 
+            int clearButtonSize = 20;
             if(!isConnected)
             {
                 TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 200), "Archipelago URI:", GuiData.smallfont, Color.White);
                 archiURI = TextBox.doTextBox(11111, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 220, 300, 1, archiURI, GuiData.smallfont);
+                if(Button.doButton(111110, screenManager.GraphicsDevice.Viewport.Width - rightOffset + 310, 220, clearButtonSize, clearButtonSize, "X", Color.Transparent))
+                {
+                    archiURI = "";
+                }
 
                 TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 250), "Archipelago Slot Name:", GuiData.smallfont, Color.White);
                 archiSlot = TextBox.doTextBox(11113, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 270, 300, 1, archiSlot, GuiData.smallfont);
+                if(Button.doButton(111130, screenManager.GraphicsDevice.Viewport.Width - rightOffset + 310, 270, clearButtonSize, clearButtonSize, "X", Color.Transparent))
+                {
+                    archiSlot = "";
+                }
 
                 TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 300), "Archipelago Room Pass:", GuiData.smallfont, Color.White);
                 archiPassword = TextBox.doTextBox(11114, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 320, 300, 1, archiPassword, GuiData.smallfont);
+                if (Button.doButton(111140, screenManager.GraphicsDevice.Viewport.Width - rightOffset + 310, 320, clearButtonSize, clearButtonSize, "X", Color.Transparent))
+                {
+                    archiPassword = "";
+                }
             } else
             {
                 TextItem.doLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 200), "Connected", Color.Green);
@@ -193,8 +206,16 @@ namespace HacknetArchipelago.Patches
             }
 
             bool skipBootTextCheckbox = CheckBox.doCheckBox(11116, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 550,
-                HacknetAPCore.SkipBootIntroText, Color.White, "Skip Boot Intro Text");
+                HacknetAPCore.SkipBootIntroText, Color.White, "");
+            TextItem.doSmallLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset + 30, 550),
+                "Shorten Boot Intro Text\n(not recommended for first runs!)", Color.White);
             HacknetAPCore.SkipBootIntroText = skipBootTextCheckbox;
+
+            bool beepOnItemReceival = CheckBox.doCheckBox(11117, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 600,
+                HacknetAPCore.BeepOnItemReceived, Color.White, "The modules will still flash, even if disabled.");
+            TextItem.doSmallLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset + 30, 600),
+                "Play Beep SFX on Prog. Item Received", Color.White);
+            HacknetAPCore.BeepOnItemReceived = beepOnItemReceival;
         }
 
         [HarmonyPrefix]

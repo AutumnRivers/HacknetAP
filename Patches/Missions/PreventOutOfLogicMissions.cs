@@ -198,27 +198,50 @@ namespace HacknetArchipelago.Patches.Missions
                 bool hasKaguyaTrialsAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
                 (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
 
+                bool hasEnoughRam = true;
+                bool limitingRam = HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits ||
+                    HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyRAM;
+
+                if(ArchipelagoLocations.RequiredRAMUpgradesForLocation.ContainsKey(mission.email.subject))
+                {
+                    hasEnoughRam = !limitingRam ||
+                        InventoryManager._ramLimit >= ArchipelagoLocations.RequiredRAMUpgradesForLocation[mission.email.subject];
+                }
+
                 var subject = mission.email.subject;
                 string reason = "UNAVAILABLE : ";
 
                 if(subject == KAGUYA_TRIALS_SUBJECT)
                 {
-                    reason += "You don't have enough Faction Access.";
-                    return (hasKaguyaTrialsAccess, reason);
+                    if(!hasKaguyaTrialsAccess)
+                    {
+                        reason += "You don't have enough Faction Access.";
+                    } else if(!hasEnoughRam)
+                    {
+                        reason += "You don't have enough RAM.";
+                    }
+
+                    return (hasKaguyaTrialsAccess && hasEnoughRam, reason);
                 } else
                 {
                     bool hasRequiredExecs = ArchipelagoLocations.HasItemsForLocation(subject);
-                    if(!hasRequiredExecs)
+                    if (!hasRequiredExecs)
                     {
                         reason += "You are missing required Archipelago item(s).";
-                    } else if(!hasCSECAccess)
+                    }
+                    else if (!hasCSECAccess)
                     {
                         reason += "You don't have enough Faction Access.";
-                    } else if(OS.currentInstance.currentMission != null)
+                    }
+                    else if(!hasEnoughRam)
+                    {
+                        reason += "You don't have enoguh RAM.";
+                    }
+                    else if(OS.currentInstance.currentMission != null)
                     {
                         reason += "Abort your current contract to accept a new one.";
                     }
-                    return (hasRequiredExecs && hasCSECAccess, reason);
+                    return (hasRequiredExecs && hasCSECAccess && hasEnoughRam, reason);
                 }
             });
 

@@ -122,4 +122,33 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <HacknetInstall>M:\SteamLibrary\steamapps\common\Hacknet\</HacknetInstall>
+  </PropertyGroup>
+  <Target Name="PrepareMergeLib" BeforeTargets="AfterBuild">
+    <ItemGroup>
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\BepInEx.Core.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\BepInEx.Hacknet.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\0Harmony.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\plugins\PathfinderAPI.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\MonoMod.Utils.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\Mono.Cecil.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\Newtonsoft.Json.dll" />
+      <MergeLibFiles Include="$(HacknetInstall)Hacknet.exe" />
+      <!-- Add other dependencies here -->
+    </ItemGroup>
+    <MakeDir Directories="$(TargetDir)MergeLib" />
+    <Copy SourceFiles="@(MergeLibFiles)" DestinationFolder="$(TargetDir)MergeLib" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <!-- This is the list of DLLs to merge -->
+      <MergeAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
+      <MergeAssemblies Include="$(OutputPath)Archipelago.MultiClient.Net.dll" />
+    </ItemGroup>
+    <!-- Run global dotnet-ilrepack with all listed assemblies -->
+    <Exec Command="ilrepack /parallel /internalize /lib:&quot;$(TargetDir)MergeLib&quot; /out:&quot;$(TargetDir)$(TargetName).Merged.dll&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+    <Move ContinueOnError="false" SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(TargetDir)$(TargetName).Standalone.dll" />
+    <Move ContinueOnError="false" SourceFiles="$(TargetDir)$(TargetName).Merged.dll" DestinationFiles="$(TargetDir)$(TargetName).dll" />
+  </Target>
 </Project>
