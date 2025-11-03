@@ -109,6 +109,7 @@ namespace HacknetArchipelago.Managers
                 Logger.LogInfo("Successfully (re-)connected to Archipelago!");
                 RetrieveDataFromServer();
                 LocationManager.SendCachedLocations();
+                InventoryManager.OnSessionLoad();
             }
             return result;
         }
@@ -346,6 +347,8 @@ namespace HacknetArchipelago.Managers
                     OS.currentInstance.beepSound.Play();
                 }
             }
+
+            ForceCacheItemsReceived();
 
             try
             {

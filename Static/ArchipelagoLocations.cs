@@ -130,8 +130,8 @@ namespace HacknetArchipelago
                 {
                     var alternateItem = reqItem;
                     if (reqItem == "FTPBounce") alternateItem = "FTPSprint";
-                    hasRequiredItems = InventoryManager._localInventory.ContainsKey(reqItem) ||
-                        InventoryManager._localInventory.ContainsKey(alternateItem);
+                    hasRequiredItems = InventoryManager.PlayerCollectedItem(reqItem) ||
+                        InventoryManager.PlayerCollectedItem(alternateItem);
                 }
             }
 

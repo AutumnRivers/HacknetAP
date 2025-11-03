@@ -1,13 +1,11 @@
-﻿using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.Models;
+﻿using Archipelago.MultiClient.Net.Models;
 using BepInEx;
 using Hacknet;
+using Pathfinder.Event.Gameplay;
 using Pathfinder.Event.Loading;
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HacknetArchipelago.Managers
 {
@@ -25,6 +23,90 @@ namespace HacknetArchipelago.Managers
         internal static Dictionary<string, List<string>> allCollectedItems = [];
 
         private static bool _initialized = false;
+
+        public static ReadOnlyCollection<ItemInfo> AllItemsReceived =>
+            ArchipelagoManager.Session.Items.AllItemsReceived;
+
+        public static ReadOnlyCollection<ItemInfo> CachedItemsReceived { get; internal set; }
+
+        public static FactionAccess FactionAccess
+        {
+            get
+            {
+                return (FactionAccess)ProgressiveFactionAccessCollected;
+            }
+        }
+
+        internal static int ProgressiveRAMsCollected
+        {
+            get
+            {
+                return GetUniqueInstancesOfItem("Progressive RAM");
+            }
+        }
+        internal static int ProgressiveShellLimitsCollected
+        {
+            get
+            {
+                return GetUniqueInstancesOfItem("Progressive Shell Limit");
+            }
+        }
+        internal static int ProgressiveFactionAccessCollected
+        {
+            get
+            {
+                return GetUniqueInstancesOfItem("Progressive Faction Access");
+            }
+        }
+
+        public static bool PlayerCollectedItem(string itemName)
+        {
+            foreach (var itemsCollected in allCollectedItems.Values)
+            {
+                if (itemsCollected.Contains(itemName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static List<string> AllCollectedItemsNoPlayers
+        {
+            get
+            {
+                List<string> items = new();
+                foreach(var itemsCollection in allCollectedItems.Values)
+                {
+                    items.AddRange(itemsCollection);
+                }
+                return items;
+            }
+        }
+
+        internal static void OnSessionLoad()
+        {
+            CachedItemsReceived = AllItemsReceived;
+        }
+
+        private static float _cooldownTime = 0;
+        private const int CACHE_COOLDOWN = 5;
+
+        public static void CacheItemsReceived(OSUpdateEvent updateEvent)
+        {
+            _cooldownTime += (float)updateEvent.GameTime.ElapsedGameTime.TotalSeconds;
+
+            if(_cooldownTime >= CACHE_COOLDOWN)
+            {
+                _cooldownTime = 0;
+                CachedItemsReceived = AllItemsReceived;
+            }
+        }
+
+        internal static void ForceCacheItemsReceived()
+        {
+            CachedItemsReceived = AllItemsReceived;
+        }
 
         internal static void AddNewItem(ItemInfo itemInfo, bool isRestock = false)
         {
@@ -89,7 +171,28 @@ namespace HacknetArchipelago.Managers
             {
                 return false;
             }
-            return _localInventory.ContainsKey(itemName);
+            return AllCollectedItemsNoPlayers.Contains(itemName);
+        }
+
+        internal static int GetUniqueInstancesOfItem(string itemName)
+        {
+            int uniqueInstances = 0;
+            List<KeyValuePair<string, long>> locationsOfItem = [];
+            foreach(var itemInfo in CachedItemsReceived)
+            {
+                if (itemInfo.ItemDisplayName != itemName) continue;
+
+                if(itemInfo.Player.Name == "System" && itemInfo.LocationId == 0)
+                {
+                    uniqueInstances++;
+                    continue;
+                }
+
+                KeyValuePair<string, long> pair = new(itemInfo.Player.Name, itemInfo.LocationId);
+                if (locationsOfItem.Contains(pair)) continue;
+                uniqueInstances++;
+            }
+            return uniqueInstances;
         }
 
         internal static void AddToInventory(string itemName, string player)

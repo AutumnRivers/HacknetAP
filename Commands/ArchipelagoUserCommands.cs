@@ -5,6 +5,7 @@ using Hacknet;
 using HacknetArchipelago.Daemons;
 using HacknetArchipelago.Managers;
 using System;
+using HacknetArchipelago.Patches;
 
 namespace HacknetArchipelago.Commands
 {
@@ -37,7 +38,7 @@ namespace HacknetArchipelago.Commands
             if (!HacknetAPCore.SlotData.EnableFactionAccess) { resultBuilder.Append("N/A\n"); }
             else
             {
-                switch(InventoryManager._factionAccess)
+                switch(InventoryManager.FactionAccess)
                 {
                     case FactionAccess.NoAccess:
                         resultBuilder.Append("None");
@@ -53,10 +54,10 @@ namespace HacknetArchipelago.Commands
                         resultBuilder.Append("CSEC");
                         break;
                     default:
-                        resultBuilder.Append("Unknown");
+                        resultBuilder.Append("Unknown -- something broke! Please report this!");
                         break;
                 }
-                if (isDebug) resultBuilder.Append($" {(int)InventoryManager._factionAccess}");
+                if (isDebug) resultBuilder.Append($" {(int)InventoryManager.FactionAccess}");
                 resultBuilder.Append("\n");
             }
             if(HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.Disabled)
@@ -68,7 +69,9 @@ namespace HacknetArchipelago.Commands
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShells
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShellsZero)
                 {
-                    resultBuilder.Append($"Shells: {InventoryManager._shellLimit}");
+                    int startingShells = HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyShellsZero
+                        ? 0 : 1;
+                    resultBuilder.Append($"Shells: {startingShells + InventoryManager.ProgressiveShellLimitsCollected}");
                 } else
                 {
                     resultBuilder.Append("Shells: N/A");
@@ -78,7 +81,7 @@ namespace HacknetArchipelago.Commands
                 if(HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits
                     || HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyRAM)
                 {
-                    resultBuilder.Append("RAM: " + InventoryManager._ramLimit);
+                    resultBuilder.Append("RAM: " + RAMLimitPatch.GetRAMLimit() + "mb");
                 } else
                 {
                     resultBuilder.Append("RAM: N/A");

@@ -131,6 +131,25 @@ namespace HacknetArchipelago.Commands
             }
         }
 
+        public static void CheckIfPlayerHasExecutable(OS os, string[] args)
+        {
+            if (!checkIfDebugIsEnabled()) return;
+
+            string execName = args[1];
+
+            os.write(ArchipelagoItems.PlayerHasExecutable(execName).ToString());
+        }
+
+        public static void AddToLocalInventory(OS os, string[] args)
+        {
+            if (!checkIfDebugIsEnabled()) return;
+
+            string itemName = string.Join(" ", args.Skip(1));
+
+            os.write("THIS IS MOSTLY COSMETIC, DON'T USE IF YOU DON'T KNOW WHAT YOU'RE DOING");
+            InventoryManager.AddToInventory(itemName, "System1");
+        }
+
         private static readonly List<ArchipelagoIRCEntry> TestEntries = new()
         {
             new("Test User", "Lorem ipsum dolor sit amet."),

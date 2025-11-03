@@ -159,16 +159,18 @@ namespace HacknetArchipelago
         {
             string alternateItemName = execName;
             if (execName == "FTPBounce") alternateItemName = "FTPSprint";
-            if(InventoryManager._localInventory.ContainsKey(execName) ||
-                InventoryManager._localInventory.ContainsKey(alternateItemName))
+            if(InventoryManager.PlayerCollectedItem(execName) ||
+                InventoryManager.PlayerCollectedItem(alternateItemName))
             {
                 return true;
             } else if(ArchipelagoManager.SlotData.ExecutableGrouping != HacknetAPSlotData.ExecutableGroupingMode.Individually)
             {
-                foreach(var item in InventoryManager._localInventory)
+                var allItems = InventoryManager.AllCollectedItemsNoPlayers;
+                for(int idx = 0; idx < allItems.Count; idx++)
                 {
-                    if (!item.Key.EndsWith("Pack")) continue;
-                    if (IsExecutableInPack(execName, item.Key)) return true;
+                    var item = allItems[idx];
+                    if (!item.EndsWith("Pack")) continue;
+                    if (IsExecutableInPack(execName, item)) return true;
                 }
             }
             return false;

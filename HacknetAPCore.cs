@@ -32,6 +32,7 @@ using Pathfinder.Util;
 using HacknetArchipelago.Managers;
 using HacknetArchipelago.Daemons;
 using Pathfinder.Daemon;
+using Microsoft.Xna.Framework.Content;
 
 namespace HacknetArchipelago
 {
@@ -78,6 +79,7 @@ namespace HacknetArchipelago
         public static HacknetAPSlotData SlotData => ArchipelagoManager.SlotData;
 
         public static ManualLogSource Logger = new(ModName);
+        public static ContentManager ContentManager => Game1.singleton.Content;
 
         public static bool SkipBootIntroText = false;
         public static bool BeepOnItemReceived = true;
@@ -126,6 +128,9 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("addtoptcrate", ArchipelagoDebugCommands.AddToConstantRate, false, true);
             CommandManager.RegisterCommand("addtoptcpassive", ArchipelagoDebugCommands.AddToPassiveRate, false, true);
             CommandManager.RegisterCommand("addarchidebugentries", ArchipelagoDebugCommands.AddTestEntriesToIRC, false, true);
+            CommandManager.RegisterCommand("hasexec", ArchipelagoDebugCommands.CheckIfPlayerHasExecutable, false, true);
+            CommandManager.RegisterCommand("addtolocalinventoryonlyuseifyouknowhwatyouredoing",
+                ArchipelagoDebugCommands.AddToLocalInventory, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
             EventManager<CommandExecuteEvent>.AddHandler(ComputerLoadPatches.WarnWhenDownloadingArchipelagoExes);
@@ -239,6 +244,7 @@ namespace HacknetArchipelago
             {
                 HacknetAPCore.Logger.LogDebug($"Received Slot Data -- {key} : {rawSlotData[key]}");
             }
+            PlayerGoal = (VictoryCondition)rawSlotData["player_goal"];
             PointClickerMode = (string)rawSlotData["pointclicker_mode"];
             ExecutableShuffle = (ExecutableShuffleMode)rawSlotData["executable_shuffle"];
             ExecutableGrouping = (ExecutableGroupingMode)rawSlotData["executable_grouping"];

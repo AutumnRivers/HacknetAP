@@ -80,7 +80,7 @@ namespace HacknetArchipelago.Patches.Missions
                     unavailableReason = "You are missing required Archipelago item(s).";
                 }
 
-                if(HacknetAPCore.SlotData.EnableFactionAccess && InventoryManager._factionAccess < FactionAccess.Entropy
+                if(HacknetAPCore.SlotData.EnableFactionAccess && InventoryManager.FactionAccess < FactionAccess.Entropy
                 && hasRequiredItemsForMission)
                 {
                     hasRequiredItemsForMission = false;
@@ -192,11 +192,11 @@ namespace HacknetArchipelago.Patches.Missions
             c.EmitDelegate<Func<ActiveMission, (bool, string)>>((mission) =>
             {
                 bool hasCSECAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
-                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && !HacknetAPCore.SlotData.ShuffleLabyrinths) ||
-                (InventoryManager._factionAccess >= FactionAccess.CSEC);
+                (InventoryManager.FactionAccess >= FactionAccess.LabyrinthsOrCSEC && !HacknetAPCore.SlotData.ShuffleLabyrinths) ||
+                (InventoryManager.FactionAccess >= FactionAccess.CSEC);
 
                 bool hasKaguyaTrialsAccess = (!HacknetAPCore.SlotData.EnableFactionAccess) ||
-                (InventoryManager._factionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
+                (InventoryManager.FactionAccess >= FactionAccess.LabyrinthsOrCSEC && HacknetAPCore.SlotData.ShuffleLabyrinths);
 
                 bool hasEnoughRam = true;
                 bool limitingRam = HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits ||

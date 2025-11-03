@@ -1,28 +1,21 @@
-﻿using Hacknet;
+﻿using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.Enums;
+using Hacknet;
 using Hacknet.Gui;
-
+using HacknetArchipelago.Managers;
 using HarmonyLib;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.Enums;
-
 using System;
+using System.Collections.Generic;
 using System.IO;
-
 using TextBox = HacknetArchipelago.Replacements.ArchipelagoTextBox;
-
-using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
     [HarmonyPatch]
     public class ArchipelagoMainMenu
     {
-        public const string ARCHIPELAGO_LOGO_FILENAME = "archipelago.png";
-
         static string archiURI = "archipelago.gg";
         static string archiPort = "38281";
         static string archiSlot = "";
@@ -77,24 +70,9 @@ namespace HacknetArchipelago.Patches
             TextItem.doFontLabel(new Vector2(50, screenManager.GraphicsDevice.Viewport.Height - 75), "Extensions are disabled while the Archipelago mod is installed.", GuiData.smallfont, Color.Red);
             TextItem.doFontLabel(new Vector2(50, screenManager.GraphicsDevice.Viewport.Height - 50), "For support, please contact @ohanamatsumae in the Archipelago Discord in #future-game-planning.", GuiData.smallfont, Color.White);
 
-            Rectangle logoRect = new Rectangle()
-            {
-                Width = 225,
-                Height = 225,
-                X = (screenManager.GraphicsDevice.Viewport.Width - rightOffset) + 40,
-                Y = 185
-            };
+            Vector2 logoCenter = new((screenManager.GraphicsDevice.Viewport.Width - rightOffset) + 75 + 37, 310);
 
-            if (archiLogo != null) { 
-                GuiData.spriteBatch.Draw(archiLogo, logoRect, archiLogoColor * 0.3f);
-            } else
-            {
-                GraphicsDevice userGraphics = GuiData.spriteBatch.GraphicsDevice;
-
-                FileStream logoStream = File.OpenRead("./BepInEx/plugins/assets/" + ARCHIPELAGO_LOGO_FILENAME);
-                archiLogo = Texture2D.FromStream(userGraphics, logoStream);
-                logoStream.Dispose();
-            }
+            DrawArchipelagoLogo(logoCenter);
 
             TextItem.doLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 135), "Archipelago Options", Color.White);
 
@@ -158,7 +136,7 @@ namespace HacknetArchipelago.Patches
                     if (archiLogin.Successful)
                     {
                         Console.WriteLine("[Hacknet_Archipelago] Connected to the Archipelago session.");
-                        archiLogoColor = Color.Green;
+                        LogoColorOverride = Color.PaleGreen;
                         isConnected = true;
                         hasError = false;
 
@@ -202,7 +180,7 @@ namespace HacknetArchipelago.Patches
             {
                 ArchipelagoManager.DisconnectFromArchipelago();
                 isConnected = false;
-                archiLogoColor = Color.White;
+                LogoColorOverride = Color.Transparent;
             }
 
             bool skipBootTextCheckbox = CheckBox.doCheckBox(11116, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 550,
@@ -255,6 +233,75 @@ namespace HacknetArchipelago.Patches
             }
 
             return false;
+        }
+
+        private readonly static List<Color> ArchipelagoColors =
+        [
+            Color.IndianRed,
+            Color.SteelBlue,
+            Color.Plum,
+            Color.PaleGoldenrod,
+            Color.PaleGreen
+        ];
+        public const int NODE_CIRCLE_SIZE = 100;
+        public const int SNUG_MARGIN = 8;
+        public const float LOGO_OPACITY = 0.5f;
+
+        public static Color LogoColorOverride = Color.Transparent;
+
+        public static void DrawArchipelagoLogo(Vector2 center)
+        {
+            var nodeCircle = TextureBank.load("NodeCircle", HacknetAPCore.ContentManager);
+            var homeNodeCircle = TextureBank.load("AdminCircle", HacknetAPCore.ContentManager);
+
+            void drawHomeNode(Vector2 offset)
+            {
+                Rectangle dest = new()
+                {
+                    Width = NODE_CIRCLE_SIZE,
+                    Height = NODE_CIRCLE_SIZE,
+                    X = (int)(offset.X + center.X),
+                    Y = (int)(offset.Y + center.Y)
+                };
+                GuiData.spriteBatch.Draw(homeNodeCircle, dest,
+                    LogoColorOverride == Color.Transparent ? Color.Orange * LOGO_OPACITY :
+                    LogoColorOverride * LOGO_OPACITY);
+            }
+
+            void drawNode(Vector2 offset, Color color)
+            {
+                Rectangle dest = new()
+                {
+                    Width = NODE_CIRCLE_SIZE,
+                    Height = NODE_CIRCLE_SIZE,
+                    X = (int)(offset.X + center.X),
+                    Y = (int)(offset.Y + center.Y)
+                };
+                GuiData.spriteBatch.Draw(nodeCircle, dest,
+                    LogoColorOverride == Color.Transparent ? color * LOGO_OPACITY :
+                    LogoColorOverride * LOGO_OPACITY);
+            }
+
+            for(int i = 0; i < 5; i++)
+            {
+                bool isEven = i % 2 == 0;
+                bool isLatterHalf = i > 2;
+
+                if(i == 0)
+                {
+                    drawNode(new Vector2(0, -NODE_CIRCLE_SIZE + SNUG_MARGIN * 2), ArchipelagoColors[i]);
+                } else
+                {
+                    var xOffset = (NODE_CIRCLE_SIZE * (isEven ? 1 : -1)) +
+                        (isEven ? -SNUG_MARGIN * 3 : SNUG_MARGIN * 3);
+                    var yOffset = NODE_CIRCLE_SIZE * (isLatterHalf ? -0.5f : 0.5f) +
+                        (isLatterHalf ? SNUG_MARGIN : -SNUG_MARGIN);
+                    drawNode(new Vector2(xOffset, yOffset), ArchipelagoColors[i]);
+                }
+            }
+
+            drawNode(new Vector2(0, NODE_CIRCLE_SIZE - SNUG_MARGIN * 2), Color.Orange);
+            drawHomeNode(new Vector2(0, NODE_CIRCLE_SIZE - SNUG_MARGIN * 2));
         }
     }
 }

@@ -2,6 +2,7 @@
 using HacknetArchipelago.Managers;
 using Microsoft.Xna.Framework;
 using Pathfinder.Event.Gameplay;
+using System;
 
 namespace HacknetArchipelago.Patches
 {
@@ -9,6 +10,10 @@ namespace HacknetArchipelago.Patches
     {
         public static bool ramWasSet = false;
         internal static int _lastRamLimit = -1;
+
+        public const int MINIMUM_RAM = 350;
+        public const int RAM_UPGRADE_STEP = 50;
+        public const int MAXIMUM_RAM = 800;
 
         public static void LimitRAM(OSUpdateEvent oSUpdateEvent)
         {
@@ -21,19 +26,31 @@ namespace HacknetArchipelago.Patches
 
             OS os = oSUpdateEvent.OS;
 
-            if(_lastRamLimit != InventoryManager._ramLimit)
+            int totalRam = GetRAMLimit();
+
+            if(_lastRamLimit != totalRam)
             {
                 if(OS.DEBUG_COMMANDS)
                 {
                     HacknetAPCore.Logger.LogDebug($"Updating RAM to new value: {InventoryManager._ramLimit}");
                 }
 
-                os.ramAvaliable = InventoryManager._ramLimit;
-                os.totalRam = InventoryManager._ramLimit - (OS.TOP_BAR_HEIGHT + 2);
-                _lastRamLimit = InventoryManager._ramLimit;
+                os.ramAvaliable = totalRam;
+                os.totalRam = totalRam - (OS.TOP_BAR_HEIGHT + 2);
+                _lastRamLimit = totalRam;
 
                 UpdateRamModule();
             }
+        }
+
+        public static int GetRAMLimit()
+        {
+            var ramUpgradesCollected = InventoryManager.ProgressiveRAMsCollected;
+            int totalRam = MINIMUM_RAM + (ramUpgradesCollected * RAM_UPGRADE_STEP);
+
+            totalRam = (int)MathHelper.Clamp(totalRam, MINIMUM_RAM, MAXIMUM_RAM);
+
+            return totalRam;
         }
 
         public static void UpdateRamModule()
