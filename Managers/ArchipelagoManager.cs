@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 
 using BepInEx.Logging;
@@ -22,7 +19,6 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using HacknetArchipelago.Daemons;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
-using HacknetArchipelago.Patches;
 
 namespace HacknetArchipelago.Managers
 {
@@ -407,8 +403,7 @@ namespace HacknetArchipelago.Managers
             switch (itemID)
             {
                 case 119: // Progressive Faction Access
-                    _factionAccess++;
-                    switch (_factionAccess)
+                    switch (InventoryManager.FactionAccess)
                     {
                         case FactionAccess.Entropy:
                             HacknetAPCore.SpeakAsSystem("You can now take on missions from Entropy!");
@@ -424,7 +419,7 @@ namespace HacknetArchipelago.Managers
                             HacknetAPCore.SpeakAsSystem("You can now take on missions from CSEC!");
                             break;
                         default:
-                            HacknetAPCore.SpeakAsSystem("Progressive Faction Access Received!");
+                            HacknetAPCore.SpeakAsSystem("Progressive Faction Access Received! (Error)");
                             break;
                     }
                     break;

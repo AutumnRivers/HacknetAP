@@ -51,7 +51,7 @@ namespace HacknetArchipelago
     {
         public const string ModGUID = "autumnrivers.archipelago";
         public const string ModName = "Hacknet Archipelago Client";
-        public const string ModVer = "0.5.0";
+        public const string ModVer = "0.6.0";
 
         public const string GameString = "Hacknet";
 
@@ -210,7 +210,7 @@ namespace HacknetArchipelago
             OnlyShells = 2,
             OnlyShellsZero = 3,
             OnlyRAM = 4,
-            Disabled = 5
+            Disabled = 0
         }
 
         public enum VictoryCondition : long

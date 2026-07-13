@@ -1,154 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B88A95E1-9B1D-4BEF-96F3-4416DBA15E5A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HacknetArchipelago</RootNamespace>
-    <AssemblyName>HacknetAPClient</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <LangVersion>12.0</LangVersion>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <LangVersion>12.0</LangVersion>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>lib\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Archipelago.MultiClient.Net, Version=6.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Archipelago.MultiClient.Net">
       <HintPath>lib\Archipelago.MultiClient.Net.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Core">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\core\BepInEx.Core.dll</HintPath>
+      <HintPath>lib\BepInEx.Core.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Hacknet">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\core\BepInEx.Hacknet.dll</HintPath>
+      <HintPath>lib\BepInEx.Hacknet.dll</HintPath>
     </Reference>
     <Reference Include="FNA">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\FNA.dll</HintPath>
+      <HintPath>lib\FNA.dll</HintPath>
     </Reference>
     <Reference Include="Hacknet">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\Hacknet.exe</HintPath>
+      <HintPath>lib\Hacknet.exe</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\core\Mono.Cecil.dll</HintPath>
+    <Reference Include="Mono.Cecil">
+      <HintPath>lib\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="MonoMod.Utils, Version=21.9.19.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\core\MonoMod.Utils.dll</HintPath>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>lib\MonoMod.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Archipelago.MultiClient.Net.6.6.0\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PathfinderAPI">
-      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\Hacknet\BepInEx\plugins\PathfinderAPI.dll</HintPath>
+      <HintPath>lib\PathfinderAPI.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Commands\ArchipelagoDebugCommands.cs" />
-    <Compile Include="Commands\ArchipelagoUserCommands.cs" />
-    <Compile Include="Commands\ItemCommands.cs" />
-    <Compile Include="Daemons\ArchipelagoIRCDaemon.cs" />
-    <Compile Include="HacknetAPCore.cs" />
-    <Compile Include="Managers\ArchipelagoManager.cs" />
-    <Compile Include="Managers\DeathLinkManager.cs" />
-    <Compile Include="Managers\InventoryManager.cs" />
-    <Compile Include="Managers\LocationManager.cs" />
-    <Compile Include="Managers\PlayerManager.cs" />
-    <Compile Include="Managers\PointClickerManager.cs" />
-    <Compile Include="Patches\ArchipelagoMainMenu.cs" />
-    <Compile Include="Patches\CheckForFlagsPatch.cs" />
-    <Compile Include="Patches\CommandPatches.cs" />
-    <Compile Include="Patches\Computers\ComputerCrashPatch.cs" />
-    <Compile Include="Patches\Computers\ComputerLoadPatches.cs" />
-    <Compile Include="Patches\Debugging\LogLoadedMissions.cs" />
-    <Compile Include="Patches\ForceLogErrorsPatch.cs" />
-    <Compile Include="Patches\Goals\AltitudeLossPatch.cs" />
-    <Compile Include="Patches\Goals\HeartstopperPatch.cs" />
-    <Compile Include="Patches\Goals\VeteranPatch.cs" />
-    <Compile Include="Patches\Goals\VIPPatch.cs" />
-    <Compile Include="Patches\Limits\RAMLimitPatch.cs" />
-    <Compile Include="Patches\Limits\ShellLimitPatch.cs" />
-    <Compile Include="Patches\MissionFunctionChecker.cs" />
-    <Compile Include="Patches\MissionPatches.cs" />
-    <Compile Include="Patches\Missions\AbandoningMissionsPatch.cs" />
-    <Compile Include="Patches\Missions\ForcePlayerOnNaixPath.cs" />
-    <Compile Include="Patches\Missions\PreventOutOfLogicMissions.cs" />
-    <Compile Include="Patches\PointClickerPatches.cs" />
-    <Compile Include="Patches\ReplaceBootText.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Replacements\ArchipelagoTextBox.cs" />
-    <Compile Include="SaveLoadExecutors.cs" />
-    <Compile Include="Static\ArchipelagoItems.cs" />
-    <Compile Include="Static\ArchipelagoLocations.cs" />
-    <Compile Include="Static\ArchipelagoNodeLocations.cs" />
-    <Compile Include="Static\MissionToFaction.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="assets\archipelago.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <HacknetInstall>M:\SteamLibrary\steamapps\common\Hacknet\</HacknetInstall>
-  </PropertyGroup>
-  <Target Name="PrepareMergeLib" BeforeTargets="AfterBuild">
-    <ItemGroup>
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\BepInEx.Core.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\BepInEx.Hacknet.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\0Harmony.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\plugins\PathfinderAPI.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\MonoMod.Utils.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\Mono.Cecil.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)BepInEx\core\Newtonsoft.Json.dll" />
-      <MergeLibFiles Include="$(HacknetInstall)Hacknet.exe" />
-      <!-- Add other dependencies here -->
-    </ItemGroup>
-    <MakeDir Directories="$(TargetDir)MergeLib" />
-    <Copy SourceFiles="@(MergeLibFiles)" DestinationFolder="$(TargetDir)MergeLib" SkipUnchangedFiles="true" />
-  </Target>
-  <Target Name="AfterBuild">
-    <ItemGroup>
-      <!-- This is the list of DLLs to merge -->
-      <MergeAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
-      <MergeAssemblies Include="$(OutputPath)Archipelago.MultiClient.Net.dll" />
-    </ItemGroup>
-    <!-- Run global dotnet-ilrepack with all listed assemblies -->
-    <Exec Command="ilrepack /parallel /internalize /lib:&quot;$(TargetDir)MergeLib&quot; /out:&quot;$(TargetDir)$(TargetName).Merged.dll&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
-    <Move ContinueOnError="false" SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(TargetDir)$(TargetName).Standalone.dll" />
-    <Move ContinueOnError="false" SourceFiles="$(TargetDir)$(TargetName).Merged.dll" DestinationFiles="$(TargetDir)$(TargetName).dll" />
-  </Target>
+
 </Project>
