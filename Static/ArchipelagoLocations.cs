@@ -107,7 +107,7 @@ namespace HacknetArchipelago
         {
             { "Bit -- Foundation", 650 },
             { "Project Junebug", 450 },
-            { "The Kaguya Trials", 500 },
+            { "The Kaguya Trials", 550 },
             { "Take Flight", 600 },
             { "Take Flight Cont.", 600 }
         };

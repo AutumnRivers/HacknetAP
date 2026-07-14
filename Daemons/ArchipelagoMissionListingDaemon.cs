@@ -7,7 +7,9 @@ using Pathfinder.Meta.Load;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using HacknetArchipelago.Extensions;
 using HacknetArchipelago.Managers;
+using HacknetArchipelago.Patches;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pathfinder.GUI;
@@ -73,14 +75,21 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         {
             AddMission(mission);
         }
+
+        // removes duplicates
+        // duplicates seemingly only happen when initializing the daemon for the first time
+        Missions = Missions.DistinctBy(m => m.PostingTitle).ToList();
     }
 
     public void ClaimMission(MissionListingEntry missionListingEntry)
     {
-        Folder listingsFolder = comp.getFolderFromPath("missions", true);
+        var listingsFolder = comp.getFolderFromPath("missions", true);
+        OS.currentInstance.currentMission = missionListingEntry.Mission;
+        missionListingEntry.Mission.sendEmail(OS.currentInstance);
+        missionListingEntry.Mission.ActivateSuppressedStartFunctionIfPresent();
+        State = ArchipelagoMissionListingState.MissionListing;
         Missions.Remove(missionListingEntry);
         CurrentMission = null;
-        OS.currentInstance.currentMission = missionListingEntry.Mission;
         if (missionListingEntry.ButtonIndex > -1)
         {
             PFButton.ReturnID(missionListingEntry.ButtonIndex);
@@ -167,6 +176,7 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         {
             AddMissionFromFile(missionFile);
         }
+        RefreshAllMissionStatuses();
     }
 
     public override void draw(Rectangle bounds, SpriteBatch sb)
@@ -176,7 +186,7 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         SideBarcode.Update(OS.currentInstance.lastGameTime.ElapsedGameTime.Seconds);
         DrawBarcode(bounds);
 
-        if (!comp.PlayerHasAdminPermissions())
+        if (!comp.userLoggedIn)
         {
             DrawUnauthenticatedView(bounds);
             return;
@@ -308,14 +318,21 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         if (!CurrentMission.CanBeClaimed)
         {
             GuiData.spriteBatch.DrawString(GuiData.smallfont,
-                "Unavailable.",
+                "Unavailable: " + CurrentMission.DenialReason,
+                new Vector2(bounds.X + PANEL_MARGIN, bounds.Y + bounds.Height - (BUTTON_HEIGHT * 2) - PANEL_MARGIN),
+                Color.Red);
+        }
+        else if (OS.currentInstance.currentMission != null)
+        {
+            GuiData.spriteBatch.DrawString(GuiData.smallfont,
+                "Unavailable: You must finish your current contract before accepting a new one.",
                 new Vector2(bounds.X + PANEL_MARGIN, bounds.Y + bounds.Height - (BUTTON_HEIGHT * 2) - PANEL_MARGIN),
                 Color.Red);
         }
         else
         {
             var acceptMission = Button.doButton(AcceptMissionButtonId,
-                bounds.X + PANEL_MARGIN, bounds.Y + bounds.Height - BUTTON_HEIGHT - PANEL_MARGIN,
+                bounds.X + PANEL_MARGIN, bounds.Y + bounds.Height - (BUTTON_HEIGHT * 2) - PANEL_MARGIN - 5,
                 (postingWidth / 2) - 10, BUTTON_HEIGHT, "Accept", Color.Green);
             if (acceptMission)
             {
@@ -350,6 +367,7 @@ public class MissionListingEntry
     public ActiveMission Mission { get; set; }
     public FileEntry RelatedFile { get; set; }
     public bool CanBeClaimed { get; private set; } = false;
+    public string DenialReason { get; private set; } = string.Empty;
     public int ButtonIndex { get; set; } = -1;
 
     public string PostingTitle => Mission.postingTitle;
@@ -368,7 +386,32 @@ public class MissionListingEntry
             CanBeClaimed = hasItemsRequired;
         }
 
-        var archiLocation = ArchipelagoLocations.MissionToLocation[subject];
+        if (!hasItemsRequired)
+        {
+            DenialReason = "You are missing the required Archipelago item(s).";
+        }
+
+        if (HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits ||
+            HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.OnlyRAM)
+        {
+            if (ArchipelagoLocations.RequiredRAMUpgradesForLocation.ContainsKey(subject))
+            {
+                var currentRam = RAMLimitPatch.GetRAMLimit();
+                var targetRam = ArchipelagoLocations.RequiredRAMUpgradesForLocation[subject];
+
+                if (currentRam < targetRam)
+                {
+                    CanBeClaimed = false;
+                    DenialReason = "You don't have enough RAM!";
+                    return;
+                }
+            }
+        }
+
+        var archiLocation =
+            subject == "The Kaguya Trials"
+                ? "Labyrinths -- Kaguya Trials"
+                : ArchipelagoLocations.MissionToLocation[subject];
         var isEntropy = archiLocation.StartsWith("Entropy") &&
                         !archiLocation.Contains("Welcome") &&
                         !archiLocation.Contains("Confirmation");
@@ -378,6 +421,10 @@ public class MissionListingEntry
             (isEntropy && factionAccess >= FactionAccess.Entropy) ||
             (!isEntropy && shuffleLabs && factionAccess >= FactionAccess.CSEC) ||
             (!isEntropy && !shuffleLabs && factionAccess >= FactionAccess.LabyrinthsOrCSEC);
+        if (!hasEnoughFactionAccess)
+        {
+            DenialReason = "You don't have enough Progressive Faction Access.";
+        }
         CanBeClaimed = hasItemsRequired && hasEnoughFactionAccess;
     }
 }

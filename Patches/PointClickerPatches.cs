@@ -97,12 +97,7 @@ namespace HacknetArchipelago.Patches
                 double pointsToAdd = __instance.currentRate * __instance.os.lastGameTime.ElapsedGameTime.TotalSeconds
                     * PointClickerManager.RateMultiplier;
                 var newPoints = __instance.activeState.points + (int)pointsToAdd;
-                if((newPoints >= __instance.upgradeCosts.Last() || newPoints <= -1.0) && !_purchasedFinalUpgrade &&
-                    !PointClickerManager.BlockUpgrades)
-                {
-                    __instance.activeState.points = (long)__instance.upgradeCosts.Last();
-                    return false;
-                } else if(newPoints <= -1.0)
+                if(newPoints <= -1.0)
                 {
                     AchievementsManager.Unlock("pointclicker_expert", true);
                 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using HarmonyLib;
 using Hacknet;
 
@@ -11,6 +11,7 @@ using System.Reflection;
 using HacknetArchipelago.Managers;
 using System.Runtime.InteropServices;
 using HacknetArchipelago.Daemons;
+using HacknetArchipelago.Extensions;
 using Pathfinder.Util;
 
 namespace HacknetArchipelago.Patches.Missions
@@ -130,14 +131,22 @@ namespace HacknetArchipelago.Patches.Missions
             ArchipelagoMissionListingDaemon newDaemon = new(__instance, "AP Mission Listing",
                 __instance.os);
             __instance.daemons.Add(newDaemon);
+
+            // removes duplicates
+            __instance.daemons = __instance.daemons.DistinctBy(d => d.name).ToList();
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MissionHubServer), "navigatedTo")]
-        public static bool PreventViewingOldCsecDaemon()
+        public static bool PreventViewingOldCsecDaemon(MissionHubServer __instance)
         {
+            var sysFolder = __instance.comp.getFolderFromPath("sys");
+            var bootModuleList = sysFolder.searchForFile("DefaultBootModule.txt");
+            bootModuleList.data = "Archipelago Mission Listing";
+            
             Programs.disconnect([], OS.currentInstance);
-            OS.currentInstance.terminal.writeLine("Do not connect to the old daemon!");
+            OS.currentInstance.terminal.writeLine("Do not connect to the old daemon!\n" +
+                                                  "(If you loaded a save, reconnect to the node.)");
             return false;
         }
 

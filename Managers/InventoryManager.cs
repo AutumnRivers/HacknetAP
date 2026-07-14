@@ -61,14 +61,7 @@ namespace HacknetArchipelago.Managers
 
         public static bool PlayerCollectedItem(string itemName)
         {
-            foreach (var itemsCollected in allCollectedItems.Values)
-            {
-                if (itemsCollected.Contains(itemName))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return GetUniqueInstancesOfItem(itemName) > 0;
         }
 
         public static List<string> AllCollectedItemsNoPlayers
