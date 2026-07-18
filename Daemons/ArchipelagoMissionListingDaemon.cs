@@ -381,14 +381,14 @@ public class MissionListingEntry
     {
         var subject = Mission.email.subject;
         var hasItemsRequired = ArchipelagoLocations.HasItemsForLocation(subject);
-        if (!HacknetAPCore.SlotData.EnableFactionAccess)
-        {
-            CanBeClaimed = hasItemsRequired;
-        }
-
         if (!hasItemsRequired)
         {
             DenialReason = "You are missing the required Archipelago item(s).";
+        }
+        if (!HacknetAPCore.SlotData.EnableFactionAccess)
+        {
+            CanBeClaimed = hasItemsRequired;
+            return;
         }
 
         if (HacknetAPCore.SlotData.LimitsShuffle == HacknetAPSlotData.LimitsMode.EnableAllLimits ||
@@ -407,7 +407,7 @@ public class MissionListingEntry
                 }
             }
         }
-
+        
         var archiLocation =
             subject == "The Kaguya Trials"
                 ? "Labyrinths -- Kaguya Trials"

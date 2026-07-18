@@ -38,8 +38,19 @@ namespace HacknetArchipelago.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
-        public static void SendPointClickerUpgrades(int index)
+        public static void SendPointClickerUpgrades(PointClickerDaemon __instance, int index)
         {
+            var canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index];
+            if (!canPurchase)
+            {
+                if (OS.DEBUG_COMMANDS)
+                {
+                    HacknetAPCore.Logger.LogDebug($"Unable to purchase PointClicker Upgrade Index {index}: " +
+                                                  $"Too Expensive!");
+                }
+                return;
+            }
+            
             if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"PointClicker Upgrade Index {index} Purchased");
             if (_collectedIndices.Contains(index)) return;
             _collectedIndices.Add(index);
@@ -92,6 +103,15 @@ namespace HacknetArchipelago.Patches
                 return false;
             }
 
+            var testLoc = "PointClicker -- Click Me!";
+            var testLocId = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(
+                HacknetAPCore.GameString,
+                testLoc);
+            if (testLocId == -1)
+            {
+                return true;
+            }
+
             if (__instance.currentRate > 0.0 || __instance.currentRate < -1.0)
             {
                 double pointsToAdd = __instance.currentRate * __instance.os.lastGameTime.ElapsedGameTime.TotalSeconds
@@ -106,9 +126,16 @@ namespace HacknetArchipelago.Patches
                 __instance.pointOverflow += (float)(pointsToAdd - (double)(int)pointsToAdd);
                 if (__instance.pointOverflow > 1f)
                 {
-                    int overflow = (int)__instance.pointOverflow;
-                    __instance.activeState.points += overflow;
-                    __instance.pointOverflow -= overflow;
+                    if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1))
+                    {
+                        __instance.activeState.points = (long)__instance.upgradeCosts.Last();
+                    }
+                    else
+                    {
+                        var overflow = (int)__instance.pointOverflow;
+                        __instance.activeState.points += overflow;
+                        __instance.pointOverflow -= overflow;
+                    }
                 }
             }
 
