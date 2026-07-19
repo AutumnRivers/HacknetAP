@@ -11,7 +11,7 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 ## Installation
 * Download and install [Hacknet: Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder)
 * Download the latest `HacknetAPClient.zip` release from the Releases page
-* Extract the ZIP file to your base Hacknet folder (no, not to `BepInEx/plugins`!)
+* Extract the ZIP file to `<Hacknet Install>/BepInEx/plugins`
 * Follow [How To Use](#how-to-use)
 ---
 ## Additional Details
