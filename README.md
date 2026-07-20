@@ -16,7 +16,19 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 ---
 ## Additional Details
 * Hacknet Pathfinder **DOES NOT WORK ON MAC/OSX**. As such, HacknetAP does not support it, either.
-* HacknetAP is only tested with Archipelago 0.6.2 and will *not* work on versions earlier than 0.6.1! May not work on later versions.
+* HacknetAP is only tested with Archipelago 0.7.0 and will *not* work on versions earlier than 0.6.1! May not work on later versions.
+---
+## Things to Note
+**These are important.** If you don't read them, you might think some things are broken.
+* Any mission that requires you to download/upload an executable file is replaced with a mission to gain admin access on the target node, instead.
+  * For example, in the mission, "Getting some tools together", you are usually required to download SSHCrack.exe.
+  * Instead, you simply have to gain admin access to the node it's on, and then you can complete the mission.
+* Striker's PC (DLC) usually has a fast administrator, but it's been replaced with a basic administrator.
+  * This means, once you disconnect from it after gaining admin access, you have 15 seconds to complete the mission.
+* When connecting to CSEC for the first time, you will be automatically disconnected. Simply reconnect to the node.
+  * This is just something funky that happens due to the way Hacknet loads daemons.
+  * You only need to do this once per savefile.
+ 
 ---
 ## Commands
 Please see [COMMANDS.md](./COMMANDS.md).
