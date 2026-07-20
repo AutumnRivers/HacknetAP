@@ -28,6 +28,9 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 * When connecting to CSEC for the first time, you will be automatically disconnected. Simply reconnect to the node.
   * This is just something funky that happens due to the way Hacknet loads daemons.
   * You only need to do this once per savefile.
+* If you have RAM limits enabled, do not panic when the game starts with full RAM on a new savefile.
+  * Without full RAM, the tutorial exe cannot launch, and the player becomes softlocked.
+  * Once the tutorial is finished, the RAM limit will kick in.
  
 ---
 ## Commands
