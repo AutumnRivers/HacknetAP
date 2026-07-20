@@ -19,6 +19,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using HacknetArchipelago.Daemons;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
+using HacknetArchipelago.Patches;
 
 namespace HacknetArchipelago.Managers
 {
@@ -59,22 +60,21 @@ namespace HacknetArchipelago.Managers
                 oSUpdateEvent.OS.warningFlash();
                 oSUpdateEvent.OS.beepSound.Play();
                 IsConnected = false;
+                ArchipelagoMainMenu.isConnected = false;
                 _warnedAboutDisconnect = true;
             }
             else if (!_warnedAboutDisconnect && !Session.Socket.Connected)
             {
                 HacknetAPCore.SpeakAsSystem("Lost connection to Archipelago! Please reconnect with 'rearchi'");
-                HacknetAPCore.SpeakAsSystem("Lost connection to Archipelago! Please reconnect with 'rearchi'");
-                HacknetAPCore.SpeakAsSystem("Lost connection to Archipelago! Please reconnect with 'rearchi'");
-                oSUpdateEvent.OS.warningFlash();
-                oSUpdateEvent.OS.beepSound.Play();
                 Logger.LogError("Lost connection to Archipelago!");
                 IsConnected = false;
+                ArchipelagoMainMenu.isConnected = false;
                 _warnedAboutDisconnect = true;
             }
-            else
+            else if(Session != null && Session.Socket.Connected)
             {
                 IsConnected = true;
+                ArchipelagoMainMenu.isConnected = true;
                 _warnedAboutDisconnect = false;
             }
         }

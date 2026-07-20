@@ -25,24 +25,5 @@ namespace HacknetArchipelago.Patches
                     $"{ComputerLoader.filter("#BINARYSMALL#")}";
             }
         }
-
-        private static readonly List<string> _excludedExes =
-        [
-            "KaguyaTrials.exe", "Sequencer.exe", "SecurityTracer.exe"
-        ];
-
-        public static void WarnWhenDownloadingArchipelagoExes(CommandExecuteEvent cmdExeEvent)
-        {
-            string fileName = cmdExeEvent.Args.FirstOrDefault(arg => arg.EndsWith(".exe"));
-            if (fileName == default || _excludedExes.Contains(fileName)) return;
-
-            string file = fileName.Split('.')[0];
-            if(!InventoryManager._localInventory.ContainsKey(file))
-            {
-                HacknetAPCore.SpeakAsSystem($"The executable file {file} isn't in your Archipelago inventory!\n" +
-                    "If this item was shuffled into the item pool, then it won't launch until you've received it via Archipelago.\n" +
-                    "If this item was not shuffled, or you already have it, then you can safely ignore this warning.");
-            };
-        }
     }
 }

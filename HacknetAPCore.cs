@@ -133,7 +133,7 @@ namespace HacknetArchipelago
                 ArchipelagoDebugCommands.AddToLocalInventory, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
-            EventManager<CommandExecuteEvent>.AddHandler(ComputerLoadPatches.WarnWhenDownloadingArchipelagoExes);
+
             EventManager<OSLoadedEvent>.AddHandler(InventoryManager.CheckItemsCacheOnLoad);
             EventManager<OSLoadedEvent>.AddHandler(SetupArchipelagoIRC);
             EventManager<OSUpdateEvent>.AddHandler(CheckForFlagsPatch.CheckFlagsForArchiLocations);

@@ -16,18 +16,14 @@ namespace HacknetArchipelago.Patches
     [HarmonyPatch]
     public class ArchipelagoMainMenu
     {
-        static string archiURI = "archipelago.gg";
-        static string archiPort = "38281";
-        static string archiSlot = "";
-        static string archiPassword = "";
+        internal static string archiURI = "archipelago.gg";
+        internal static string archiPort = "38281";
+        internal static string archiSlot = "";
+        internal static string archiPassword = "";
 
-        static bool isConnected = false;
+        internal static bool isConnected = false;
         static bool hasError = false;
         static bool hasReadLoginFile = false;
-
-        static Color archiLogoColor = Color.White;
-
-        public static Texture2D archiLogo;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MainMenu),nameof(MainMenu.DrawBackgroundAndTitle))]
@@ -38,6 +34,8 @@ namespace HacknetArchipelago.Patches
                 hasReadLoginFile = true;
 
                 string[] archiDetails = File.ReadAllLines("./archipelago.txt");
+                var conDetails = new Tuple<string,string,string>(archiDetails[0], archiDetails[1], archiDetails[2]);
+                HacknetAPCore.CachedConnectionDetails = conDetails;
 
                 for(int x = 0; x < archiDetails.Length; x++)
                 {

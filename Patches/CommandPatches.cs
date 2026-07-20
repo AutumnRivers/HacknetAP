@@ -36,7 +36,7 @@ namespace HacknetArchipelago.Patches
             bool hasExe = ArchipelagoItems.PlayerHasExecutable(executableName);
             OS os = cmdEvent.Os;
 
-            if(!hasExe && !excludedExes.Contains(cmdEvent.Args[2]))
+            if(!hasExe && !excludedExes.Contains(cmdEvent.Args[1]))
             {
                 cmdEvent.Cancelled = true;
                 os.write("You can't download that -- you haven't unlocked it yet!");
