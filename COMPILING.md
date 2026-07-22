@@ -24,10 +24,9 @@ If you are on GOG:
 3. You can also download the native Linux build to use after (recommended)
 ---
 ## Files You Need
-* `Newtonsoft.Json.dll` from the [MultiClient.NET Library Repository](https://github.com/ArchipelagoMW/Archipelago.MultiClient.Net/tree/main/DLLs/net45)
-
 **NOTE**: Everything below will be placed in the `/lib` folder of the cloned `HacknetAP` repository.
 
+* `Newtonsoft.Json.dll` from the [MultiClient.NET Library Repository](https://github.com/ArchipelagoMW/Archipelago.MultiClient.Net/tree/main/DLLs/net45)
 * Hacknet Installation Directory:
     * `Hacknet.exe` (previously `HacknetPathfinder.exe`) (If you did not rename `HacknetPathfinder.exe`, rename it after placing it in the `/lib` folder.)
         * **Make sure it is the Pathfinder EXE**. The vanilla executable hides some things that Pathfinder exposes.
