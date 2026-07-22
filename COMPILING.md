@@ -24,6 +24,8 @@ If you are on GOG:
 3. You can also download the native Linux build to use after (recommended)
 ---
 ## Files You Need
+* `Newtonsoft.Json.dll` from the [MultiClient.NET Library Repository](https://github.com/ArchipelagoMW/Archipelago.MultiClient.Net/tree/main/DLLs/net45)
+
 **NOTE**: Everything below will be placed in the `/lib` folder of the cloned `HacknetAP` repository.
 
 * Hacknet Installation Directory:
@@ -36,7 +38,6 @@ If you are on GOG:
     * `BepInEx.Hacknet.dll`
     * `Mono.Cecil.dll`
     * `MonoMod.Utils.dll`
-    * `Newtonsoft.Json.dll`
 * `<HacknetInstall>/BepInEx/plugins`:
     * `PathfinderAPI.dll`
 ---
