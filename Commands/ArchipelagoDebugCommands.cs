@@ -48,29 +48,6 @@ namespace HacknetArchipelago.Commands
             os.terminal.writeLine(resultBuilder.ToString());
         }
 
-        public static void DebugSetFactionAccess(OS os, string[] args)
-        {
-            if (!checkIfDebugIsEnabled()) return;
-
-            if (int.TryParse(args[1], out int access))
-            {
-                if(access > 3 || access < -1)
-                {
-                    os.terminal.writeLine("Invalid Argument - Invalid faction access value");
-                    os.commandInvalid = true;
-                    return;
-                }
-
-                FactionAccess factionAccess = (FactionAccess)access;
-                InventoryManager._factionAccess = factionAccess;
-                os.terminal.writeLine($"Set faction access to {Enum.GetName(typeof(FactionAccess), factionAccess)} ({access})");
-            } else
-            {
-                os.terminal.writeLine("Invalid Argument - argument must be a number");
-                os.commandInvalid = true;
-            }
-        }
-
         public static void DebugPrintStorage(OS os, string[] args)
         {
             if (!checkIfDebugIsEnabled()) return;
@@ -148,6 +125,36 @@ namespace HacknetArchipelago.Commands
 
             os.write("THIS IS MOSTLY COSMETIC, DON'T USE IF YOU DON'T KNOW WHAT YOU'RE DOING");
             InventoryManager.AddToInventory(itemName, "System1");
+        }
+
+        public static void CheckApWorldCompat(OS os, string[] args)
+        {
+            os.write("Client Mod Version: " + HacknetAPCore.ModVer);
+            os.write("Target APW Version: " + HacknetAPCore.TARGET_APWORLD);
+            os.write("User APW Version: " + HacknetAPCore.SlotData.APWorldVersionUsed);
+
+            if (HacknetAPCore.TARGET_APWORLD == HacknetAPCore.SlotData.APWorldVersionUsed)
+            {
+                os.write("Yep, you're good to go :thumbs_up:");
+            }
+            else
+            {
+                os.write("You are not using the target APWorld version for this version of the client mod.\n" +
+                         "You might run into issues.");
+            }
+        }
+
+        public static void GetIdOfCurrentNode(OS os, string[] args)
+        {
+            if(!checkIfDebugIsEnabled()) return;
+
+            var node = os.connectedComp;
+            if (node == null)
+            {
+                os.write("Not connected a node!");
+                return;
+            }
+            os.write(node.idName);
         }
 
         private static readonly List<ArchipelagoIRCEntry> TestEntries = new()

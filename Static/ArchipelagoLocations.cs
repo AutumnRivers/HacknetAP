@@ -138,8 +138,6 @@ namespace HacknetArchipelago
             return hasRequiredItems;
         }
 
-        public static readonly Dictionary<string, string> NodeIDToLocation = new();
-
         public static readonly Dictionary<string, string> FlagToLocation = new()
         {
             { "KaguyaTrialComplete", "Labyrinths -- Kaguya Trials" },
@@ -159,8 +157,8 @@ namespace HacknetArchipelago
             { "deActivateAircraftStatusOverlay", "Labyrinths -- Altitude Loss" }
         };
 
-        public static readonly List<string> UpgradeIndexToLocation = new()
-        {
+        public static readonly List<string> UpgradeIndexToLocation =
+        [
             "PointClicker -- Click Me!",
             "PointClicker -- Autoclicker v1",
             "PointClicker -- Autoclicker v2",
@@ -212,6 +210,154 @@ namespace HacknetArchipelago
             "PointClicker -- Upgrade 48",
             "PointClicker -- Upgrade 49",
             "PointClicker -- Upgrade 50"
+        ];
+
+        public static readonly Dictionary<string, string> NodeToLocation = new()
+        {
+            { "playerComp", "Intro -- Player's PC" },
+            { "archiIRC", "Intro -- Archipelago IRC" },
+            { "portcrack01", "Intro -- Viper-Battlestation" },
+            { "viperScanEarlyGame", "Intro -- Entropy Asset Cache" },
+            { "bitMission00", "Intro -- Bitwise Test PC" },
+            { "bitMission01", "Intro -- P. Anderson's Bedroom PC" },
+            { "bitMission02", "Intro -- Entropy test Server" },
+            { "entropy01.1", "Entropy -- Slash-Bot News Network" },
+            
+            { "entropy01", "Entropy -- Entropy Asset Server" },
+            { "milburgHigh", "Entropy -- Milburg High IT Office" },
+            { "pointclicker", "Entropy -- PointClicker (Admin Access)" },
+            { "ppMarketing", "Entropy -- PP Marketing Inc." }, // hehe, marketing
+            { "xcTablet", "Entropy -- X-C Project Tablet#001//RESEARCH" },
+            { "eosIntroComp", "Entropy -- Jason's PowerBook Plus" },
+            { "eosIntroPhone", "Entropy -- Jason's ePhone 4S" },
+            { "eosAdded1Comp", "Entropy -- JDel Home PC" },
+            { "eosAddedPhone", "Entropy -- Jacob's ePhone 4" },
+            
+            { "naixGateway", "Entropy -- Naix Root Gateway" },
+            { "themeHackComp", "Entropy -- Proxy_Node-X22" },
+            { "themeHackTransComp", "Entropy -- Proxy_Node-X04" },
+            
+            { "nortronWebServer", "Naix -- Nortron Security Web Server" },
+            { "nortronInternalServices", "Naix -- Nortron Internal Services Server" },
+            { "nortronMainframe", "Naix -- Nortron Mainframe" },
+            
+            { "lelzSecHub", "/el -- /el Message Board" },
+            { "secuLockDrive", "/el -- COME AT ME /EL's Secure SecuLock Drive" },
+            { "SecuLockHome", "/el -- Stormrider" },
+            
+            { "polarSnake", "/el -- Shrine of the Polar Star" },
+            { "psTrial01", "/el -- Polar Star - Trial of Patience" },
+            { "psTrial02", "/el -- Polar Star - Trial of Haste" },
+            { "psTrial03", "/el -- Polar Star - Trial of Diligence" },
+            { "psTrial03b", "/el -- Tail of Diligence" },
+            { "psTrial04", "/el -- Polar Star - Trial of Focus" },
+            { "polarSnakeDest", "/el -- Head of the Polar Star (Admin Access)" },
+            { "clockServer", "/el -- Timekeeper's Vault" },
+            
+            { "kfcWebServer", "CSEC -- www.cfc.com" },
+            { "kfcMainframe", "CSEC -- CFC Corporate Mainframe" },
+            { "kfcRecordsRepo", "CSEC -- CFC Records Repository" },
+            
+            { "hubCrossroads", "CSEC -- CSEC Crossroads Server" },
+            { "hubPubDrop", "CSEC -- CSEC Public Drop Server" },
+            { "hubEosMisison", "CSEC -- Sal_Home_Workstation" },
+            { "salEosPhone", "CSEC -- Elanor Helleran's ePhone 4S" },
+            { "honeypot01", "CSEC -- CCC Hacksquad Filedump" },
+            { "producerComp", "CSEC -- Jason's LackBook Pro" },
+            { "deathRow", "CSEC -- Death Row Records Database" },
+            { "academic", "CSEC -- International Academic Database" },
+            { "medical", "CSEC -- Universal Medical" },
+            
+            { "decSoftMainframe", "CSEC -- DEC Solutions Mainframe" },
+            { "decSoftWeb", "CSEC -- DEC Solutions Web Server" },
+            { "jscottHome", "CSEC -- Joseph Scott's Battlestation" },
+            { "macrosoftWorkhorse04", "CSEC -- Macrosoft Workhorse Server 04" },
+            { "mainHub", "CSEC -- CSEC (Contracts Server)" },
+            { "mainHubAssets", "CSEC Assets Server" },
+            
+            { "pacemakerSW_BE", "CSEC -- Eidolon Soft Production Server" },
+            { "kellisHW", "CSEC -- Kellis Biotech Client Services" },
+            { "kellisHW_BE", "CSEC -- Kellis Biotech Production Asset Server" },
+            { "pacemaker01", "CSEC -- KBT-PM 2.44 REG#10811" },
+            
+            { "bitDropBox", "CSEC -- Bitwise Drop Server" },
+            { "bitRelay01", "CSEC -- Bitwise Relay 01" },
+            
+            { "BitWorkServer", "Bit -- Bitwise Repo Base" },
+            { "EnTechOutsiderRepo", "Bit -- EnTech External Contractor Relay Server" },
+            { "EnTechWeb", "Bit -- EnTech Web Server" },
+            { "EnTechPrometheus", "Bit -- En_Prometheus" },
+            { "EnTechRomulus", "Bit -- En_Romulus" },
+            { "EnTechWSCore", "Bit -- EnWorkstationCore" },
+            { "EnWS04", "Bit -- EnTech Workstation _008" },
+            { "EnTechMainframe", "Bit -- EnTech_Zeus" },
+            { "EnTechOfflineBackup", "Bit -- EnTech_Offline_Cycling_Backup" },
+            { "miscMacrosoftStorage", "Bit -- Macrosoft Storage Server" },
+            { "creditsComp", "Post-Game -- Credits Server" },
+            
+            { "dKaguya1", "Kaguya Trials -- Kaguya Sprint Trial" },
+            { "dcentralTest2", "Kaguya Trials -- Kaguya Push Trial" },
+            { "dKaguyaTrialIntro", "Kaguya Trials -- Kaguya Source" }, // Kaguya Trials -- Kaguya Source
+            { "dhsDrop", "Labyrinths -- Bibliotheque DropServer" },
+            
+            { "dRicer", "Labyrinths -- Ricer PC" },
+            { "dDdoserComp", "Labyrinths -- r00t_Tek Battlestation" },
+            { "dDdoserHomeComp", "Labyrinths -- L. Shaffer's NetBook" },
+            
+            { "dMF_1_Misc", "Labyrinths -- iodependency~Atlas" },
+            { "dMF_2_Passthru", "Labyrinths -- Snackintosh_PASSTHRU" },
+            { "dMF_2_Snackintosh", "Labyrinths -- Snackintosh_Proxy" },
+            { "dMF_2_Lihotas", "Labyrinths -- Lihota Productions" },
+            { "dMF_2_Secret", "Labyrinths -- Raven Dataworks" },
+            
+            { "dhaEntry", "Labyrinths -- School of the Hermetic Alchemists" },
+            { "dhaComp2", "Labyrinths -- HA_Solve" },
+            { "dhaComp3", "Labyrinths -- HA_Rebis" },
+            { "dhaAdminPhone", "Labyrinths -- Nate's ePhone 4S" },
+            { "dhaAdminHome", "Labyrinths -- Nate Wesson Home" },
+            { "dhaAdminSecret", "Labyrinths -- Nate Wesson_STOR-DRIVE(tm)" },
+            { "dhaComp1", "Labyrinths -- HA_Coagula" },
+            
+            { "dAttackSource", "Labyrinths -- Striker Cache" },
+            { "dAttackTarget", "Labyrinths -- Striker Proxy" },
+            { "dAttackHome", "Labyrinths -- Striker_Battlestation" },
+            
+            { "dPets_Home", "Labyrinths -- Neopals Homepage" },
+            { "dPets_MF", "Labyrinths -- Neopals_Mainframe" },
+            { "dPets_Auth", "Labyrinths -- Neopals_Authentication" },
+            { "dPets_VC", "Labyrinths -- Neopals_VersionControl" },
+            { "dPets_Engineer1", "Labyrinths -- Thomas_Office" },
+            { "dPets_Engineer2", "Labyrinths -- Ash-ALIENGEAR13" },
+            { "dPets_Engineer3", "Labyrinths -- Tiff Doehan_PersonalPowerbook" },
+            { "dPets_Engineer3_Phone", "Labyrinths -- Tiff's ePhone 7" },
+            
+            { "dal_lax", "Labyrinths -- LAX_Pacific_Server" },
+            { "dpa_nethub", "Labyrinths -- PacificAir_Network_Hub" },
+            { "dpa_whitelist", "Labyrinths -- PacificAir_Whitelist_Authenticator" },
+            { "dpae_psy_1", "Labyrinths -- Faith Morello's Laptop" },
+            { "dpae_psy_2", "Labyrinths -- Vito McMichael's Laptop" },
+            { "dpae_airline_misc", "Labyrinths -- Mark Robertson's Office Computer" },
+            { "dpae_airline_mailLink", "Labyrinths -- Kim Burnaby's Office Computer" },
+            { "dpae_airline_home", "Labyrinths -- Yasu Arai's eBook Touch" },
+            { "dpa_bookings", "Labyrinths -- PacificAir_BookingsMainframe" },
+            
+            { "dpa2_start", "Labyrinths -- Pacific_ATC_RoutingHub" },
+            { "dpa2_target", "Labyrinths -- Pacific_ATC_Skylink" },
+            { "dpa2_whitelist", "Labyrinths -- Pacific_ATC_WhitelistAuthenticator" },
+            
+            { "dair_crash", "Labyrinths -- PA_747_0022 Flight Computer" },
+            { "dair_secondary", "Labyrinths -- PA_747_0018 Flight Computer" },
+            
+            { "dCredits", "Labyrinths -- Kaguya_Projects" },
+            { "dKagGate", "Labyrinths -- Kaguya_Gateway" },
+            { "dCreditsChat", "Labyrinths -- Labyrinths_DevChat" },
+            
+            { "dCoelgateway", "Labyrinths -- Coel__Gateway" },
+            { "dNaixSecretLink", "Naix -- Pellium Box" },
+            { "dPsyArchives", "CSEC -- Psylance Internal Archives" },
+            { "dPsyInternal", "CSEC -- Psylance Internal Services" },
+            
+            { "dGibson", "Labyrinths -- The Gibson (Veteran)" }
         };
     }
 }

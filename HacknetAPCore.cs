@@ -51,7 +51,8 @@ namespace HacknetArchipelago
     {
         public const string ModGUID = "autumnrivers.archipelago";
         public const string ModName = "Hacknet Archipelago Client";
-        public const string ModVer = "0.6.0";
+        public const string ModVer = "1.0.0";
+        public const string TARGET_APWORLD = "1.0.0";
 
         public const string GameString = "Hacknet";
 
@@ -64,7 +65,7 @@ namespace HacknetArchipelago
             "...then I need more strawberries.",
             "...omae wa mou shindeiru.",
             "...ooh, banana.",
-            "...then I'm still waiting for Silksong.",
+            "...not bad for a dead guy, eh?",
             "...then it's dangerous to go alone.",
             "...you cannot sleep now, there are monsters nearby.",
             "...then I wanna be the very best, like no-one ever was.",
@@ -123,7 +124,7 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("debugsay", ArchipelagoDebugCommands.TestSayCommand, false, true);
             CommandManager.RegisterCommand("debughint", ArchipelagoDebugCommands.TestHintCommand, false, true);
             CommandManager.RegisterCommand("debugpeek", ArchipelagoDebugCommands.TestPeekLocation, false, true);
-            CommandManager.RegisterCommand("setfactionaccess", ArchipelagoDebugCommands.DebugSetFactionAccess, false, true);
+            CommandManager.RegisterCommand("checkcompat", ArchipelagoDebugCommands.CheckApWorldCompat, true, false);
             CommandManager.RegisterCommand("printserverdata", ArchipelagoDebugCommands.DebugPrintStorage, false, true);
             CommandManager.RegisterCommand("addtoptcrate", ArchipelagoDebugCommands.AddToConstantRate, false, true);
             CommandManager.RegisterCommand("addtoptcpassive", ArchipelagoDebugCommands.AddToPassiveRate, false, true);
@@ -131,11 +132,13 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("hasexec", ArchipelagoDebugCommands.CheckIfPlayerHasExecutable, false, true);
             CommandManager.RegisterCommand("addtolocalinventoryonlyuseifyouknowhwatyouredoing",
                 ArchipelagoDebugCommands.AddToLocalInventory, false, true);
+            CommandManager.RegisterCommand("getnodeid", ArchipelagoDebugCommands.GetIdOfCurrentNode, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
 
             EventManager<OSLoadedEvent>.AddHandler(InventoryManager.CheckItemsCacheOnLoad);
             EventManager<OSLoadedEvent>.AddHandler(SetupArchipelagoIRC);
+            EventManager<OSLoadedEvent>.AddHandler(GivePlayerAdminAccessCheckOnLoad);
             EventManager<OSUpdateEvent>.AddHandler(CheckForFlagsPatch.CheckFlagsForArchiLocations);
             EventManager<OSUpdateEvent>.AddHandler(ArchipelagoManager.AssureArchiConnection);
             EventManager<UnloadEvent>.AddHandler(ArchipelagoManager.UpdateServerDataOnClose);
@@ -161,14 +164,28 @@ namespace HacknetArchipelago
             bool existsAlready = os.netMap.nodes.Any(c => c.idName == ARCHI_IRC_ID);
             if (existsAlready) return;
 
-            Computer archiIRCComp = new("Archipelago IRC", "archipelago.gg", new(0.5f, 0.5f), 0, 0, os);
-            archiIRCComp.idName = ARCHI_IRC_ID;
+            Computer archiIRCComp = new("Archipelago IRC", "archipelago.gg",
+                new(0.5f, 0.5f), 0, 0, os)
+            {
+                idName = ARCHI_IRC_ID
+            };
             ArchipelagoIRCDaemon archipelagoIRC = new(archiIRCComp, "", os);
             archiIRCComp.daemons.Add(archipelagoIRC);
             archiIRCComp.initDaemons();
 
             os.netMap.nodes.Add(archiIRCComp);
             os.netMap.discoverNode(archiIRCComp);
+        }
+
+        public static void GivePlayerAdminAccessCheckOnLoad(OSLoadedEvent osLoadedEvent)
+        {
+            if(!SlotData.ShuffleAdminAccess) return;
+
+            var locationId = ArchipelagoSession.Locations.GetLocationIdFromName(GameString,
+                "Intro -- Player's PC");
+            if(locationId == -1) return;
+            
+            LocationManager.SendArchipelagoLocations(locationId);
         }
 
         public const string SYSTEM_PREFIX = "(HACKNET_ARCHIPELAGO) ";
@@ -234,12 +251,18 @@ namespace HacknetArchipelago
         public bool EnableFactionAccess = false;
         public bool ShuffleAchievements = false;
         public bool ShuffleAdminAccess = false;
+        public string APWorldVersionUsed = "0.0.0";
 
         internal Dictionary<string, object> rawSlotData = new();
 
         public HacknetAPSlotData(Dictionary<string, object> rawSlotData)
         {
             this.rawSlotData = rawSlotData;
+            if (!rawSlotData.ContainsKey("world_version"))
+            {
+                throw new Exception("ERROR: Your Hacknet APWorld is out of date and incompatible with this " +
+                                    "version of the client mod. You need to use version 1.0.0 or later.");
+            }
             foreach(var key in rawSlotData.Keys)
             {
                 HacknetAPCore.Logger.LogDebug($"Received Slot Data -- {key} : {rawSlotData[key]}");
@@ -253,6 +276,16 @@ namespace HacknetArchipelago
             DeathLink = (bool)rawSlotData["deathlink"];
             ShuffleLabyrinths = (bool)rawSlotData["enable_labyrinths"]; // enable_labyrinths
             EnableFactionAccess = (bool)rawSlotData["enable_faction_access"];
+            ShuffleAdminAccess = (bool)rawSlotData["shuffle_nodes"];
+            APWorldVersionUsed = (string)rawSlotData["world_version"];
+
+            if (APWorldVersionUsed != HacknetAPCore.TARGET_APWORLD)
+            {
+                HacknetAPCore.Logger.LogWarning("Your APWorld version does not match the one this version of the " +
+                                                "client mod targets. You may run into issues.\n\n" +
+                                                "This version of the client mod targets APWorld version " + 
+                                                HacknetAPCore.TARGET_APWORLD);
+            }
         }
 
         public string GetRawSlotData()
