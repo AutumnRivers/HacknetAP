@@ -105,6 +105,7 @@ namespace HacknetArchipelago.Managers
                 Logger.LogInfo("Successfully (re-)connected to Archipelago!");
                 RetrieveDataFromServer();
                 LocationManager.SendCachedLocations();
+                LocationManager._allCheckedLocations = session.Locations.AllLocationsChecked;
                 InventoryManager.OnSessionLoad();
             }
             return result;
@@ -445,14 +446,14 @@ namespace HacknetArchipelago.Managers
             switch (itemID)
             {
                 case 666: // ETAS Trap
-                    PlayerManager.ActivateETAS();
                     HacknetAPCore.SpeakAsSystem("ETAS TRAP ACTIVATED : PREPARE FOR SYSTEM REBOOT");
+                    PlayerManager.ActivateETAS();
                     break;
                 case 667: // Fake Connection
                     PlayerManager.FlashFakeConnection();
                     break;
-                case 668: // Reset PointClicker Points
-                    PointClickerManager.ChangePointClickerPoints(-1);
+                case 668: // Random Theme
+                    PlayerManager.RandomizeTheme();
                     break;
                 case 669: // ForkBomb
                     PlayerManager.ForkbombPlayer(itemSentBy);

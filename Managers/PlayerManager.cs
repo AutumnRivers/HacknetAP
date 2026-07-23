@@ -77,5 +77,26 @@ namespace HacknetArchipelago.Managers
             Os.beepSound.Play();
             Multiplayer.parseInputMessage($"eForkBomb {Os.thisComputer.ip}", Os);
         }
+
+        internal static void ApplyTheme(OSTheme theme)
+        {
+            OS.currentInstance.EffectsUpdater.StartThemeSwitch(1.5f, theme, OS.currentInstance);
+        }
+
+        internal static void ApplyCustomTheme(string themeFilename)
+        {
+            
+        }
+
+        internal static void RandomizeTheme(bool includeCustomThemes = false)
+        {
+            var random = Utils.random;
+
+            var range = Enumerable.Range(1, 12).Where(n => n != 8);
+            var index = random.Next(1, 12);
+
+            var theme = (OSTheme)(range.ElementAt(index));
+            ApplyTheme(theme);
+        }
     }
 }

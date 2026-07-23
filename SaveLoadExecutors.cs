@@ -15,6 +15,9 @@ namespace HacknetArchipelago
 {
     public class SaveLoadExecutors
     {
+        public static string LastLoadedSlotUri { get; set; }
+        public static string LastLoadedSlotName { get; set; }
+        
         [SaveExecutor("HacknetSave.HacknetArchipelagoSave", ParseOption.ParseInterior)]
         public class ArchipelagoSaveReader : SaveLoader.SaveExecutor
         {
@@ -41,10 +44,22 @@ namespace HacknetArchipelago
                         case "PointClickerSaveData":
                             LoadPointClickerSaveData(child);
                             break;
+                        case "ArchipelagoConnection":
+                            LoadArchiConnectionData(child);
+                            break;
                         default:
                             break;
                     }
                 }
+            }
+
+            private void LoadArchiConnectionData(ElementInfo archiElem)
+            {
+                var slotName = archiElem.Attributes["SlotName"];
+                var uri = archiElem.Attributes["URI"];
+
+                LastLoadedSlotName = slotName;
+                LastLoadedSlotUri = uri;
             }
 
             private void LoadStoredCollectedItemData(List<ElementInfo> collectedItemsElems)
@@ -131,12 +146,6 @@ namespace HacknetArchipelago
             public static void InjectArchipelagoSaveData(SaveEvent saveEvent)
             {
                 XElement archiElement = new("HacknetArchipelagoSave");
-
-                XElement slotElem = new("AssociatedSlot");
-                XAttribute slotName = new("SlotName", ArchipelagoManager.PlayerName);
-                XAttribute slotURI = new("URI", ArchipelagoManager.Session.Socket.Uri);
-                slotElem.Add([slotName, slotURI]);
-                archiElement.Add(slotElem);
 
                 if (LocationManager._cachedChecks.Count > 0)
                 {
@@ -225,9 +234,11 @@ namespace HacknetArchipelago
                 ptcElem.Add([ptcRate, ptcPassive]);
                 archiElement.Add(ptcElem);
 
+                var socket = ArchipelagoManager.Session.Socket;
+
                 XElement archiDataElem = new("ArchipelagoConnection");
                 XAttribute archiSlotElem = new("SlotName", ArchipelagoManager.PlayerName);
-                XAttribute archiURI = new("URI", ArchipelagoManager.Session.Socket.Uri.OriginalString);
+                XAttribute archiURI = new("URI", $"{socket.Uri.Host}:{socket.Uri.Port}");
                 XAttribute archiUUID = new("UUID", ArchipelagoManager.Session.ConnectionInfo.Uuid);
                 archiDataElem.Add([archiSlotElem, archiUUID, archiURI]);
 

@@ -84,6 +84,7 @@ namespace HacknetArchipelago
 
         public static bool SkipBootIntroText = false;
         public static bool BeepOnItemReceived = true;
+        public static bool AllowSaving = true;
         public static Tuple<string, string, string> CachedConnectionDetails = new(null, null, null);
 
         internal static string _originalBsodText = "";
@@ -186,6 +187,23 @@ namespace HacknetArchipelago
             if(locationId == -1) return;
             
             LocationManager.SendArchipelagoLocations(locationId);
+            
+            // hijacking this to do this
+            var socket = ArchipelagoSession.Socket.Uri;
+            var uri = $"{socket.Host}:{socket.Port}";
+
+            if (SaveLoadExecutors.LastLoadedSlotName != ArchipelagoSession.Players.ActivePlayer.Name ||
+                SaveLoadExecutors.LastLoadedSlotUri != uri)
+            {
+                OS.currentInstance.warningFlash();
+                OS.currentInstance.beepSound.Play();
+                OS.currentInstance.write("\n\n\n\nThe Archipelago connection details in your save do not match your " +
+                                         "current session's connection data. The saved data is as follows:\n\n" +
+                                         $"Slot Name: {SaveLoadExecutors.LastLoadedSlotName}\n" +
+                                         $"Slot URI: {SaveLoadExecutors.LastLoadedSlotUri}\n\n" +
+                                         "If this is intentional, simply save the game, and you won't see this " +
+                                         "warning again, unless you change information again.\n\n\n\n");
+            }
         }
 
         public const string SYSTEM_PREFIX = "(HACKNET_ARCHIPELAGO) ";
@@ -237,6 +255,12 @@ namespace HacknetArchipelago
             VIP = 3,
             Veteran = 4,
             Completionist = 5
+        }
+        
+        public enum DeathLinkMethod
+        {
+            Crash = 0,
+            ETAS = 1
         }
 
         public VictoryCondition PlayerGoal = VictoryCondition.Heartstopper;

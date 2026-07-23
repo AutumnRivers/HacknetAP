@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using Hacknet;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,36 +36,27 @@ namespace HacknetArchipelago.Managers
             SendArchipelagoLocations([.. cachedLocationIDs]);
         }
 
-        internal static void SendArchipelagoLocations(long locationID)
+        internal static ReadOnlyCollection<long> _allCheckedLocations;
+
+        internal static void SendArchipelagoLocations(long locationID, bool notify = true)
         {
+            if(_allCheckedLocations.Contains(locationID)) return;
+            
             Session.Locations.CompleteLocationChecks([locationID]);
-            NotifyItemFoundAtLocation(locationID);
-        }
-
-        internal static void SendArchipelagoLocations(long[] locationIDs)
-        {
-            var checkedLocations = Session.Locations.AllLocationsChecked;
-
-            List<long> nonCheckedLocations = locationIDs.ToList();
-            List<long> readOnlyCheckedLocations = nonCheckedLocations.ToList();
-            foreach (var id in readOnlyCheckedLocations)
-            {
-                if (checkedLocations.Contains(id))
-                {
-                    if (OS.DEBUG_COMMANDS)
-                    {
-                        Logger.LogInfo($"Not sending check for location ID {id} as it has already been checked");
-                    }
-                    nonCheckedLocations.Remove(id);
-                }
-            }
-
-            Session.Locations.CompleteLocationChecks([.. nonCheckedLocations]);
-
             ArchipelagoManager.UpdateServerData();
+            
+            if(notify) NotifyItemFoundAtLocation(locationID);
         }
 
-        internal static async void NotifyItemFoundAtLocation(long locationID)
+        internal static void SendArchipelagoLocations(long[] locationIDs, bool notify = true)
+        {
+            foreach (var locationId in locationIDs)
+            {
+                SendArchipelagoLocations(locationId, notify);
+            }
+        }
+
+        private static async Task NotifyItemFoundAtLocation(long locationID)
         {
             if (OS.DEBUG_COMMANDS) { Logger.LogDebug($"Notifying about item found at location ID {locationID}"); }
             var locationItems = await Session.Locations.ScoutLocationsAsync([locationID]);
@@ -77,8 +69,8 @@ namespace HacknetArchipelago.Managers
                 return;
             }
             var item = locationItems[locationID];
-            bool isPlayersItem = item.Player.Slot == ArchipelagoManager.PlayerSlot;
-            string punctuation = ".";
+            var isPlayersItem = item.Player.Slot == ArchipelagoManager.PlayerSlot;
+            var punctuation = ".";
 
             if (item.Flags.HasFlag(ItemFlags.Advancement))
             {

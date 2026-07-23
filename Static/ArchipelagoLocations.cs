@@ -28,7 +28,7 @@ namespace HacknetArchipelago
             // /el
             { "gg wp", "Naix -- Deface Nortron Website" },
             { "Hilarious", "Naix -- Nortron Security Mainframe" },
-            { "A Victory - Perhaps a turning point", "/el -- Head of Polar Star (Download Files)" },
+            { "A Victory - Perhaps a turning point", "/el -- Prove Yourself" },
 
             // CSEC
             { "CSEC Invitation - Attenuation", "CSEC -- CFC Herbs & Spices" },
