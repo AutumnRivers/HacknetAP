@@ -210,17 +210,16 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
     
     private static int LoginButtonId { get; } = PFButton.GetNextID();
     
-    private static void DrawUnauthenticatedView(Rectangle bounds)
+    private void DrawUnauthenticatedView(Rectangle bounds)
     {
         var login = Button.doButton(LoginButtonId,
             bounds.X + PANEL_MARGIN, bounds.Y + PANEL_MARGIN,
             bounds.Width / 5, BUTTON_HEIGHT, "Login",
             OS.currentInstance.brightLockedColor);
 
-        if (login)
-        {
-            OS.currentInstance.runCommand("login");
-        }
+        if (!login) return;
+        comp.login(os.SaveUserAccountName, "reptile");
+        comp.userLoggedIn = true;
     }
 
     // ReSharper disable once InconsistentNaming

@@ -41,10 +41,10 @@ public class AdminAccessPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(OS), "execute")]
-    public static bool PreventNetMapFromBeingCleared(string text)
+    [HarmonyPatch(typeof(DLCIntroExe), "UpdateUIBreaking")]
+    public static bool PreventNetMapFromBeingCleared()
     {
-        return text.ToLower() != "clear";
+        return false;
     }
 
     [HarmonyPrefix]

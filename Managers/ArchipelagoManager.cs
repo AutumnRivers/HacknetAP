@@ -107,6 +107,7 @@ namespace HacknetArchipelago.Managers
                 LocationManager.SendCachedLocations();
                 LocationManager._allCheckedLocations = session.Locations.AllLocationsChecked;
                 InventoryManager.OnSessionLoad();
+                FileManager.InitRandomMusic((int)SlotData.RandomizationSeed);
             }
             return result;
         }
@@ -287,7 +288,7 @@ namespace HacknetArchipelago.Managers
             ];
         private static readonly List<string> _trapNames = [
                 "Fake Connection", "ForkBomb",
-                "Reset PointClicker Points",
+                "Random Theme",
                 "ETAS Trap"
             ];
         private static readonly List<string> _eventNames = [

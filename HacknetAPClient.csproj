@@ -9,6 +9,17 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Content Include="assets\APMusic\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>assets\APMusic\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <TargetPath>APMusic\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+    </Content>
+    <Content Include="assets\BashLogs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="0Harmony">

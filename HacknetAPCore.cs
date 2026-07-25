@@ -2,33 +2,20 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-
 using Hacknet;
-
 using BepInEx;
 using BepInEx.Hacknet;
 using BepInEx.Logging;
-
 using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-using Archipelago.MultiClient.Net.Models;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using Pathfinder.Event;
 using Pathfinder.Event.Gameplay;
 using Pathfinder.Event.Loading;
 using Pathfinder.Event.BepInEx;
 using Pathfinder.Command;
-
 using HacknetArchipelago.Patches;
 using HacknetArchipelago.Commands;
 using Pathfinder.Event.Saving;
-using Pathfinder.Util;
-
 using HacknetArchipelago.Managers;
 using HacknetArchipelago.Daemons;
 using Pathfinder.Daemon;
@@ -84,7 +71,7 @@ namespace HacknetArchipelago
 
         public static bool SkipBootIntroText = false;
         public static bool BeepOnItemReceived = true;
-        public static bool AllowSaving = true;
+        public static bool EnableMusicRando = false;
         public static Tuple<string, string, string> CachedConnectionDetails = new(null, null, null);
 
         internal static string _originalBsodText = "";
@@ -192,18 +179,18 @@ namespace HacknetArchipelago
             var socket = ArchipelagoSession.Socket.Uri;
             var uri = $"{socket.Host}:{socket.Port}";
 
-            if (SaveLoadExecutors.LastLoadedSlotName != ArchipelagoSession.Players.ActivePlayer.Name ||
-                SaveLoadExecutors.LastLoadedSlotUri != uri)
-            {
-                OS.currentInstance.warningFlash();
-                OS.currentInstance.beepSound.Play();
-                OS.currentInstance.write("\n\n\n\nThe Archipelago connection details in your save do not match your " +
-                                         "current session's connection data. The saved data is as follows:\n\n" +
-                                         $"Slot Name: {SaveLoadExecutors.LastLoadedSlotName}\n" +
-                                         $"Slot URI: {SaveLoadExecutors.LastLoadedSlotUri}\n\n" +
-                                         "If this is intentional, simply save the game, and you won't see this " +
-                                         "warning again, unless you change information again.\n\n\n\n");
-            }
+            if (SaveLoadExecutors.LastLoadedSlotName == ArchipelagoSession.Players.ActivePlayer.Name &&
+                SaveLoadExecutors.LastLoadedSlotUri == uri) return;
+            if(SaveLoadExecutors.LastLoadedSlotName.IsNullOrWhiteSpace()) return;
+                
+            OS.currentInstance.warningFlash();
+            OS.currentInstance.beepSound.Play();
+            OS.currentInstance.write("\n\n\n\nThe Archipelago connection details in your save do not match your " +
+                                     "current session's connection data. The saved data is as follows:\n\n" +
+                                     $"Slot Name: {SaveLoadExecutors.LastLoadedSlotName}\n" +
+                                     $"Slot URI: {SaveLoadExecutors.LastLoadedSlotUri}\n\n" +
+                                     "If this is intentional, simply save the game, and you won't see this " +
+                                     "warning again, unless you change information again.\n\n\n\n");
         }
 
         public const string SYSTEM_PREFIX = "(HACKNET_ARCHIPELAGO) ";
@@ -270,7 +257,7 @@ namespace HacknetArchipelago
         public LimitsMode LimitsShuffle = LimitsMode.Disabled;
         public bool SprintReplacesBounce = true;
         public bool DeathLink = false;
-        public uint RandomizationSeed = 0;
+        public int RandomizationSeed = 0;
         public bool ShuffleLabyrinths = true;
         public bool EnableFactionAccess = false;
         public bool ShuffleAchievements = false;
@@ -302,6 +289,7 @@ namespace HacknetArchipelago
             EnableFactionAccess = (bool)rawSlotData["enable_faction_access"];
             ShuffleAdminAccess = (bool)rawSlotData["shuffle_nodes"];
             APWorldVersionUsed = (string)rawSlotData["world_version"];
+            RandomizationSeed = (int)((long)rawSlotData["randomization_seed"]);
 
             if (APWorldVersionUsed != HacknetAPCore.TARGET_APWORLD)
             {

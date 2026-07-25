@@ -181,17 +181,25 @@ namespace HacknetArchipelago.Patches
                 LogoColorOverride = Color.Transparent;
             }
 
-            bool skipBootTextCheckbox = CheckBox.doCheckBox(11116, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 550,
+            var buttonX = screenManager.GraphicsDevice.Viewport.Width - rightOffset;
+
+            var skipBootTextCheckbox = CheckBox.doCheckBox(11116, buttonX, 550,
                 HacknetAPCore.SkipBootIntroText, Color.White, "");
-            TextItem.doSmallLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset + 30, 550),
+            TextItem.doSmallLabel(new Vector2(buttonX + 30, 550),
                 "Shorten Boot Intro Text\n(not recommended for first runs!)", Color.White);
             HacknetAPCore.SkipBootIntroText = skipBootTextCheckbox;
 
-            bool beepOnItemReceival = CheckBox.doCheckBox(11117, screenManager.GraphicsDevice.Viewport.Width - rightOffset, 600,
+            var beepOnItemReceival = CheckBox.doCheckBox(11117, buttonX, 600,
                 HacknetAPCore.BeepOnItemReceived, Color.White, "The modules will still flash, even if disabled.");
-            TextItem.doSmallLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset + 30, 600),
+            TextItem.doSmallLabel(new Vector2(buttonX + 30, 600),
                 "Play Beep SFX on Prog. Item Received", Color.White);
             HacknetAPCore.BeepOnItemReceived = beepOnItemReceival;
+
+            var randomizeMusic = CheckBox.doCheckBox(11118, buttonX, 650,
+                HacknetAPCore.EnableMusicRando, Color.White, "");
+            TextItem.doSmallLabel(new Vector2(buttonX + 30, 650),
+                "Randomize Music (per-slot seed)", Color.White);
+            HacknetAPCore.EnableMusicRando = randomizeMusic;
         }
 
         [HarmonyPrefix]
