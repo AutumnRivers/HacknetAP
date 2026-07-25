@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
 using Hacknet;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using HacknetArchipelago.Managers;
 using System.Linq;
+using Hacknet.Gui;
 
 namespace HacknetArchipelago.Patches
 {
@@ -17,7 +19,7 @@ namespace HacknetArchipelago.Patches
         [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
         public static bool BlockUpdatingRateOnUpgrade(PointClickerDaemon __instance, int index)
         {
-            bool doNotBlock = ArchipelagoManager.SlotData.PointClickerMode != "block_upgrade_effects";
+            bool doNotBlock = !PointClickerManager.BlockUpgrades;
             bool canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index];
 
             if(canPurchase && !doNotBlock)
@@ -40,7 +42,8 @@ namespace HacknetArchipelago.Patches
         [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
         public static void SendPointClickerUpgrades(PointClickerDaemon __instance, int index)
         {
-            var canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index];
+            var canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index] - 1 ||
+                              (index == __instance.upgradeCosts.Count - 1 && _canPurchaseFinalUpgrade);
             if (!canPurchase)
             {
                 if (OS.DEBUG_COMMANDS)
@@ -73,26 +76,28 @@ namespace HacknetArchipelago.Patches
             LocationManager.SendArchipelagoLocations(locationID);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PointClickerDaemon), "UpdateRate")]
-        public static bool BlockPointClickerUpgrades()
+        internal static bool _needsRefresh = false;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PointClickerDaemon), "navigatedTo")]
+        public static void SetNeedsRefresh()
         {
-            return ArchipelagoManager.SlotData.PointClickerMode != "block_upgrade_effects";
+            _needsRefresh = true;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(PointClickerDaemon), "DrawMainScreen")]
-        public static void LoadStoredPTCValues()
+        [HarmonyPatch(typeof(PointClickerDaemon), "draw")]
+        public static void UpdateWithStoredValues(PointClickerDaemon __instance)
         {
+            if(__instance.state != PointClickerDaemon.PointClickerScreenState.Main || !_needsRefresh) return;
+
+            _needsRefresh = false;
+            PointClickerManager.RefreshPointClickerValues();
+            PointClickerManager.RefreshPointClickerDaemon();
             PointClickerManager.UseStoredValues();
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PointClickerDaemon),"navigatedTo")]
-        public static void RefreshStoredDaemon()
-        {
-            PointClickerManager.RefreshPointClickerDaemon();
-        }
+        private static bool _canPurchaseFinalUpgrade = false;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PointClickerDaemon),"UpdatePoints")]
@@ -129,6 +134,7 @@ namespace HacknetArchipelago.Patches
                     if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1))
                     {
                         __instance.activeState.points = (long)__instance.upgradeCosts.Last();
+                        _canPurchaseFinalUpgrade = true;
                     }
                     else
                     {

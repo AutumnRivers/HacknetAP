@@ -1,4 +1,6 @@
-﻿using Hacknet;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Hacknet;
 using Pathfinder.Util;
 
 namespace HacknetArchipelago.Managers
@@ -31,9 +33,68 @@ namespace HacknetArchipelago.Managers
         }
         private static int _passivePoints = 0;
 
+        private static Dictionary<string, int> StaticPointClickerItems = new()
+        {
+            { "PointClicker +50pt.", 50 },
+            { "PointClicker +500pt.", 500 },
+            { "PointClicker +5000pt.", 5000 }
+        };
+
+        private static Dictionary<string, int> PassiveRateItems = new()
+        {
+            { "PointClicker +100pt./s", 100 },
+            { "PointClicker +1000pt./s", 1000 }
+        };
+
+        private static Dictionary<string, int> RateMultItems = new()
+        {
+            { "PointClicker Passive*10", 10 },
+            { "PointClicker Passive*100", 100 },
+            { "PointClicker Passive*1000", 1000 }
+        };
+
+        public static void RefreshPointClickerValues()
+        {
+            var ptcItems = InventoryManager.CachedItemsReceived
+                .Where(i => i.ItemDisplayName.Contains("PointClicker"));
+
+            var staticItems = ptcItems.Where(i => i.ItemDisplayName.Contains("+") &&
+                                                  !i.ItemDisplayName.EndsWith("/s")).ToList();
+            var rateUps = ptcItems.Where(i => i.ItemDisplayName.Contains("+") &&
+                                              i.ItemDisplayName.EndsWith("/s")).ToList();
+            var rateMultUps = ptcItems.Where(i => i.ItemDisplayName.Contains("Passive")).ToList();
+
+            var staticPoints = 0;
+            foreach (var staticItem in staticItems)
+            {
+                if(!StaticPointClickerItems.ContainsKey(staticItem.ItemDisplayName)) continue;
+
+                staticPoints += StaticPointClickerItems[staticItem.ItemDisplayName];
+            }
+            _storedPoints = staticPoints;
+
+            var rate = 0;
+            foreach (var rateUp in rateUps)
+            {
+                if(!PassiveRateItems.ContainsKey(rateUp.ItemDisplayName)) continue;
+
+                rate += PassiveRateItems[rateUp.ItemDisplayName];
+            }
+            _passivePoints = rate;
+
+            var rateMult = 0;
+            foreach (var rateMultUp in rateMultUps)
+            {
+                if(!RateMultItems.ContainsKey(rateMultUp.ItemDisplayName)) continue;
+
+                rateMult += RateMultItems[rateMultUp.ItemDisplayName];
+            }
+            _rateMultiplier = rateMult;
+        }
+
         public static void RefreshPointClickerDaemon()
         {
-            Computer ptcComp = ComputerLookup.FindById("pointclicker");
+            var ptcComp = ComputerLookup.FindById("pointclicker");
             _ptcDaemon = (PointClickerDaemon)ptcComp.getDaemon(typeof(PointClickerDaemon));
         }
 
@@ -41,75 +102,12 @@ namespace HacknetArchipelago.Managers
         {
             if (_ptcDaemon.activeState == null) return;
 
-            _ptcDaemon.activeState.points += (long)_storedPoints;
+            _ptcDaemon.activeState.points = (long)_storedPoints;
+            _ptcDaemon.currentRate = _passivePoints;
             if (_resetPoints) _ptcDaemon.activeState.points = 0;
 
             _storedPoints = 0;
             _resetPoints = false;
-        }
-
-        internal static void ChangePointClickerPoints(int amount)
-        {
-            bool reset = amount < 0;
-
-            if (reset)
-            {
-                if (_ptcDaemon.activeState == null) {
-                    _resetPoints = true;
-                } else
-                {
-                    _ptcDaemon.activeState.points = 0;
-                }
-            }
-            else
-            {
-                if(_ptcDaemon.activeState == null)
-                {
-                    _storedPoints += amount;
-                } else
-                {
-                    _ptcDaemon.activeState.points += amount;
-                }
-            }
-        }
-
-        internal static void ChangePointClickerPassiveRate(int amount)
-        {
-            _passivePoints += amount;
-            if(_ptcDaemon != null)
-            {
-                _ptcDaemon.currentRate += PassivePoints;
-            }
-        }
-
-        internal static void ChangeRateMultiplier(int amount)
-        {
-            _rateMultiplier *= amount;
-        }
-
-        internal static void HandlePointClickerUpgrade(string itemName)
-        {
-            bool adds = itemName.Contains("+");
-            bool mult = itemName.Contains("*");
-
-            if(adds)
-            {
-                bool passive = itemName.EndsWith("s");
-                string half = itemName.Split('+')[1];
-                string valueString = half.Split('p')[0];
-
-                if(passive)
-                {
-                    ChangePointClickerPassiveRate(int.Parse(valueString));
-                } else
-                {
-                    ChangePointClickerPoints(int.Parse(valueString));
-                }
-            } else if(mult)
-            {
-                string valueString = itemName.Split('*')[1];
-                ChangeRateMultiplier(int.Parse(valueString));
-            }
         }
     }
 }

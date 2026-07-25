@@ -3,6 +3,7 @@ using HacknetArchipelago.Managers;
 using Microsoft.Xna.Framework;
 using Pathfinder.Event.Gameplay;
 using System;
+using System.Linq;
 
 namespace HacknetArchipelago.Patches
 {
@@ -22,9 +23,13 @@ namespace HacknetArchipelago.Patches
             {
                 return;
             }
-            if(InventoryManager._ramLimit == 0 || OS.currentInstance.initShowsTutorial) { return; }
-
-            OS os = oSUpdateEvent.OS;
+            var os = oSUpdateEvent.OS;
+            
+            if(os.initShowsTutorial && !HacknetAPCore.KilledTutorial) return;
+            if (!HacknetAPCore.KilledTutorial)
+            {
+                HacknetAPCore.KilledTutorial = true;
+            }
 
             int totalRam = GetRAMLimit();
 
@@ -55,11 +60,12 @@ namespace HacknetArchipelago.Patches
 
         public static void UpdateRamModule()
         {
-            OS os = OS.currentInstance;
+            var os = OS.currentInstance;
 
+            var ram = os.ram;
+            ram.bounds.Height = os.ramAvaliable + RamModule.contentStartOffset;
             os.modules.Remove(os.ram);
-            os.ram = new RamModule(new Rectangle(2, OS.TOP_BAR_HEIGHT,
-                RamModule.MODULE_WIDTH, os.ramAvaliable + RamModule.contentStartOffset), os);
+            os.ram = ram;
             os.ram.name = "RAM";
             os.modules.Add(os.ram);
         }

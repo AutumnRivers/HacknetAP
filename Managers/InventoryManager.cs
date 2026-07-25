@@ -79,7 +79,7 @@ namespace HacknetArchipelago.Managers
 
         internal static void OnSessionLoad()
         {
-            CachedItemsReceived = AllItemsReceived;
+            ForceCacheItemsReceived();
         }
 
         private static float _cooldownTime = 0;

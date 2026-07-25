@@ -11,7 +11,7 @@ namespace HacknetArchipelago.Managers;
 public static class FileManager
 {
     public const string MUSIC_DIRECTORY_NAME = "/APMusic";
-    public const int RANDOM_MUSIC_AMOUNT = 22;
+    public const int RANDOM_MUSIC_AMOUNT = 23;
     public static List<string> RandomMusicTracks { get; set; } = [];
 
     public static List<string> HacknetTracks { get; } =
@@ -57,13 +57,6 @@ public static class FileManager
 
         var musicDirectory = new DirectoryInfo(pluginDirectory + MUSIC_DIRECTORY_NAME);
         var files = musicDirectory.GetFiles().Where(f => f.Name.EndsWith(".ogg")).ToList();
-
-        if (files.Count < RANDOM_MUSIC_AMOUNT)
-        {
-            HacknetAPCore.Logger.LogError("Unable to load random music tracks - not enough!\n" +
-                                          $"Need {RANDOM_MUSIC_AMOUNT}, but only {files.Count} were found.");
-            return;
-        }
 
         var allTracks = files.Select(f => f.Name).ToList();
         allTracks.AddRange(HacknetTracks);

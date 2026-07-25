@@ -13,6 +13,7 @@ using HacknetArchipelago.Patches;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pathfinder.GUI;
+using Pathfinder.Util;
 
 namespace HacknetArchipelago.Daemons;
 
@@ -405,6 +406,14 @@ public class MissionListingEntry
                     return;
                 }
             }
+        }
+
+        var dhs = (DLCHubServer)ComputerLookup.FindById("dhs").getDaemon(typeof(DLCHubServer));
+        if (dhs.ActiveMissions.Count != 0)
+        {
+            DenialReason = "You cannot take on CSEC contracts while in Labyrinths!";
+            CanBeClaimed = false;
+            return;
         }
         
         var archiLocation =

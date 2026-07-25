@@ -1,4 +1,5 @@
 using Hacknet;
+using HacknetArchipelago;
 using HarmonyLib;
 
 namespace HacknetAPClient.Patches;

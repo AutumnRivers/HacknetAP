@@ -24,6 +24,7 @@ namespace HacknetArchipelago
             public override void Execute(EventExecutor exec, ElementInfo info)
             {
                 if (!info.Children.Any()) return;
+                HacknetAPCore.KilledTutorial = bool.Parse(info.Attributes["KilledTutorial"]);
 
                 foreach(var child in info.Children)
                 {
@@ -40,9 +41,6 @@ namespace HacknetArchipelago
                             break;
                         case "AllCollectedItems":
                             LoadStoredCollectedItemData(child.Children);
-                            break;
-                        case "PointClickerSaveData":
-                            LoadPointClickerSaveData(child);
                             break;
                         case "ArchipelagoConnection":
                             LoadArchiConnectionData(child);
@@ -124,21 +122,6 @@ namespace HacknetArchipelago
                     InventoryManager._localInventory.Add(localItem.Attributes["ItemName"], null);
                 }
             }
-
-            private void LoadPointClickerSaveData(ElementInfo ptcElem)
-            {
-                string rateAttr = "RateMult";
-                string ptsAttr = "PassivePts";
-
-                int mult = 1;
-                int pts = 0;
-
-                if (int.TryParse(ptcElem.Attributes[rateAttr], out int storedMult)) { mult = storedMult; }
-                if (int.TryParse(ptcElem.Attributes[ptsAttr], out int storedPts)) { pts = storedPts; }
-
-                PointClickerManager.ChangePointClickerPassiveRate(pts);
-                PointClickerManager.ChangeRateMultiplier(mult);
-            }
         }
 
         public class ArchipelagoDataSaver
@@ -146,6 +129,9 @@ namespace HacknetArchipelago
             public static void InjectArchipelagoSaveData(SaveEvent saveEvent)
             {
                 XElement archiElement = new("HacknetArchipelagoSave");
+
+                XAttribute killedTutorialAttr = new("KilledTutorial", HacknetAPCore.KilledTutorial);
+                archiElement.Add(killedTutorialAttr);
 
                 if (LocationManager._cachedChecks.Count > 0)
                 {
@@ -225,15 +211,7 @@ namespace HacknetArchipelago
                     facAccessElem.Add(facAccessAttr);
                     archiElement.Add(facAccessElem);
                 }
-
-                XElement ptcElem = new("PointClickerSaveData");
-                int rateMult = PointClickerManager.RateMultiplier;
-                if (rateMult <= 0) rateMult = 1;
-                XAttribute ptcRate = new("RateMult", rateMult);
-                XAttribute ptcPassive = new("PassivePts", PointClickerManager.PassivePoints);
-                ptcElem.Add([ptcRate, ptcPassive]);
-                archiElement.Add(ptcElem);
-
+                
                 var socket = ArchipelagoManager.Session.Socket;
 
                 XElement archiDataElem = new("ArchipelagoConnection");

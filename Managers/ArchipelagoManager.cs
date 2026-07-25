@@ -380,7 +380,7 @@ namespace HacknetArchipelago.Managers
             }
             else if (itemName.StartsWith("PointClicker"))
             {
-                PointClickerManager.HandlePointClickerUpgrade(itemName);
+                PointClickerManager.RefreshPointClickerValues();
             }
             else if (logUnknownItems)
             {

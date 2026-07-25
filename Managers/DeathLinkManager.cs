@@ -25,15 +25,26 @@ namespace HacknetArchipelago.Managers
 
         internal static void HandleDeathLink(DeathLink deathLink)
         {
-            _crashCausedByDeathLink = true;
-            OS os = OS.currentInstance;
-            string cause = deathLink.Cause;
-            cause ??= $"{deathLink.Source} sent out a deathlink!";
-            _lastDeathLinkCause = cause;
-            os.thisComputer.log($"RECEIVED_DEATHLINK_FROM_{deathLink.Source}");
-            os.thisComputer.disabled = true;
-            os.thisComputer.bootTimer = Computer.BASE_BOOT_TIME;
-            os.thisComputerCrashed();
+            switch (HacknetAPCore.SlotData.DeathLinkMode)
+            {
+                case HacknetAPSlotData.DeathLinkMethod.Crash:
+                default:
+                {
+                    _crashCausedByDeathLink = true;
+                    var os = OS.currentInstance;
+                    var cause = deathLink.Cause;
+                    cause ??= $"{deathLink.Source} sent out a deathlink!";
+                    _lastDeathLinkCause = cause;
+                    os.thisComputer.log($"RECEIVED_DEATHLINK_FROM_{deathLink.Source}");
+                    os.thisComputer.disabled = true;
+                    os.thisComputer.bootTimer = Computer.BASE_BOOT_TIME;
+                    os.thisComputerCrashed();
+                    break;
+                }
+                case HacknetAPSlotData.DeathLinkMethod.ETAS:
+                    PlayerManager.ActivateETAS();
+                    break;
+            }
         }
 
         public static void SendDeathLink(DeathLink deathLink)

@@ -63,49 +63,11 @@ namespace HacknetArchipelago.Commands
             os.terminal.writeLine("END");
         }
 
-        public static void AddToConstantRate(OS os, string[] args)
+        public static void RefreshPointClicker(OS os, string[] args)
         {
-            if (!checkIfDebugIsEnabled()) return;
-
-            if (int.TryParse(args[1], out int rate))
-            {
-                if (rate < 0)
-                {
-                    os.terminal.writeLine("Invalid Argument - Value must be more than -1");
-                    os.commandInvalid = true;
-                    return;
-                }
-
-                PointClickerManager.ChangeRateMultiplier(rate);
-            }
-            else
-            {
-                os.terminal.writeLine("Invalid Argument - argument must be a number");
-                os.commandInvalid = true;
-            }
-        }
-
-        public static void AddToPassiveRate(OS os, string[] args)
-        {
-            if (!checkIfDebugIsEnabled()) return;
-
-            if (int.TryParse(args[1], out int rate))
-            {
-                if (rate < 0)
-                {
-                    os.terminal.writeLine("Invalid Argument - Value must be more than -1");
-                    os.commandInvalid = true;
-                    return;
-                }
-
-                PointClickerManager.ChangePointClickerPassiveRate(rate);
-                os.terminal.writeLine($"New passive rate: {PointClickerManager.PassivePoints}");
-            }
-            else
-            {
-                os.terminal.writeLine("Invalid Argument - argument must be a number");
-                os.commandInvalid = true;
-            }
+            PointClickerManager.RefreshPointClickerValues();
+            PointClickerManager.RefreshPointClickerDaemon();
+            PointClickerManager.UseStoredValues();
         }
 
         public static void CheckIfPlayerHasExecutable(OS os, string[] args)

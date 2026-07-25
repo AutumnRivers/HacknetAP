@@ -72,6 +72,7 @@ namespace HacknetArchipelago
         public static bool SkipBootIntroText = false;
         public static bool BeepOnItemReceived = true;
         public static bool EnableMusicRando = false;
+        public static bool KilledTutorial = false;
         public static Tuple<string, string, string> CachedConnectionDetails = new(null, null, null);
 
         internal static string _originalBsodText = "";
@@ -114,13 +115,12 @@ namespace HacknetArchipelago
             CommandManager.RegisterCommand("debugpeek", ArchipelagoDebugCommands.TestPeekLocation, false, true);
             CommandManager.RegisterCommand("checkcompat", ArchipelagoDebugCommands.CheckApWorldCompat, true, false);
             CommandManager.RegisterCommand("printserverdata", ArchipelagoDebugCommands.DebugPrintStorage, false, true);
-            CommandManager.RegisterCommand("addtoptcrate", ArchipelagoDebugCommands.AddToConstantRate, false, true);
-            CommandManager.RegisterCommand("addtoptcpassive", ArchipelagoDebugCommands.AddToPassiveRate, false, true);
             CommandManager.RegisterCommand("addarchidebugentries", ArchipelagoDebugCommands.AddTestEntriesToIRC, false, true);
             CommandManager.RegisterCommand("hasexec", ArchipelagoDebugCommands.CheckIfPlayerHasExecutable, false, true);
             CommandManager.RegisterCommand("addtolocalinventoryonlyuseifyouknowhwatyouredoing",
                 ArchipelagoDebugCommands.AddToLocalInventory, false, true);
             CommandManager.RegisterCommand("getnodeid", ArchipelagoDebugCommands.GetIdOfCurrentNode, false, true);
+            CommandManager.RegisterCommand("refreshptc", ArchipelagoDebugCommands.RefreshPointClicker, false, true);
 
             EventManager<TextReplaceEvent>.AddHandler(ComputerLoadPatches.PreventArchipelagoExes);
 
@@ -165,8 +165,22 @@ namespace HacknetArchipelago
             os.netMap.discoverNode(archiIRCComp);
         }
 
+        public static void OnSaveLoaded(SaveComputerLoadedEvent saveComputerLoadedEvent)
+        {
+            if(SlotData.LimitsShuffle != HacknetAPSlotData.LimitsMode.EnableAllLimits &&
+               SlotData.LimitsShuffle != HacknetAPSlotData.LimitsMode.OnlyRAM) return;
+
+            RAMLimitPatch._lastRamLimit = -1;
+            RAMLimitPatch.GetRAMLimit();
+            
+            PointClickerManager.RefreshPointClickerValues();
+        }
+
         public static void GivePlayerAdminAccessCheckOnLoad(OSLoadedEvent osLoadedEvent)
         {
+            RAMLimitPatch._lastRamLimit = -1;
+            RAMLimitPatch.GetRAMLimit();
+            
             if(!SlotData.ShuffleAdminAccess) return;
 
             var locationId = ArchipelagoSession.Locations.GetLocationIdFromName(GameString,
@@ -255,6 +269,7 @@ namespace HacknetArchipelago
         public ExecutableShuffleMode ExecutableShuffle = ExecutableShuffleMode.ShuffleAll;
         public ExecutableGroupingMode ExecutableGrouping = ExecutableGroupingMode.Individually;
         public LimitsMode LimitsShuffle = LimitsMode.Disabled;
+        public DeathLinkMethod DeathLinkMode = DeathLinkMethod.Crash;
         public bool SprintReplacesBounce = true;
         public bool DeathLink = false;
         public int RandomizationSeed = 0;
