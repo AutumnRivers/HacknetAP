@@ -98,5 +98,28 @@ namespace HacknetArchipelago.Managers
             var theme = (OSTheme)(range.ElementAt(index));
             ApplyTheme(theme);
         }
+
+        public static FileEntry GenerateRandomIRCLog()
+        {
+            return new FileEntry(); // apparently it's that easy
+        }
+
+        internal static void GivePlayerRandomIRCLog()
+        {
+            while (true)
+            {
+                var ircLog = GenerateRandomIRCLog();
+                var playerComp = OS.currentInstance.thisComputer;
+
+                var home = playerComp.getFolderFromPath("home");
+                if (home.files.Any(f => f.name == ircLog.name))
+                {
+                    continue;
+                }
+
+                home.files.Add(ircLog);
+                break;
+            }
+        }
     }
 }

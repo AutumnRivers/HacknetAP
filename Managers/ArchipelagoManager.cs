@@ -437,6 +437,7 @@ namespace HacknetArchipelago.Managers
                     _remainingForceHacks++;
                     break;
                 case 143: // Random IRC Log
+                    PlayerManager.GivePlayerRandomIRCLog();
                     break;
             }
         }
