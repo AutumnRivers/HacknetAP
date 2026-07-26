@@ -20,7 +20,7 @@ namespace HacknetArchipelago
             { "Point Clicker", "Entropy -- PointClicker (Mission)" },
             { "The famous counter-hack", "Entropy -- The famous counter-hack" },
             { "Back to School", "Entropy -- Back to School" },
-            { "Re: Internal investigations", "Entropy -- X-C Project" },
+            { "Re Internal investigations", "Entropy -- X-C Project" },
             { "Smash N' Grab", "Entropy -- Smash N' Grab" },
             { "eOS Device Scanning", "Entropy -- eOS Device Scanning" },
             { "Aggression must be Punished", "Entropy -- Naix" },

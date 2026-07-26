@@ -12,6 +12,7 @@ using BepInEx;
 using System.Linq;
 using HacknetArchipelago.Managers;
 using System.Collections.Generic;
+using HacknetArchipelago.Daemons;
 
 namespace HacknetArchipelago.Patches
 {
@@ -166,23 +167,19 @@ namespace HacknetArchipelago.Patches
                 {
                     ActiveMission missionToLoad = MissionLoader.LoadContentMission(filepath);
                     Computer entropyComp = ComputerLookup.FindById("entropy00");
-                    MissionListingServer entropyListing = (MissionListingServer)entropyComp.getDaemon(typeof(MissionListingServer));
-                    if(entropyListing.missions.Any(m => m.email.subject == missionToLoad.email.subject))
-                    {
-                        HacknetAPCore.Logger.LogDebug($"loadMissionIntroEntropy attempted to load mission " +
-                            missionToLoad.email.subject + "" +
-                            ", but it was already loaded.");
-                        return;
-                    }
+                    var entropyListing = (ArchipelagoMissionListingDaemon)
+                        entropyComp.getDaemon(typeof(ArchipelagoMissionListingDaemon));
+                    if(entropyListing.HasMissionWithSubject(missionToLoad.email.subject)) return;
                     if(missionToLoad.postingTitle.IsNullOrWhiteSpace())
                     {
                         missionToLoad.postingBody = "\n--- PROGRESSION MISSION ---\n" +
                             "You may not be able to collect checks from Entropy missions for a while if " +
                             "this mission is accepted. You have been warned!";
                     }
-                    missionToLoad.postingTitle = "#PROGRESSION# - " + missionToLoad.postingTitle;
 
-                    entropyListing.addMisison(missionToLoad, true);
+                    missionToLoad.postingTitle = "#PROGRESSION# - " + missionToLoad.email.subject;
+
+                    entropyListing.AddMissionToListing(missionToLoad, 0);
                     sendCriticalMissionEmail(missionToLoad.email.subject);
                 }
 

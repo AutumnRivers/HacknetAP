@@ -131,7 +131,8 @@ namespace HacknetArchipelago.Patches
                 __instance.pointOverflow += (float)(pointsToAdd - (double)(int)pointsToAdd);
                 if (__instance.pointOverflow > 1f)
                 {
-                    if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1))
+                    if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1) &&
+                        _collectedIndices.Contains(__instance.upgradeCosts.Count - 2))
                     {
                         __instance.activeState.points = (long)__instance.upgradeCosts.Last();
                         _canPurchaseFinalUpgrade = true;

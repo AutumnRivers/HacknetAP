@@ -10,6 +10,7 @@ using System.Linq;
 using HacknetArchipelago.Extensions;
 using HacknetArchipelago.Managers;
 using HacknetArchipelago.Patches;
+using HacknetArchipelago.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pathfinder.GUI;
@@ -24,7 +25,7 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         base(computer, serviceName, opSystem) {}
 
     public override string Identifier => "Archipelago Mission Listing";
-    public string MissionSourceFolderPath = "Content/Missions/MainHub/FirstSet/";
+    public string MissionSourceFolderPath = "Content/Missions/MainHub/FirstSet/"; // /Content/Missions/Entropy/StartingSet/
 
     public BarcodeEffect SideBarcode = new(50);
     public const float BARCODE_SIZE_MULTIPLIER = 0.1f;
@@ -50,10 +51,15 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
 
     public void AddMission(MissionListingEntry mission)
     {
-        if (Missions.All(m => m.Mission != mission.Mission))
-        {
-            Missions.Add(mission);
-        }
+        if(mission.Mission.email.subject == "The Kaguya Trials" && os.Flags.HasFlag("dlc_complete")) return;
+        
+        if(Missions.Any(m => m.Mission.email.subject == mission.Mission.email.subject)) return;
+        Missions.Add(mission);
+    }
+
+    public bool HasMissionWithSubject(string subject)
+    {
+        return Missions.Any(m => m.Mission.email.subject == subject);
     }
 
     public void RefreshAllMissionStatuses()
@@ -76,10 +82,6 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
         {
             AddMission(mission);
         }
-
-        // removes duplicates
-        // duplicates seemingly only happen when initializing the daemon for the first time
-        Missions = Missions.DistinctBy(m => m.PostingTitle).ToList();
     }
 
     public void ClaimMission(MissionListingEntry missionListingEntry)
@@ -219,7 +221,11 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
             OS.currentInstance.brightLockedColor);
 
         if (!login) return;
-        comp.login(os.SaveUserAccountName, "reptile");
+        var userAccount = comp.users.FirstOrNull(u => u.name == os.SaveUserAccountName);
+        if(userAccount == null) return;
+        var account = (UserDetail)userAccount;
+        comp.login(account.name, account.pass);
+        account.known = true;
         comp.userLoggedIn = true;
     }
 
@@ -353,11 +359,11 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
     {
         SideBarcode.Draw(
             bounds.X + bounds.Width - (int)(bounds.Width * BARCODE_SIZE_MULTIPLIER),
-            bounds.Y,
+            bounds.Y - bounds.Height,
             (int)(bounds.Width * BARCODE_SIZE_MULTIPLIER),
             bounds.Height,
             GuiData.spriteBatch,
-            OS.currentInstance.highlightColor
+            OS.currentInstance.defaultHighlightColor
             );
     }
 }
@@ -366,7 +372,7 @@ public class MissionListingEntry
 {
     public ActiveMission Mission { get; set; }
     public FileEntry RelatedFile { get; set; }
-    public bool CanBeClaimed { get; private set; } = false;
+    public bool CanBeClaimed { get; private set; } = true;
     public string DenialReason { get; private set; } = string.Empty;
     public int ButtonIndex { get; set; } = -1;
 
@@ -411,8 +417,13 @@ public class MissionListingEntry
         var dhs = (DLCHubServer)ComputerLookup.FindById("dhs").getDaemon(typeof(DLCHubServer));
         if (dhs.ActiveMissions.Count != 0)
         {
-            DenialReason = "You cannot take on CSEC contracts while in Labyrinths!";
+            DenialReason = "You cannot take on base game contracts while in Labyrinths!";
             CanBeClaimed = false;
+            return;
+        }
+
+        if (!ArchipelagoLocations.MissionToLocation.ContainsKey(subject))
+        {
             return;
         }
         
@@ -420,15 +431,18 @@ public class MissionListingEntry
             subject == "The Kaguya Trials"
                 ? "Labyrinths -- Kaguya Trials"
                 : ArchipelagoLocations.MissionToLocation[subject];
-        var isEntropy = archiLocation.StartsWith("Entropy") &&
-                        !archiLocation.Contains("Welcome") &&
-                        !archiLocation.Contains("Confirmation");
         var factionAccess = InventoryManager.FactionAccess;
         var shuffleLabs = HacknetAPCore.SlotData.ShuffleLabyrinths;
+        var faction = "none";
+        if (MissionToFaction.Missions.ContainsKey(subject))
+        {
+            faction = MissionToFaction.Missions[subject];
+        }
         var hasEnoughFactionAccess =
-            (isEntropy && factionAccess >= FactionAccess.Entropy) ||
-            (!isEntropy && shuffleLabs && factionAccess >= FactionAccess.CSEC) ||
-            (!isEntropy && !shuffleLabs && factionAccess >= FactionAccess.LabyrinthsOrCSEC);
+            (faction == MissionToFaction.ENTROPY_ID && factionAccess >= FactionAccess.Entropy) ||
+            (faction == MissionToFaction.CSEC_ID && shuffleLabs && factionAccess >= FactionAccess.CSEC) ||
+            (faction == MissionToFaction.CSEC_ID && !shuffleLabs && factionAccess >= FactionAccess.LabyrinthsOrCSEC) ||
+            faction == "none";
         if (!hasEnoughFactionAccess)
         {
             DenialReason = "You don't have enough Progressive Faction Access.";
