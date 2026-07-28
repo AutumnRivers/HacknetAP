@@ -57,7 +57,6 @@ namespace HacknetArchipelago.Patches
 
             if(canPurchase && PointClickerManager.BlockUpgrades)
             {
-                if(_collectedIndices.Contains(index)) return false;
                 if(index == __instance.upgradeCosts.Count - 1 && !_purchasedFinalUpgrade)
                 {
                     _purchasedFinalUpgrade = true;
