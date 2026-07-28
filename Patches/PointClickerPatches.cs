@@ -67,7 +67,7 @@ namespace HacknetArchipelago.Patches
                     AchievementsManager.Unlock("pointclicker_basic", recordAndCheckFlag: true);
                 }
                 __instance.activeState.points -= (long)__instance.upgradeCosts[index];
-                __instance.SaveProgress()
+                __instance.SaveProgress();
             }
 
             return !PointClickerManager.BlockUpgrades;
