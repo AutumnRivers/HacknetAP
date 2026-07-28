@@ -17,12 +17,45 @@ namespace HacknetArchipelago.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
-        public static bool BlockUpdatingRateOnUpgrade(PointClickerDaemon __instance, int index)
+        public static bool ProcessPointClickerUpgrade(PointClickerDaemon __instance, int index)
         {
-            bool doNotBlock = !PointClickerManager.BlockUpgrades;
-            bool canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index];
+            if (__instance.activeState == null) return false;
 
-            if(canPurchase && !doNotBlock)
+            bool canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index] ||
+                               (index == __instance.upgradeCosts.Count - 1 && _canPurchaseFinalUpgrade);
+
+            if (!canPurchase)
+            {
+                if (OS.DEBUG_COMMANDS)
+                {
+                    HacknetAPCore.Logger.LogDebug($"Unable to purchase PointClicker Upgrade Index {index}: " +
+                                                  $"Too Expensive!");
+                }
+                return false;
+            }
+
+            if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"Purchasing PointClicker Upgrade Index {index}");
+
+            if ((!_collectedIndices.Contains(index)) && (ArchipelagoLocations.UpgradeIndexToLocation.Count > index)) {
+                _collectedIndices.Add(index);
+                string locationName = ArchipelagoLocations.UpgradeIndexToLocation[index];
+                if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"Sending PointClicker Upgrade Index {index}");
+
+                long locationID = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(HacknetAPCore.GameString,
+                    locationName);
+                if(locationID != -1)
+                {
+                    LocationManager.SendArchipelagoLocations(locationID);
+                } else {
+                    if(OS.DEBUG_COMMANDS)
+                    {
+                        HacknetAPCore.Logger.LogWarning($"PointClicker Upgrade Index {index} not found in " +
+                            "multiworld. If you're not shuffling PointClicker, you can ignore this.");
+                    }
+                }
+            }
+
+            if(canPurchase && PointClickerManager.BlockUpgrades)
             {
                 if(index == __instance.upgradeCosts.Count - 1 && !_purchasedFinalUpgrade)
                 {
@@ -33,47 +66,10 @@ namespace HacknetArchipelago.Patches
                     AchievementsManager.Unlock("pointclicker_basic", recordAndCheckFlag: true);
                 }
                 __instance.activeState.points -= (long)__instance.upgradeCosts[index];
+                __instance.SaveProgress();
             }
 
-            return doNotBlock;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PointClickerDaemon), "PurchaseUpgrade")]
-        public static void SendPointClickerUpgrades(PointClickerDaemon __instance, int index)
-        {
-            var canPurchase = __instance.activeState.points >= __instance.upgradeCosts[index] - 1 ||
-                              (index == __instance.upgradeCosts.Count - 1 && _canPurchaseFinalUpgrade);
-            if (!canPurchase)
-            {
-                if (OS.DEBUG_COMMANDS)
-                {
-                    HacknetAPCore.Logger.LogDebug($"Unable to purchase PointClicker Upgrade Index {index}: " +
-                                                  $"Too Expensive!");
-                }
-                return;
-            }
-            
-            if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"PointClicker Upgrade Index {index} Purchased");
-            if (_collectedIndices.Contains(index)) return;
-            _collectedIndices.Add(index);
-            if (ArchipelagoLocations.UpgradeIndexToLocation.Count <= index) return;
-            string locationName = ArchipelagoLocations.UpgradeIndexToLocation[index];
-            if (OS.DEBUG_COMMANDS) HacknetAPCore.Logger.LogDebug($"Sending PointClicker Upgrade Index {index}");
-
-            long locationID = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(HacknetAPCore.GameString,
-                locationName);
-            if(locationID == -1)
-            {
-                if(OS.DEBUG_COMMANDS)
-                {
-                    HacknetAPCore.Logger.LogWarning($"PointClicker Upgrade Index {index} not found in " +
-                        "multiworld. If you're not shuffling PointClicker, you can ignore this.");
-                }
-                return;
-            }
-
-            LocationManager.SendArchipelagoLocations(locationID);
+            return !PointClickerManager.BlockUpgrades;
         }
 
         internal static bool _needsRefresh = false;
