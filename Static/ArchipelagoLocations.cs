@@ -318,8 +318,8 @@ namespace HacknetArchipelago
             { "dhaAdminSecret", "Labyrinths -- Nate Wesson_STOR-DRIVE(tm)" },
             { "dhaComp1", "Labyrinths -- HA_Coagula" },
             
-            { "dAttackSource", "Labyrinths -- Striker Cache" },
-            { "dAttackTarget", "Labyrinths -- Striker Proxy" },
+            { "dAttackSource", "Labyrinths -- Striker Proxy" },
+            { "dAttackTarget", "Labyrinths -- Striker Cache" },
             { "dAttackHome", "Labyrinths -- Striker_Battlestation" },
             
             { "dPets_Home", "Labyrinths -- Neopals Homepage" },
