@@ -29,17 +29,16 @@ namespace HacknetArchipelago.Patches
 
         public static void PreventDownloadingUncollectedExecutables(CommandExecuteEvent cmdEvent)
         {
-            if (cmdEvent.Args[0] != "scp") return;
+            if (cmdEvent.Args.Length < 2 || cmdEvent.Args[0] != "scp") return;
             if (!cmdEvent.Args[1].EndsWith(".exe")) return;
 
             string executableName = cmdEvent.Args[1].Split('.')[0];
             bool hasExe = ArchipelagoItems.PlayerHasExecutable(executableName);
-            OS os = cmdEvent.Os;
 
             if(!hasExe && !excludedExes.Contains(cmdEvent.Args[1]))
             {
                 cmdEvent.Cancelled = true;
-                os.write("You can't download that -- you haven't unlocked it yet!");
+                cmdEvent.Os.write("You can't download that -- you haven't unlocked it yet!");
             }
         }
     }
