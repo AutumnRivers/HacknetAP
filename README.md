@@ -31,8 +31,9 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 * If you have RAM limits enabled, do not panic when the game starts with full RAM on a new savefile.
   * Without full RAM, the tutorial exe cannot launch, and the player becomes softlocked.
   * Once the tutorial is finished, the RAM limit will kick in.
-* Due to its size, the music for music rando is a separate download (`APMusic.zip`)
-  * If you want music rando, place this in the `/plugins` folder alongside `HacknetAPClient.dll`.
+* If you want music rando, you need to place an `APMusic` folder alongside the mod DLL in the `/plugins` folder.
+  * Inside this folder, you need to place at least 23 different music tracks that are of the `OGG Vorbis` file format.
+  * Make sure it is OGG Vorbis. OGG Opus and OGG Theora **will not work** and will crash the game.
  
 ---
 ## Troubleshooting
