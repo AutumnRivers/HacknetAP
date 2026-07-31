@@ -27,7 +27,7 @@ namespace HacknetArchipelago
 
             // /el
             { "gg wp", "Naix -- Deface Nortron Website" },
-            { "Hilarious", "Naix -- Nortron Security Mainframe" },
+            { "Hilarious", "Naix -- Nortron Security Mainframe (Mission)" },
             { "A Victory - Perhaps a turning point", "/el -- Prove Yourself" },
 
             // CSEC
@@ -217,6 +217,7 @@ namespace HacknetArchipelago
             { "playerComp", "Intro -- Player's PC" },
             { "archiIRC", "Intro -- Archipelago IRC" },
             { "portcrack01", "Intro -- Viper-Battlestation" },
+            { "portcrack01_eos", "Intro -- Tim's ePhone 4S" },
             { "viperScanEarlyGame", "Intro -- Entropy Asset Cache" },
             { "bitMission00", "Intro -- Bitwise Test PC" },
             { "bitMission01", "Intro -- P. Anderson's Bedroom PC" },
@@ -239,11 +240,13 @@ namespace HacknetArchipelago
             
             { "nortronWebServer", "Naix -- Nortron Security Web Server" },
             { "nortronInternalServices", "Naix -- Nortron Internal Services Server" },
-            { "nortronMainframe", "Naix -- Nortron Mainframe" },
+            { "nortronMainframe", "Naix -- Nortron Mainframe (Admin Access)" },
+            { "nortronMail", "Naix -- Nortron Mail" },
             
             { "lelzSecHub", "/el -- /el Message Board" },
             { "secuLockDrive", "/el -- COME AT ME /EL's Secure SecuLock Drive" },
             { "SecuLockHome", "/el -- Stormrider" },
+            { "SecuLockHome_eos", "/el -- Mica's ePhone 4S" },
             
             { "polarSnake", "/el -- Shrine of the Polar Star" },
             { "psTrial01", "/el -- Polar Star - Trial of Patience" },
@@ -295,6 +298,9 @@ namespace HacknetArchipelago
             { "miscMacrosoftStorage", "Bit -- Macrosoft Storage Server" },
             { "creditsComp", "Post-Game -- Credits Server" },
             
+            { "enPrometheus_eos1", "Bit -- ENTECH_TEST_01's ePhone 4S" },
+            { "enPrometheus_eos2", "Bit -- ENTECH_TEST_02's ePhone 4S" },
+            
             { "dKaguya1", "Kaguya Trials -- Kaguya Sprint Trial" },
             { "dcentralTest2", "Kaguya Trials -- Kaguya Push Trial" },
             { "dKaguyaTrialIntro", "Kaguya Trials -- Kaguya Source" }, // Kaguya Trials -- Kaguya Source
@@ -338,7 +344,9 @@ namespace HacknetArchipelago
             { "dpae_psy_2", "Labyrinths -- Vito McMichael's Laptop" },
             { "dpae_airline_misc", "Labyrinths -- Mark Robertson's Office Computer" },
             { "dpae_airline_mailLink", "Labyrinths -- Kim Burnaby's Office Computer" },
+            { "dpae_airline_mailLink_eos", "Labyrinths -- Kim's ePad XL" },
             { "dpae_airline_home", "Labyrinths -- Yasu Arai's eBook Touch" },
+            { "dpae_airline_tablet", "Labyrinths -- Yasu's ePad Plus" },
             { "dpa_bookings", "Labyrinths -- PacificAir_BookingsMainframe" },
             
             { "dpa2_start", "Labyrinths -- Pacific_ATC_RoutingHub" },

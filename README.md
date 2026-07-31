@@ -10,8 +10,8 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 ---
 ## Installation
 * Download and install [Hacknet: Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder)
-* Download the latest `HacknetAPClient.zip` release from the Releases page
-* Extract the ZIP file to `<Hacknet Install>/BepInEx/plugins`
+* Download the latest `HacknetAPClient.dll` release from the Releases page
+* Place it in your `<HacknetInstall>/BepInEx/plugins` folder. (It inclues the Archipelago library bundled in!)
 * Follow [How To Use](#how-to-use)
 ---
 ## Additional Details
@@ -34,6 +34,23 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 * Due to its size, the music for music rando is a separate download (`APMusic.zip`)
   * If you want music rando, place this in the `/plugins` folder alongside `HacknetAPClient.dll`.
  
+---
+## Troubleshooting
+* First, check [Pathfinder's common issues](https://github.com/Arkhist/Hacknet-Pathfinder#troubleshooting).
+
+### "Hacknet crashes with a complaint about XNAWebRenderer!"
+Run Hacknet with the `-disableweb` flag. This is an issue with Pathfinder, but it's most common on Linux.
+
+### "How do I enter special characters for my archi details?"
+You can't, sorry! This is a limitation with the custom textbox I made. 
+With the way FNA handles character input, also supporting non-English alphabets is far out of scope for me. 
+I apologize for the inconvenience.
+
+### "I found a bug! How do I report it?"
+Ideally, [make an issue](https://github.com/AutumnRivers/HacknetAP/issues).  
+However, if you're in the [Archipelago Discord](https://discord.gg/archipelago), you can also bring it up in the 
+`Hacknet` thread in the `future-game-design` forum channel. ([Direct Link](https://discord.com/channels/731205301247803413/1130229745452331120))
+
 ---
 ## Commands
 Please see [COMMANDS.md](./COMMANDS.md).

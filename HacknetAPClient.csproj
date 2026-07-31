@@ -54,4 +54,8 @@
     </Reference>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="ilrepack /lib:&quot;$(ProjectDir)lib/&quot; /out:&quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(TargetDir)Archipelago.MultiClient.Net.dll&quot; &amp;&amp; echo &quot;ILRepack finished, wahoo&quot;" />
+  </Target>
+
 </Project>
