@@ -27,8 +27,6 @@ namespace HacknetArchipelago.Replacements
 
         public static int textDrawOffsetPosition = 0;
 
-        public static int FramesSelected = 0;
-
         public static bool MaskingText = false;
 
         public static bool BoxWasActivated = false;
@@ -108,7 +106,6 @@ namespace HacknetArchipelago.Replacements
                 }
             }
 
-            FramesSelected++;
             tmpRect.X = x;
             tmpRect.Y = y;
             tmpRect.Width = width;
@@ -127,7 +124,7 @@ namespace HacknetArchipelago.Replacements
                 tmpRect.Y = y + 2;
                 tmpRect.Width = 1;
                 tmpRect.Height = LINE_HEIGHT - 4;
-                GuiData.spriteBatch.Draw(Utils.white, tmpRect, (FramesSelected % 60 < 40) ? Color.White : Color.Gray);
+                GuiData.spriteBatch.Draw(Utils.white, tmpRect, (DateTime.Now.Millisecond < 666) ? Color.White : Color.Gray);
             }
 
             return text;
