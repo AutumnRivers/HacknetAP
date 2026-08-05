@@ -51,15 +51,15 @@ public class ArchipelagoMissionListingDaemon : BaseDaemon
 
     public void AddMission(MissionListingEntry mission)
     {
-        if(mission.Mission.email.subject == "The Kaguya Trials" && os.Flags.HasFlag("dlc_complete")) return;
+        if(LocationManager.GetUnlocalizedMissionSubject(mission.Mission.reloadGoalsSourceFile) == "The Kaguya Trials" && os.Flags.HasFlag("dlc_complete")) return;
         
-        if(Missions.Any(m => m.Mission.email.subject == mission.Mission.email.subject)) return;
+        if(Missions.Any(m => LocationManager.GetUnlocalizedMissionSubject(m.Mission.reloadGoalsSourceFile) == LocationManager.GetUnlocalizedMissionSubject(mission.Mission.reloadGoalsSourceFile))) return;
         Missions.Add(mission);
     }
 
     public bool HasMissionWithSubject(string subject)
     {
-        return Missions.Any(m => m.Mission.email.subject == subject);
+        return Missions.Any(m => LocationManager.GetUnlocalizedMissionSubject(m.Mission.reloadGoalsSourceFile) == subject);
     }
 
     public void RefreshAllMissionStatuses()
@@ -385,7 +385,7 @@ public class MissionListingEntry
 
     public void RefreshCanBeClaimed()
     {
-        var subject = Mission.email.subject;
+        var subject = LocationManager.GetUnlocalizedMissionSubject(Mission.reloadGoalsSourceFile);
         var hasItemsRequired = ArchipelagoLocations.HasItemsForLocation(subject);
         if (!hasItemsRequired)
         {
