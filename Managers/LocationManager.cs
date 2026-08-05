@@ -8,6 +8,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.IO;
 
 namespace HacknetArchipelago.Managers
 {
@@ -101,6 +103,36 @@ namespace HacknetArchipelago.Managers
             if (OS.DEBUG_COMMANDS) Logger.LogDebug(notifBuilder.ToString());
 
             HacknetAPCore.SpeakAsSystem(notifBuilder.ToString());
+        }
+
+        public static string GetUnlocalizedMissionSubject(string filepath)
+        {
+            var xmlReader = XmlReader.Create(File.OpenRead(filepath));
+
+            while (xmlReader.Name != "mission")
+            {
+                xmlReader.Read();
+                if (xmlReader.EOF)
+                    return null;
+            }
+
+            while (xmlReader.Name != "email")
+            {
+                xmlReader.Read();
+                if (xmlReader.EOF)
+                    return null;
+            }
+
+            while (xmlReader.Name != "subject")
+            {
+                xmlReader.Read();
+                if (xmlReader.EOF)
+                    return null;
+            }
+
+            var subject = xmlReader.ReadElementContentAsString();
+            xmlReader.Close();
+            return subject;
         }
     }
 }
