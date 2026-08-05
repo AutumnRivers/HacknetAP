@@ -16,14 +16,14 @@ namespace HacknetArchipelago.Patches
     [HarmonyPatch]
     public class ArchipelagoMainMenu
     {
-        internal static string archiURI = "archipelago.gg";
-        internal static string archiPort = "38281";
+        internal static string archiURI = "archipelago.gg:38281";
         internal static string archiSlot = "";
         internal static string archiPassword = "";
 
         internal static bool isConnected = false;
         static bool hasError = false;
         static bool hasReadLoginFile = false;
+        internal static string errorMessage = "";
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MainMenu),nameof(MainMenu.DrawBackgroundAndTitle))]
@@ -114,7 +114,7 @@ namespace HacknetArchipelago.Patches
                 TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 475), "Successfully connected to Archipelago.", GuiData.smallfont, Color.Green);
             } else if (hasError)
             {
-                TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 475), "Failed to connect to Archipelago.", GuiData.smallfont, Color.Red);
+                TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 475), "Failed to connect to Archipelago." + errorMessage, GuiData.smallfont, Color.Red);
             } else
             {
                 TextItem.doFontLabel(new Vector2(screenManager.GraphicsDevice.Viewport.Width - rightOffset, 475), "Waiting to connect...", GuiData.smallfont, Color.Orange);
@@ -124,11 +124,13 @@ namespace HacknetArchipelago.Patches
             {
                 if(archiURI == "" || archiSlot == "")
                 {
-                    
+                    hasError = true;
+                    errorMessage = "";
+                    if(archiURI == "") errorMessage += "\n    Archipelago URI is empty";
+                    if(archiSlot == "") errorMessage += "\n    Archipelago Slot is empty";
                     HacknetAPCore.Logger.LogWarning("You left either the Archipelago URI or Archipelago Slot field empty, don't do that.");
                 } else
                 {
-                    //LoginResult archiLogin = HacknetAPCore.ConnectToArchipelago(archiURI, archiSlot, archiPassword);
                     LoginResult archiLogin = ArchipelagoManager.ConnectToArchipelago(archiURI, archiSlot, archiPassword);
 
                     if (archiLogin.Successful)
@@ -158,7 +160,8 @@ namespace HacknetArchipelago.Patches
                     {
                         LoginFailure failure = (LoginFailure)archiLogin;
 
-                        string errorMessage = $"Failed to connect to {archiURI}:{archiPort} as {archiSlot}:";
+                        string logErrorMessage = $"Failed to connect to {archiURI} as {archiSlot}:";
+                        errorMessage = "";
 
                         foreach (string error in failure.Errors)
                         {
@@ -169,7 +172,7 @@ namespace HacknetArchipelago.Patches
                             errorMessage += $"\n    {error}";
                         }
 
-                        HacknetAPCore.Logger.LogError(errorMessage);
+                        HacknetAPCore.Logger.LogError(logErrorMessage + errorMessage);
                         hasError = true;
                         isConnected = false;
                     }
