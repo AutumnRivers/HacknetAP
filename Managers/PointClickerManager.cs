@@ -16,6 +16,8 @@ namespace HacknetArchipelago.Managers
             }
         }
 
+        public static bool PointClickerShuffled { get; private set; } = true;
+
         private static PointClickerDaemon _ptcDaemon;
 
         private static float _storedPoints = 0;
@@ -53,8 +55,19 @@ namespace HacknetArchipelago.Managers
             { "PointClicker Passive*1000", 1000 }
         };
 
+        public static void CheckIfPointClickerShuffled()
+        {
+            const string testLoc = "PointClicker -- Click Me!";
+            var testLocId = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(
+                HacknetAPCore.GameString,
+                testLoc);
+            PointClickerShuffled = testLocId != -1;
+        }
+
         public static void RefreshPointClickerValues()
         {
+            if(!PointClickerShuffled) return;
+            
             var ptcItems = InventoryManager.CachedItemsReceived
                 .Where(i => i.ItemDisplayName.Contains("PointClicker"));
 
@@ -82,7 +95,7 @@ namespace HacknetArchipelago.Managers
             }
             _passivePoints = rate;
 
-            var rateMult = 0;
+            var rateMult = 1;
             foreach (var rateMultUp in rateMultUps)
             {
                 if(!RateMultItems.ContainsKey(rateMultUp.ItemDisplayName)) continue;

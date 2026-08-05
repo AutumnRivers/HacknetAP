@@ -8,7 +8,7 @@ namespace HacknetArchipelago.Patches
 {
     internal class CommandPatches
     {
-        private static readonly List<string> _destructiveCommands = ["rm", "scp", "replace", "upload", "del", "mv"];
+        private static readonly List<string> _destructiveCommands = ["scp", "replace", "upload", "mv"];
 
         public static void PreventModifyingPTCSaveData(CommandExecuteEvent cmdEvent)
         {

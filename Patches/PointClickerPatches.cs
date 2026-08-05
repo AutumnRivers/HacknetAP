@@ -13,6 +13,7 @@ namespace HacknetArchipelago.Patches
     {
         private static readonly List<int> _collectedIndices = [];
         private static bool _purchasedFinalUpgrade = false;
+        private static bool _hasReachedMaxScore = false;
         private static int _storedPassivePoints = 0;
 
         [HarmonyPrefix]
@@ -79,12 +80,16 @@ namespace HacknetArchipelago.Patches
         public static void SetNeedsRefresh()
         {
             _needsRefresh = true;
+            PointClickerManager.CheckIfPointClickerShuffled();
         }
+
+        private static bool _resetUpgradeCosts = false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PointClickerDaemon), "draw")]
         public static void UpdateWithStoredValues(PointClickerDaemon __instance)
         {
+            if(!PointClickerManager.PointClickerShuffled) return;
             if(__instance.state != PointClickerDaemon.PointClickerScreenState.Main || !_needsRefresh) return;
 
             _needsRefresh = false;
@@ -104,36 +109,33 @@ namespace HacknetArchipelago.Patches
                 return false;
             }
 
-            var testLoc = "PointClicker -- Click Me!";
-            var testLocId = HacknetAPCore.ArchipelagoSession.Locations.GetLocationIdFromName(
-                HacknetAPCore.GameString,
-                testLoc);
-            if (testLocId == -1)
-            {
-                return true;
-            }
+            if (!PointClickerManager.PointClickerShuffled) return true;
 
-            if (__instance.currentRate > 0.0 || __instance.currentRate < -1.0)
+            if (_hasReachedMaxScore)
             {
-                double pointsToAdd = __instance.currentRate * __instance.os.lastGameTime.ElapsedGameTime.TotalSeconds
+                __instance.activeState.points = (long)__instance.upgradeCosts.Last();
+            } else if (__instance.currentRate > 0.0 || __instance.currentRate < -1.0) {
+                var pointsToAdd = __instance.currentRate * __instance.os.lastGameTime.ElapsedGameTime.TotalSeconds
                     * PointClickerManager.RateMultiplier;
                 var newPoints = __instance.activeState.points + (int)pointsToAdd;
+                var blockProgression = false;
                 if(newPoints <= -1.0)
                 {
+                    if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1))
+                    {
+                        _canPurchaseFinalUpgrade = true;
+                        blockProgression = true;
+                        _hasReachedMaxScore = true;
+                    }
                     AchievementsManager.Unlock("pointclicker_expert", true);
                 }
-                __instance.activeState.points = newPoints;
-                // No, the (double) shouldn't be needed. Yes, it's in the original code.
-                __instance.pointOverflow += (float)(pointsToAdd - (double)(int)pointsToAdd);
-                if (__instance.pointOverflow > 1f)
+
+                if (!blockProgression)
                 {
-                    if (!_collectedIndices.Contains(__instance.upgradeCosts.Count - 1) &&
-                        _collectedIndices.Contains(__instance.upgradeCosts.Count - 2))
-                    {
-                        __instance.activeState.points = (long)__instance.upgradeCosts.Last();
-                        _canPurchaseFinalUpgrade = true;
-                    }
-                    else
+                    __instance.activeState.points = newPoints;
+                    // No, the (double) shouldn't be needed. Yes, it's in the original code.
+                    __instance.pointOverflow += (float)(pointsToAdd - (double)(int)pointsToAdd);
+                    if (__instance.pointOverflow > 1f)
                     {
                         var overflow = (int)__instance.pointOverflow;
                         __instance.activeState.points += overflow;
