@@ -1,4 +1,5 @@
 ﻿using Hacknet;
+using HacknetArchipelago.Daemons;
 using HarmonyLib;
 using HacknetArchipelago.Managers;
 
@@ -19,9 +20,10 @@ namespace HacknetArchipelago.Patches.Goals
             OS os = OS.currentInstance;
 
             var entropyComp = ComputerLookup.FindById(ENTROPY_ID);
-            var entropy = (MissionListingServer)entropyComp.getDaemon(typeof(MissionListingServer));
+            var entropy =
+                (ArchipelagoMissionListingDaemon)entropyComp.getDaemon(typeof(ArchipelagoMissionListingDaemon));
 
-            int remainingEntropyMissions = entropy.missions.Count;
+            int remainingEntropyMissions = entropy.Missions.Count;
             if(remainingEntropyMissions <= 0)
             {
                 ArchipelagoManager.EventManager.IsEntropyVIP = true;
@@ -29,9 +31,9 @@ namespace HacknetArchipelago.Patches.Goals
             }
 
             var csecComp = ComputerLookup.FindById(CSEC_ID);
-            var csec = (MissionHubServer)csecComp.getDaemon(typeof(MissionHubServer));
+            var csec = (ArchipelagoMissionListingDaemon)csecComp.getDaemon(typeof(ArchipelagoMissionListingDaemon));
 
-            int remainingCsecMissions = csec.GetNumberOfAvaliableMissions();
+            int remainingCsecMissions = csec.Missions.Count;
             if(remainingCsecMissions <= 0)
             {
                 ArchipelagoManager.EventManager.IsCSECVIP = true;

@@ -12,6 +12,8 @@ using BepInEx;
 using System.Linq;
 using HacknetArchipelago.Managers;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 using HacknetArchipelago.Daemons;
 
 namespace HacknetArchipelago.Patches
@@ -38,9 +40,39 @@ namespace HacknetArchipelago.Patches
                 SendOutLocationFromMission(mission);
             }
 
-            internal static void SendOutLocationFromMission(ActiveMission mission)
+            private static string GetUnlocalizedMissionSubject(string filepath)
             {
-                string missionName = mission.email.subject;
+                var xmlReader = XmlReader.Create(File.OpenRead(filepath));
+                
+                while (xmlReader.Name != "mission")
+                {
+                    xmlReader.Read();
+                    if (xmlReader.EOF)
+                        return null;
+                }
+
+                while (xmlReader.Name != "email")
+                {
+                    xmlReader.Read();
+                    if (xmlReader.EOF)
+                        return null;
+                }
+
+                while (xmlReader.Name != "subject")
+                {
+                    xmlReader.Read();
+                    if (xmlReader.EOF)
+                        return null;
+                }
+
+                var subject = xmlReader.ReadElementContentAsString();
+                xmlReader.Close();
+                return subject;
+            }
+            
+            private static void SendOutLocationFromMission(ActiveMission mission)
+            {
+                var missionName = GetUnlocalizedMissionSubject(mission.reloadGoalsSourceFile);
                 var locations = ArchipelagoLocations.MissionToLocation;
 
                 if (locations.TryGetValue(missionName, out string archiLocation))
@@ -129,8 +161,21 @@ namespace HacknetArchipelago.Patches
                 __instance.admin = new BasicAdministrator();
             }
 
-            public const int ENTROPY_EOS_VALUE = 3;
-            public const string ENTROPY_EOS_FLAG = "eosPathStarted";
+            public const string CCC_HS_COMP_ID = "honeypot01";
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(Computer), "connect")]
+            public static void ChangeHacksquadSecurity(Computer __instance, string ipFrom)
+            {
+                if(!HacknetAPCore.SlotData.ShuffleAdminAccess) return;
+                
+                if(__instance.idName != CCC_HS_COMP_ID) return;
+                if (ipFrom != OS.currentInstance.thisComputer.ip) return;
+
+                __instance.traceTime = 90.0f;
+                __instance.admin = new FastBasicAdministrator();
+            }
+            
             public const string ENTROPY_EOS_MISSION_PATH = "Content/Missions/Entropy/StartingSet/eosMissions/eosIntroDelayer.xml";
             public const string ENTROPY_NAIX_MISSION_PATH = "Content/Missions/Entropy/ThemeHackTransitionMission.xml";
 
@@ -150,7 +195,6 @@ namespace HacknetArchipelago.Patches
                 if(isEligibleForEosMission)
                 {
                     actuallyAddValue();
-                    // OS.currentInstance.Flags.AddFlag(ENTROPY_EOS_FLAG);
                     loadMissionIntoEntropy(ENTROPY_EOS_MISSION_PATH);
                     return false;
                 } else if(isEligibleForNaix)
@@ -246,12 +290,11 @@ namespace HacknetArchipelago.Patches
             public static void AddPostingContentToSerializedMissions(string data, ref object __result)
             {
                 string[] separator = ["  #%#\n"];
-                string[] array = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                ActiveMission mission = (ActiveMission)__result;
+                var array = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                var mission = (ActiveMission)__result;
 
-                for(int i = 0; i < array.Length; i++)
+                foreach (var elem in array)
                 {
-                    string elem = array[i];
                     if(elem.StartsWith("Title"))
                     {
                         mission.postingTitle = MissionSerializer.getDataFromConfigLine(elem);
@@ -261,7 +304,7 @@ namespace HacknetArchipelago.Patches
                     }
                 }
 
-                __result = (object)mission;
+                __result = mission;
             }
         }
     }

@@ -34,9 +34,7 @@ public class AdminAccessPatches
             }
 
             var os = OS.currentInstance;
-            var compIdx = os.netMap.nodes.IndexOf(node);
-            if(os.netMap.visibleNodes.Contains(compIdx)) continue;
-            os.netMap.visibleNodes.Add(compIdx);
+            os.netMap.discoverNode(node);
         }
     }
 

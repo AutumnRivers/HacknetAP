@@ -38,7 +38,7 @@ namespace HacknetArchipelago
     {
         public const string ModGUID = "autumnrivers.archipelago";
         public const string ModName = "Hacknet Archipelago Client";
-        public const string ModVer = "1.0.0";
+        public const string ModVer = "1.0.1";
         public const string TARGET_APWORLD = "1.0.0";
 
         public const string GameString = "Hacknet";
