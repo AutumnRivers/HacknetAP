@@ -12,9 +12,8 @@ using BepInEx;
 using System.Linq;
 using HacknetArchipelago.Managers;
 using System.Collections.Generic;
-using System.IO;
-using System.Xml;
 using HacknetArchipelago.Daemons;
+using HacknetArchipelago.Managers;
 
 namespace HacknetArchipelago.Patches
 {
@@ -39,40 +38,10 @@ namespace HacknetArchipelago.Patches
 
                 SendOutLocationFromMission(mission);
             }
-
-            private static string GetUnlocalizedMissionSubject(string filepath)
-            {
-                var xmlReader = XmlReader.Create(File.OpenRead(filepath));
-                
-                while (xmlReader.Name != "mission")
-                {
-                    xmlReader.Read();
-                    if (xmlReader.EOF)
-                        return null;
-                }
-
-                while (xmlReader.Name != "email")
-                {
-                    xmlReader.Read();
-                    if (xmlReader.EOF)
-                        return null;
-                }
-
-                while (xmlReader.Name != "subject")
-                {
-                    xmlReader.Read();
-                    if (xmlReader.EOF)
-                        return null;
-                }
-
-                var subject = xmlReader.ReadElementContentAsString();
-                xmlReader.Close();
-                return subject;
-            }
             
             private static void SendOutLocationFromMission(ActiveMission mission)
             {
-                var missionName = GetUnlocalizedMissionSubject(mission.reloadGoalsSourceFile);
+                var missionName = LocationManager.GetUnlocalizedMissionSubject(mission.reloadGoalsSourceFile);
                 var locations = ArchipelagoLocations.MissionToLocation;
 
                 if (locations.TryGetValue(missionName, out string archiLocation))
@@ -213,7 +182,7 @@ namespace HacknetArchipelago.Patches
                     Computer entropyComp = ComputerLookup.FindById("entropy00");
                     var entropyListing = (ArchipelagoMissionListingDaemon)
                         entropyComp.getDaemon(typeof(ArchipelagoMissionListingDaemon));
-                    if(entropyListing.HasMissionWithSubject(missionToLoad.email.subject)) return;
+                    if(entropyListing.HasMissionWithSubject(LocationManager.GetUnlocalizedMissionSubject(missionToLoad.reloadGoalsSourceFile))) return;
                     if(missionToLoad.postingTitle.IsNullOrWhiteSpace())
                     {
                         missionToLoad.postingBody = "\n--- PROGRESSION MISSION ---\n" +
