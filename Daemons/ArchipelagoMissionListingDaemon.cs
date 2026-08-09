@@ -414,12 +414,15 @@ public class MissionListingEntry
             }
         }
 
-        var dhs = (DLCHubServer)ComputerLookup.FindById("dhs").getDaemon(typeof(DLCHubServer));
-        if (dhs.ActiveMissions.Count != 0)
+        if(DLC1SessionUpgrader.HasDLC1Installed)
         {
-            DenialReason = "You cannot take on base game contracts while in Labyrinths!";
-            CanBeClaimed = false;
-            return;
+            var dhs = (DLCHubServer)ComputerLookup.FindById("dhs").getDaemon(typeof(DLCHubServer));
+            if (dhs.ActiveMissions.Count != 0)
+            {
+                DenialReason = "You cannot take on base game contracts while in Labyrinths!";
+                CanBeClaimed = false;
+                return;
+            }
         }
 
         if (!ArchipelagoLocations.MissionToLocation.ContainsKey(subject))
