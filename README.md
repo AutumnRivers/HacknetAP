@@ -1,5 +1,5 @@
 # Hacknet: Archipelago
-An [Archipelago](https://archipelago.gg/) client mod for Hacknet
+An [Archipelago](https://archipelago.gg/) client mod for Hacknet ([Steam](https://store.steampowered.com/app/365450/Hacknet/), [GOG](https://www.gog.com/en/game/hacknet))
 ---
 Hi, my name is Bit, and if you're reading this, I'm already dead.
 
@@ -10,7 +10,7 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 ---
 ## Installation
 * Download and install [Hacknet: Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder)
-* Download the latest `HacknetAPClient.dll` release from the Releases page
+* Download the latest `HacknetAPClient.dll` release from the [Releases page](https://github.com/AutumnRivers/HacknetAP/releases/latest/)
 * Place it in your `<HacknetInstall>/BepInEx/plugins` folder. (It inclues the Archipelago library bundled in!)
 * Follow [How To Use](#how-to-use)
 ---
@@ -41,11 +41,6 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 
 ### "Hacknet crashes with a complaint about XNAWebRenderer!"
 Run Hacknet with the `-disableweb` flag. This is an issue with Pathfinder, but it's most common on Linux.
-
-### "How do I enter special characters for my archi details?"
-You can't, sorry! This is a limitation with the custom textbox I made. 
-With the way FNA handles character input, also supporting non-English alphabets is far out of scope for me. 
-I apologize for the inconvenience.
 
 ### "I found a bug! How do I report it?"
 Ideally, [make an issue](https://github.com/AutumnRivers/HacknetAP/issues).  
