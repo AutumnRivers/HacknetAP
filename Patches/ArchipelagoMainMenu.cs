@@ -31,27 +31,29 @@ namespace HacknetArchipelago.Patches
         {
             if (File.Exists("./archipelago.txt") && !hasReadLoginFile)
             {
-                hasReadLoginFile = true;
-
                 string[] archiDetails = File.ReadAllLines("./archipelago.txt");
-                var conDetails = new Tuple<string,string,string>(archiDetails[0], archiDetails[1], archiDetails[2]);
-                HacknetAPCore.CachedConnectionDetails = conDetails;
-
-                for(int x = 0; x < archiDetails.Length; x++)
+                if (archiDetails.Length == 3)
                 {
-                    switch(x)
+                    hasReadLoginFile = true;
+                    var conDetails = new Tuple<string,string,string>(archiDetails[0], archiDetails[1], archiDetails[2]);
+                    HacknetAPCore.CachedConnectionDetails = conDetails;
+
+                    for(int x = 0; x < archiDetails.Length; x++)
                     {
-                        case 0:
-                            archiURI = archiDetails[x];
-                            break;
-                        case 1:
-                            archiSlot = archiDetails[x];
-                            break;
-                        case 2:
-                            archiPassword = archiDetails[x];
-                            break;
-                        default:
-                            continue;
+                        switch(x)
+                        {
+                            case 0:
+                                archiURI = archiDetails[x];
+                                break;
+                            case 1:
+                                archiSlot = archiDetails[x];
+                                break;
+                            case 2:
+                                archiPassword = archiDetails[x];
+                                break;
+                            default:
+                                continue;
+                        }
                     }
                 }
             }
