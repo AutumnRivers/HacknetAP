@@ -3,6 +3,7 @@
 * [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
     * Technically, any .NET version that supports [.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0) will work.
 * A legal copy of Hacknet on [Steam](https://store.steampowered.com/app/365450/Hacknet/) or [GOG](https://www.gog.com/en/game/hacknet_complete_edition)
+* [il-repack](https://github.com/gluck/il-repack) `dotnet tool install -g dotnet-ilrepack`
 
 ---
 ## Linux Notes
@@ -41,4 +42,4 @@ If you are on GOG:
     * `PathfinderAPI.dll`
 ---
 ## Compiling
-Simply run `dotnet build`. The mod DLL will be found in `HacknetAP-main/bin/Debug/netstandard2.0/HacknetAP.dll`.
+Simply run `dotnet build`. The mod DLL will be found in `bin/Debug/netstandard2.0/HacknetAP.dll`.
