@@ -68,11 +68,7 @@ namespace HacknetArchipelago.Managers
         {
             get
             {
-                List<string> items = new();
-                foreach(var itemsCollection in allCollectedItems.Values)
-                {
-                    items.AddRange(itemsCollection);
-                }
+                List<string> items = allCollectedItems.Keys.ToList();
                 return items;
             }
         }
