@@ -326,10 +326,10 @@ namespace HacknetArchipelago.Managers
                 HacknetAPCore.SpeakAsSystem($"Received {itemInfo.ItemDisplayName}!");
             }
 
-            if ((_junkItems.Contains(itemName) || PlayerHasItem(itemName) || _eventNames.Contains(itemName)) &&
+            if ((_junkItems.Contains(itemName) || _eventNames.Contains(itemName)) &&
                 !allowDuplicates)
             {
-                if (OS.DEBUG_COMMANDS && PlayerHasItem(itemName))
+                if (OS.DEBUG_COMMANDS)
                 {
                     Logger.LogDebug($"Not notifying user of item {itemName} - user already has item");
                 }
@@ -445,6 +445,9 @@ namespace HacknetArchipelago.Managers
 
         private static void HandleTrap(string itemSentBy, int itemID)
         {
+            // Ignore traps on load. Setting off forkbombs and etas on load makes the game impossible.
+            Logger.LogDebug($"Handling trap {itemID} sent by {itemSentBy}. Ignoring because of initialized: {!InventoryManager.initialized}");
+            if (!InventoryManager.initialized) return;
             switch (itemID)
             {
                 case 666: // ETAS Trap
