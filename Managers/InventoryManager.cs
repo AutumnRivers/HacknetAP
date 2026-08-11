@@ -22,7 +22,7 @@ namespace HacknetArchipelago.Managers
         internal static Dictionary<string, string> _localInventory = [];
         internal static Dictionary<string, List<string>> allCollectedItems = [];
 
-        private static bool _initialized = false;
+        public static bool initialized = false;
 
         public static ReadOnlyCollection<ItemInfo> AllItemsReceived =>
             ArchipelagoManager.Session.Items.AllItemsReceived;
@@ -134,7 +134,7 @@ namespace HacknetArchipelago.Managers
 
         internal static bool PlayerAlreadyCollectedItem(ItemInfo itemInfo)
         {
-            if (_initialized && itemInfo.Player.Name == "Server") return false; // Always collect server items after loading savedata
+            if (initialized && itemInfo.Player.Name == "Server") return false; // Always collect server items after loading savedata
             bool keyExists = allCollectedItems.ContainsKey(itemInfo.ItemDisplayName);
             if (OS.DEBUG_COMMANDS)
             {
@@ -152,15 +152,6 @@ namespace HacknetArchipelago.Managers
             if (!keyExists) return false;
             return allCollectedItems[itemInfo.ItemDisplayName].Contains(
                 itemInfo.Player.Name + itemInfo.LocationId);
-        }
-
-        internal static bool PlayerHasItem(string itemName)
-        {
-            if (itemName.IsNullOrWhiteSpace())
-            {
-                return false;
-            }
-            return AllCollectedItemsNoPlayers.Contains(itemName);
         }
 
         internal static int GetUniqueInstancesOfItem(string itemName)
@@ -253,7 +244,7 @@ namespace HacknetArchipelago.Managers
                 _localInventory.Add(exe.ItemDisplayName, exe.Player.Name);
             }
 
-            _initialized = true;
+            initialized = true;
         }
     }
 }
