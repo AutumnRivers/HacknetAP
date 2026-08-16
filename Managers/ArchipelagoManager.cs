@@ -350,7 +350,7 @@ namespace HacknetArchipelago.Managers
 
             try
             {
-                if(!allowDuplicates)
+                if(!allowDuplicates && ArchipelagoIRCDaemon.GlobalInstance != null)
                 {
                     ArchipelagoItemIRCEntry itemIRCEntry = new(itemInfo.Player.Name, PlayerName,
                         itemInfo.ItemDisplayName, itemInfo.LocationDisplayName, itemInfo.Flags);
