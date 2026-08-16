@@ -227,6 +227,7 @@ namespace HacknetArchipelago.Managers
             }
 
             GetLocalInventoryFromServerInventory();
+            initialized = true;
         }
 
         private static void GetLocalInventoryFromServerInventory()
@@ -243,8 +244,6 @@ namespace HacknetArchipelago.Managers
                 if (_localInventory.ContainsKey(exe.ItemDisplayName)) continue;
                 _localInventory.Add(exe.ItemDisplayName, exe.Player.Name);
             }
-
-            initialized = true;
         }
     }
 }
