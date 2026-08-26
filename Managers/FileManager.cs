@@ -11,10 +11,11 @@ namespace HacknetArchipelago.Managers;
 public static class FileManager
 {
     public const string MUSIC_DIRECTORY_NAME = "/APMusic";
-    public const int RANDOM_MUSIC_AMOUNT = 23;
     public static List<string> RandomMusicTracks { get; set; } = [];
+    public static List<string> AllTracks { get; set; } = [];
+    private static List<string> HacknetBuiltinTracks { get; set; } = [];
 
-    public static List<string> HacknetTracks { get; } =
+    public static List<string> HacknetBaseTracks { get; } =
     [
         "Music\\Bit(Ending)",
         "Music\\Broken_Boy",
@@ -29,7 +30,11 @@ public static class FileManager
         "Music\\The_Quickening",
         "Music\\TheAlgorithm",
         "Music\\Traced",
-        "Music\\Revolve",
+        "Music\\Revolve"
+    ];
+
+    public static List<string> HacknetDLCTracks { get; } =
+    [
         "DLC\\Music\\DreamHead",
         "DLC\\Music\\HOME_Resonance",
         "DLC\\Music\\Remi_Finale",
@@ -45,55 +50,45 @@ public static class FileManager
 
     internal static void InitRandomMusic(int seed)
     {
+        HacknetBuiltinTracks.AddRange(HacknetBaseTracks);
+        AllTracks.AddRange(HacknetBaseTracks);
+        if (DLC1SessionUpgrader.HasDLC1Installed)
+        {
+            HacknetBuiltinTracks.AddRange(HacknetDLCTracks);
+            AllTracks.AddRange(HacknetDLCTracks);
+        }
+
         _random = new Random(seed);
         
         var pluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         if (!Directory.Exists(pluginDirectory + MUSIC_DIRECTORY_NAME))
         {
-            HacknetAPCore.Logger.LogError("Unable to load random music tracks - folder doesn't exist!");
+            HacknetAPCore.Logger.LogWarning("Unable to load random music tracks - folder doesn't exist!");
             return;
         }
 
         var musicDirectory = new DirectoryInfo(pluginDirectory + MUSIC_DIRECTORY_NAME);
         var files = musicDirectory.GetFiles().Where(f => f.Name.EndsWith(".ogg")).ToList();
 
-        var allTracks = files.Select(f => f.Name).ToList();
-        allTracks.AddRange(HacknetTracks);
+        AllTracks.AddRange(files.Select(f => pluginDirectory + MUSIC_DIRECTORY_NAME + "/" + f.Name).ToList());
 
-        for (var idx = 0; idx < RANDOM_MUSIC_AMOUNT; idx++)
-        {
-            var listIndex = _random.Next(0, allTracks.Count);
-            var trackPath = allTracks[listIndex];
-
-            if (RandomMusicTracks.Contains(trackPath))
-            {
-                idx--;
-                continue;
-            }
-
-            if (trackPath.EndsWith(".ogg"))
-            {
-                trackPath = "../BepInEx/plugins/APMusic/" + trackPath;
-            }
-            
-            RandomMusicTracks.Add(trackPath);
-        }
+        RandomMusicTracks = AllTracks.OrderBy(_ => _random.Next()).ToList();
     }
 
     public static bool GetRandomTrackForBuiltInTrack(string songName, out string newSong)
     {
         newSong = string.Empty;
         
-        var songExists = HacknetTracks.Contains(songName);
+        var songExists = HacknetBuiltinTracks.Contains(songName);
         if (!songExists)
         {
-            HacknetAPCore.Logger.LogWarning($"Couldn't randomize track {songName} - " +
+            HacknetAPCore.Logger.LogError($"Couldn't randomize track {songName} - " +
                                             "is it not a built-in track?!");
             return false;
         }
 
-        var songIndex = HacknetTracks.IndexOf(songName);
+        var songIndex = HacknetBuiltinTracks.IndexOf(songName);
         newSong = RandomMusicTracks[songIndex];
 
         return true;
