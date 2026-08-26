@@ -34,17 +34,14 @@ public class MusicPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(MusicManager), "playSong")]
-    // Would you believe me if I told you we only need this for when the game uses it ONCE
-    public static void InterceptAndRandomizeIntroSong()
+    [HarmonyPatch(typeof(MusicManager), "loadAsCurrentSong")]
+    public static void InterceptAndRandomizeLoadedSong(ref string songname)
     {
         if(!HacknetAPCore.EnableMusicRando) return;
 
-        var songName = "Music\\" + MusicManager.curentSong.Name;
-        
-        if (FileManager.GetRandomTrackForBuiltInTrack(songName, out var newSong))
+        if (FileManager.GetRandomTrackForBuiltInTrack(songname, out var newSong))
         {
-            MusicManager.loadAsCurrentSong(newSong);
+            songname = newSong;
         }
     }
 }
