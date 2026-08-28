@@ -20,7 +20,10 @@ namespace HacknetArchipelago.Patches.Missions
             
             ArchipelagoMissionListingDaemon newDaemon = new(__instance, "AP Mission Listing",
                 __instance.os);
-            newDaemon.MissionSourceFolderPath = "Content/Missions/Entropy/StartingSet/";
+            if(__instance.idName == ENTROPY_COMP_ID)
+            {
+                newDaemon.MissionSourceFolderPath = "Content/Missions/Entropy/StartingSet/";
+            }
             __instance.daemons.Add(newDaemon);
 
             // removes duplicates
