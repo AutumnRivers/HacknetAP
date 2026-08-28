@@ -229,30 +229,6 @@ namespace HacknetArchipelago.Patches
                 return false;
             }
 
-            public static readonly List<string> AlwaysShowMissions = [
-                "#PROGRESSION# - eOS Device Scanning",
-                "#PROGRESSION# - Aggression must be Punished",
-                "Smash N' Grab",
-                "eOS Device Scanning",
-                "Aggression must be Punished"
-                ];
-
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(MissionListingServer), "hasListingFile")]
-            /*
-             * Entropy has this really weird bug where it clears Archipelago missions
-             * (and also smash n' grab for some reason????????)
-             * when loading save files. This basically tells Entropy,
-             * "hey, pal! please load these. no i dont care if they dont have a file or not"
-             */
-            public static bool AlwaysShowArchipelagoMissions(string name, ref bool __result)
-            {
-                if (!AlwaysShowMissions.Contains(name)) return true;
-
-                __result = true;
-                return false;
-            }
-
             [HarmonyPostfix]
             [HarmonyPatch(typeof(MissionSerializer), "restoreMissionFromFile",
                 [typeof(string), typeof(int), typeof(string)], [ArgumentType.Normal, ArgumentType.Out, ArgumentType.Out])]
