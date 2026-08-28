@@ -34,6 +34,7 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 * If you want music rando, you need to place an `APMusic` folder alongside the mod DLL in the `/plugins` folder.
   * Inside this folder, you need to place at least 23 different music tracks that are of the `OGG Vorbis` file format.
   * Make sure it is OGG Vorbis. OGG Opus and OGG Theora **will not work** and will crash the game.
+* Stuck in a mission? Reply with "abandon" or "quit" to pause the mission while you pick up another.
  
 ---
 ## Troubleshooting
