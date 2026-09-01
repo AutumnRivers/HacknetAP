@@ -237,6 +237,7 @@ namespace HacknetArchipelago
             { "naixGateway", "Entropy -- Naix Root Gateway" },
             { "themeHackComp", "Entropy -- Proxy_Node-X22" },
             { "themeHackTransComp", "Entropy -- Proxy_Node-X04" },
+            { "miscMacrosoftStorage", "Entropy -- Macrosoft Storage Server" },
             
             { "nortronWebServer", "Naix -- Nortron Security Web Server" },
             { "nortronInternalServices", "Naix -- Nortron Internal Services Server" },
@@ -295,7 +296,6 @@ namespace HacknetArchipelago
             { "EnWS04", "Bit -- EnTech Workstation _008" },
             { "EnTechMainframe", "Bit -- EnTech_Zeus" },
             { "EnTechOfflineBackup", "Bit -- EnTech_Offline_Cycling_Backup" },
-            { "miscMacrosoftStorage", "Bit -- Macrosoft Storage Server" },
             { "creditsComp", "Post-Game -- Credits Server" },
             
             { "enPrometheus_eos1", "Bit -- ENTECH_TEST_01's ePhone 4S" },
