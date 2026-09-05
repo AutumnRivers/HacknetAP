@@ -11,7 +11,12 @@ Work smart, work hard, and work in unison to find me and avenge my death. Doing 
 ## Installation
 * Download and install [Hacknet: Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder)
 * Download the latest `HacknetAPClient.dll` release from the [Releases page](https://github.com/AutumnRivers/HacknetAP/releases/latest/)
-* Place it in your `<HacknetInstall>/BepInEx/plugins` folder. (It inclues the Archipelago library bundled in!)
+* Place it in your `Hacknet/BepInEx/plugins` folder.
+* <details>
+  <summary>On Windows: Unblock the DLL (expand for screenshots)</summary>
+    <img width="1114" height="630" alt="Windows File Explorer with HacknetAPClient.dll selected and the Properties button marked in red" src="https://github.com/user-attachments/assets/de2ac152-e0a3-4cc2-a792-43a51da0d995" />
+    <img width="1114" height="630" alt="HacknetAPClient.dll Properties menu with the Unblock checkbox checked and marked in red" src="https://github.com/user-attachments/assets/325029b3-fe0c-4658-9f49-3097d44475c8" />
+  </details>
 * Follow [How To Use](#how-to-use)
 ---
 ## Additional Details
